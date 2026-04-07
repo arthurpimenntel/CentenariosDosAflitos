@@ -21,6 +21,11 @@ export const metadata: Metadata = {
   description:
     'A Barra Brava oficial do Clube Náutico Capibaribe. Fundada em 2012 com a filosofia de apoio incondicional, do início ao fim.',
   keywords: ['Náutico', 'Centenários', 'Barra Brava', 'Torcida Organizada', 'Pernambuco'],
+  icons: {
+    icon: '/favicon.ico',
+    shortcut: '/favicon.png',
+    apple: '/apple-touch-icon.png',
+  },
   openGraph: {
     title: 'Os Centenários dos Aflitos',
     description: 'Apoio incondicional ao Náutico, do início ao fim.',
