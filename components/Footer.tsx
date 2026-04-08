@@ -6,34 +6,34 @@ import Image from 'next/image'
 export default function Footer() {
   return (
     <footer
-      className="w-full py-16 px-4 md:px-12"
+      className="w-full pt-10 px-4 md:px-12 pb-0"
       style={{
         background: '#ED1C24',
       }}
     >
       <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
 
           {/* Brand */}
           <div className="md:col-span-2">
-            <div className="flex items-center gap-3 mb-4">
-              <Image src="/EscudoOficial.png" alt="Escudo Os Centenários dos Aflitos" width={52} height={52} className="object-contain" />
+            <div className="flex items-center gap-2.5 mb-3">
+              <Image src="/EscudoOficial.png" alt="Escudo Os Centenários dos Aflitos" width={40} height={40} className="object-contain" />
               <div>
-                <p className="font-ultras font-bold text-base tracking-widest uppercase" style={{ color: '#FFFFFF' }}>
+                <p className="font-ultras font-bold text-sm tracking-widest uppercase" style={{ color: '#FFFFFF' }}>
                   OS CENTENÁRIOS
                 </p>
-                <p className="font-ultras text-xs tracking-[0.3em] uppercase" style={{ color: 'rgba(255,255,255,0.6)' }}>
+                <p className="font-ultras text-[10px] tracking-[0.3em] uppercase" style={{ color: 'rgba(255,255,255,0.6)' }}>
                   DOS AFLITOS
                 </p>
               </div>
             </div>
-            <p className="font-body text-sm leading-relaxed max-w-xs" style={{ color: 'rgba(255,255,255,0.7)' }}>
+            <p className="font-body text-xs leading-relaxed max-w-xs" style={{ color: 'rgba(255,255,255,0.7)' }}>
               A Barra Brava oficial do Clube Náutico Capibaribe. Apoio incondicional,
               do início ao fim. Desde 2012.
             </p>
 
             {/* Social icons */}
-            <div className="flex gap-3 mt-6">
+            <div className="flex gap-2.5 mt-4">
               {[
                 {
                   href: 'https://instagram.com', label: 'Instagram',
@@ -53,7 +53,7 @@ export default function Footer() {
                   href={s.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-10 h-10 flex items-center justify-center transition-all duration-200 hover:scale-110"
+                  className="w-8 h-8 flex items-center justify-center transition-all duration-200 hover:scale-110"
                   style={{
                     border: '1px solid rgba(255,255,255,0.25)',
                     color: 'rgba(255,255,255,0.6)',
@@ -71,7 +71,7 @@ export default function Footer() {
                   }}
                   aria-label={s.label}
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 24 24">
                     <path d={s.path} />
                   </svg>
                 </a>
@@ -80,8 +80,8 @@ export default function Footer() {
           </div>
 
           <div>
-            <h3 className="font-ultras text-xs tracking-widest uppercase mb-4" style={{ color: 'rgba(255,255,255,0.5)' }}>Navegação</h3>
-            <ul className="space-y-2">
+            <h3 className="font-ultras text-[10px] tracking-widest uppercase mb-3" style={{ color: 'rgba(255,255,255,0.5)' }}>Navegação</h3>
+            <ul className="space-y-1.5">
               {[
                 { label: 'Início', href: '/' },
                 { label: 'Quem Somos', href: '/quem-somos' },
@@ -91,7 +91,7 @@ export default function Footer() {
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="font-body text-sm transition-colors duration-200"
+                    className="font-body text-xs transition-colors duration-200"
                     style={{ color: 'rgba(255,255,255,0.65)' }}
                     onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#FFFFFF' }}
                     onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.65)' }}
@@ -104,8 +104,8 @@ export default function Footer() {
           </div>
 
           <div>
-            <h3 className="font-ultras text-xs tracking-widest uppercase mb-4" style={{ color: 'rgba(255,255,255,0.5)' }}>Torcedor</h3>
-            <ul className="space-y-2">
+            <h3 className="font-ultras text-[10px] tracking-widest uppercase mb-3" style={{ color: 'rgba(255,255,255,0.5)' }}>Torcedor</h3>
+            <ul className="space-y-1.5">
               {[
                 { label: 'Loja', href: '/loja' },
                 { label: 'Cadastro de Sócio', href: '/cadastro' },
@@ -114,7 +114,7 @@ export default function Footer() {
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="font-body text-sm transition-colors duration-200"
+                    className="font-body text-xs transition-colors duration-200"
                     style={{ color: 'rgba(255,255,255,0.65)' }}
                     onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#FFFFFF' }}
                     onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.65)' }}
@@ -129,30 +129,21 @@ export default function Footer() {
         </div>
 
         {/* Bottom bar */}
-        <div className="pt-6" style={{ borderTop: '1px solid rgba(255,255,255,0.15)' }}>
-          <div className="flex flex-col items-center gap-1 md:hidden">
-            <p className="font-body text-xs text-center" style={{ color: 'rgba(255,255,255,0.5)' }}>
-              © {new Date().getFullYear()} Os Centenários dos Aflitos. Todos os direitos reservados.
-            </p>
-            <p className="font-body text-xs tracking-widest uppercase flex items-center gap-2" style={{ color: 'rgba(255,255,255,0.4)' }}>
-              <span className="w-4 h-px" style={{ background: 'rgba(255,255,255,0.2)' }} />
-              Developed by <span style={{ color: 'rgba(255,255,255,0.75)', fontWeight: 600 }}>Arthur Falcão</span>
-              <span className="w-4 h-px" style={{ background: 'rgba(255,255,255,0.2)' }} />
-            </p>
-          </div>
-          <div className="hidden md:grid md:grid-cols-3 items-center">
-            <p className="font-body text-xs text-left" style={{ color: 'rgba(255,255,255,0.5)' }}>
-              © {new Date().getFullYear()} Os Centenários dos Aflitos. Todos os direitos reservados.
-            </p>
-            <p className="font-body text-xs tracking-widest uppercase flex items-center justify-center gap-2 whitespace-nowrap" style={{ color: 'rgba(255,255,255,0.4)' }}>
-              <span className="w-4 h-px" style={{ background: 'rgba(255,255,255,0.2)' }} />
-              Developed by <span style={{ color: 'rgba(255,255,255,0.75)', fontWeight: 600 }}>Arthur Falcão</span>
-              <span className="w-4 h-px" style={{ background: 'rgba(255,255,255,0.2)' }} />
-            </p>
-            <p className="font-body text-xs italic text-right" style={{ color: 'rgba(255,255,255,0.45)' }}>A Barra do Náutico</p>
-          </div>
+        <div className="pt-4 pb-3" style={{ borderTop: '1px solid rgba(255,255,255,0.15)' }}>
+          <p className="font-body text-[11px] text-center" style={{ color: 'rgba(255,255,255,0.5)' }}>
+            © {new Date().getFullYear()} Os Centenários dos Aflitos. Todos os direitos reservados.
+          </p>
         </div>
 
+      </div>
+
+      {/* Developed by — colado na borda inferior */}
+      <div className="w-full py-2.5 text-center" style={{ borderTop: '1px solid rgba(255,255,255,0.10)' }}>
+        <p className="font-body text-[10px] tracking-widest uppercase flex items-center justify-center gap-2" style={{ color: 'rgba(255,255,255,0.4)' }}>
+          <span className="w-3 h-px" style={{ background: 'rgba(255,255,255,0.2)' }} />
+          Developed by <a href="https://www.arthurfalcaodev.com" target="_blank" rel="noopener noreferrer" style={{ color: 'rgba(255,255,255,0.75)', fontWeight: 600 }}>Arthur Falcão</a>
+          <span className="w-3 h-px" style={{ background: 'rgba(255,255,255,0.2)' }} />
+        </p>
       </div>
     </footer>
   )

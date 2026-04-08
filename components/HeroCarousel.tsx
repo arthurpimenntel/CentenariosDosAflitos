@@ -108,7 +108,7 @@ export default function HeroCarousel({ fotos }: Props) {
 
         <motion.h1
           custom={1} variants={textVariants} initial="hidden" animate="visible"
-          className="font-ultras font-bold text-6xl md:text-8xl lg:text-9xl uppercase leading-none mb-4 text-white"
+          className="font-ultras font-bold text-[2.6rem] sm:text-6xl md:text-8xl lg:text-9xl uppercase leading-none mb-4 text-white"
           style={{ textShadow: '0 4px 32px rgba(0,0,0,0.3)' }}
         >
           OS<br />

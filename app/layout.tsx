@@ -18,8 +18,7 @@ const dmSans = DM_Sans({
 
 export const metadata: Metadata = {
   title: 'Os Centenários dos Aflitos | Barra Brava do Náutico',
-  description:
-    'A Barra Brava oficial do Clube Náutico Capibaribe. Fundada em 2012 com a filosofia de apoio incondicional, do início ao fim.',
+  description: 'A Barra Brava oficial do Clube Náutico Capibaribe. Fundada em 2012 com a filosofia de apoio incondicional, do início ao fim.',
   keywords: ['Náutico', 'Centenários', 'Barra Brava', 'Torcida Organizada', 'Pernambuco'],
   icons: {
     icon: '/favicon.ico',
@@ -33,14 +32,12 @@ export const metadata: Metadata = {
   },
 }
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="pt-BR" className={`${oswald.variable} ${dmSans.variable}`}>
-      <body className="font-body antialiased">{children}</body>
+      <body className="font-body antialiased">
+        {children}
+      </body>
     </html>
   )
 }

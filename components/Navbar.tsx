@@ -6,6 +6,7 @@ import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Menu, X } from 'lucide-react'
+import CartButton from '@/components/CartButton'
 
 const navLinks = [
   { label: 'Início', href: '/' },
@@ -128,17 +129,21 @@ export default function Navbar() {
               >
                 SEJA SÓCIO
               </Link>
+              <CartButton textColor={textColor} />
             </div>
 
             {/* Hamburger mobile */}
-            <button
-              className="md:hidden p-2 transition-colors rounded"
-              style={{ color: '#FFFFFF' }}
-              onClick={() => setMenuOpen(!menuOpen)}
-              aria-label={menuOpen ? 'Fechar menu' : 'Abrir menu'}
-            >
-              {menuOpen ? <X size={24} /> : <Menu size={24} />}
-            </button>
+            <div className="md:hidden flex items-center gap-1">
+              <CartButton textColor={textColor} />
+              <button
+                className="p-2 transition-colors rounded"
+                style={{ color: textColor }}
+                onClick={() => setMenuOpen(!menuOpen)}
+                aria-label={menuOpen ? 'Fechar menu' : 'Abrir menu'}
+              >
+                {menuOpen ? <X size={24} /> : <Menu size={24} />}
+              </button>
+            </div>
           </div>
         </div>
       </motion.nav>
