@@ -128,22 +128,30 @@ export default function Footer() {
 
         </div>
 
-        {/* Bottom bar */}
-        <div className="pt-4 pb-3" style={{ borderTop: '1px solid rgba(255,255,255,0.15)' }}>
-          <p className="font-body text-[11px] text-center" style={{ color: 'rgba(255,255,255,0.5)' }}>
+        {/* Bottom bar - direitos à esquerda, dev à direita em desktop */}
+        <div
+          className="pt-4 pb-3 w-full flex flex-col items-center md:flex-row md:justify-between md:items-center"
+          style={{ borderTop: '1px solid rgba(255,255,255,0.15)' }}
+        >
+          <p className="font-body text-[11px] text-center md:text-left" style={{ color: 'rgba(255,255,255,0.5)' }}>
             © {new Date().getFullYear()} Os Centenários dos Aflitos. Todos os direitos reservados.
           </p>
+          <div className="mt-2 md:mt-0">
+            <span className="hidden md:inline-block w-3 h-px align-middle mr-2" style={{ background: 'rgba(255,255,255,0.2)' }} />
+            <span className="font-body text-[10px] tracking-widest uppercase flex items-center gap-2" style={{ color: 'rgba(255,255,255,0.4)' }}>
+              Developed by{' '}
+              <a
+                href="https://www.arthurfalcaodev.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ color: 'rgba(255,255,255,0.75)' }}
+              >
+                Arthur Falcão
+              </a>
+            </span>
+            <span className="hidden md:inline-block w-3 h-px align-middle ml-2" style={{ background: 'rgba(255,255,255,0.2)' }} />
+          </div>
         </div>
-
-      </div>
-
-      {/* Developed by — colado na borda inferior */}
-      <div className="w-full py-2.5 text-center" style={{ borderTop: '1px solid rgba(255,255,255,0.10)' }}>
-        <p className="font-body text-[10px] tracking-widest uppercase flex items-center justify-center gap-2" style={{ color: 'rgba(255,255,255,0.4)' }}>
-          <span className="w-3 h-px" style={{ background: 'rgba(255,255,255,0.2)' }} />
-          Developed by <a href="https://www.arthurfalcaodev.com" target="_blank" rel="noopener noreferrer" style={{ color: 'rgba(255,255,255,0.75)', fontWeight: 600 }}>Arthur Falcão</a>
-          <span className="w-3 h-px" style={{ background: 'rgba(255,255,255,0.2)' }} />
-        </p>
       </div>
     </footer>
   )
