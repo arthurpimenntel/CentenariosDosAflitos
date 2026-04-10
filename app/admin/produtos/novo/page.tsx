@@ -1,3 +1,4 @@
+"use client"
 import ProdutoForm from '../_components/ProdutoForm'
 export default function NovoProdutoPage() {
   return (
