@@ -31,7 +31,7 @@ export default async function HomePage() {
       <WhyJoin />
       <FeaturedProducts />
       <NewsPreview />
-      <JoinCTA />
+      {/* <JoinCTA /> Removido e movido para a página de cadastro */}
       <Footer />
     </main>
   )

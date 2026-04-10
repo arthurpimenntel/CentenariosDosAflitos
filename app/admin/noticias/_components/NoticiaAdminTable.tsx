@@ -21,38 +21,46 @@ export default function NoticiaAdminTable({ noticias }: { noticias: Noticia[] })
     if (!deleteTarget) return
     setLoading(true)
     const { error } = await supabase.from('noticias').delete().eq('id', deleteTarget.id)
-    if (error) { addToast('error', 'Erro ao excluir notícia.') } else { addToast('success', 'Notícia excluída.'); router.refresh() }
+    if (error) { addToast('error', 'Erro ao excluir notícia.') }
+    else { addToast('success', 'Notícia excluída.'); router.refresh() }
     setDeleteTarget(null)
     setLoading(false)
   }
 
   return (
     <>
-      <div className="rounded-xl overflow-hidden" style={{ border: '1px solid rgba(237,28,36,0.2)' }}>
+      <div className="overflow-hidden" style={{ background: '#FFFFFF', border: '1px solid rgba(237,28,36,0.15)', borderRadius: 16, boxShadow: '0 2px 12px rgba(237,28,36,0.06)' }}>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr style={{ background: '#1a0000', borderBottom: '1px solid rgba(237,28,36,0.2)' }}>
+              <tr style={{ background: 'rgba(237,28,36,0.05)', borderBottom: '1px solid rgba(237,28,36,0.12)' }}>
                 {['Título', 'Status', 'Data', 'Ações'].map(h => (
-                  <th key={h} className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider" style={{ color: 'rgba(255,255,255,0.4)', fontFamily: 'DM Sans, sans-serif' }}>{h}</th>
+                  <th key={h} className="px-5 py-4 text-left text-xs font-bold uppercase tracking-wider" style={{ color: 'rgba(237,28,36,0.5)', fontFamily: 'DM Sans, sans-serif' }}>{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
-              {noticias.length === 0 && <tr><td colSpan={4} className="px-4 py-10 text-center text-sm" style={{ color: 'rgba(255,255,255,0.3)', fontFamily: 'DM Sans, sans-serif' }}>Nenhuma notícia cadastrada.</td></tr>}
+              {noticias.length === 0 && (
+                <tr><td colSpan={4} className="px-5 py-12 text-center text-sm" style={{ color: 'rgba(237,28,36,0.35)', fontFamily: 'DM Sans, sans-serif' }}>Nenhuma notícia cadastrada.</td></tr>
+              )}
               {noticias.map((n, i) => (
-                <tr key={n.id} style={{ background: i % 2 === 0 ? 'rgba(58,0,0,0.3)' : 'rgba(42,0,0,0.3)', borderBottom: '1px solid rgba(237,28,36,0.08)' }}>
-                  <td className="px-4 py-3 font-medium max-w-xs truncate" style={{ color: '#fff', fontFamily: 'DM Sans, sans-serif' }}>{n.titulo}</td>
-                  <td className="px-4 py-3">
-                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold" style={{ background: n.publicado ? 'rgba(74,222,128,0.12)' : 'rgba(255,255,255,0.06)', color: n.publicado ? '#4ade80' : 'rgba(255,255,255,0.4)', border: `1px solid ${n.publicado ? 'rgba(74,222,128,0.2)' : 'rgba(255,255,255,0.1)'}`, fontFamily: 'DM Sans, sans-serif' }}>
+                <tr key={n.id} style={{ background: i % 2 === 0 ? '#FFFFFF' : 'rgba(237,28,36,0.02)', borderBottom: '1px solid rgba(237,28,36,0.07)' }}>
+                  <td className="px-5 py-4 font-medium max-w-xs truncate" style={{ color: '#ED1C24', fontFamily: 'DM Sans, sans-serif' }}>{n.titulo}</td>
+                  <td className="px-5 py-4">
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold"
+                      style={{ background: n.publicado ? 'rgba(74,222,128,0.10)' : 'rgba(237,28,36,0.06)', color: n.publicado ? '#16a34a' : 'rgba(237,28,36,0.5)', border: `1px solid ${n.publicado ? 'rgba(74,222,128,0.25)' : 'rgba(237,28,36,0.15)'}`, fontFamily: 'DM Sans, sans-serif' }}>
                       {n.publicado ? <Eye size={10} /> : <EyeOff size={10} />}{n.publicado ? 'Publicado' : 'Rascunho'}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-xs opacity-50 whitespace-nowrap" style={{ color: '#fff', fontFamily: 'DM Sans, sans-serif' }}>{n.publicado_em ? new Date(n.publicado_em).toLocaleDateString('pt-BR') : '—'}</td>
-                  <td className="px-4 py-3">
+                  <td className="px-5 py-4 text-xs whitespace-nowrap" style={{ color: 'rgba(237,28,36,0.45)', fontFamily: 'DM Sans, sans-serif' }}>
+                    {n.publicado_em ? new Date(n.publicado_em).toLocaleDateString('pt-BR') : '—'}
+                  </td>
+                  <td className="px-5 py-4">
                     <div className="flex items-center gap-2">
-                      <Link href={`/admin/noticias/${n.id}`}><button className="p-1.5 rounded-lg" style={{ background: 'rgba(237,28,36,0.15)' }} aria-label="Editar"><Edit2 size={14} style={{ color: '#ED1C24' }} /></button></Link>
-                      <button onClick={() => setDeleteTarget(n)} className="p-1.5 rounded-lg" style={{ background: 'rgba(248,113,113,0.1)' }} aria-label="Excluir"><Trash2 size={14} style={{ color: '#f87171' }} /></button>
+                      <Link href={`/admin/noticias/${n.id}`}>
+                        <button className="p-1.5 rounded-lg transition hover:scale-110" style={{ background: 'rgba(237,28,36,0.08)' }} aria-label="Editar"><Edit2 size={14} style={{ color: '#ED1C24' }} /></button>
+                      </Link>
+                      <button onClick={() => setDeleteTarget(n)} className="p-1.5 rounded-lg transition hover:scale-110" style={{ background: 'rgba(237,28,36,0.08)' }} aria-label="Excluir"><Trash2 size={14} style={{ color: '#ED1C24' }} /></button>
                     </div>
                   </td>
                 </tr>
@@ -66,3 +74,7 @@ export default function NoticiaAdminTable({ noticias }: { noticias: Noticia[] })
     </>
   )
 }
+// Novo conteúdo do arquivo NoticiaAdminTable.tsx
+/*
+Conteúdo omitido para brevidade, mas será substituído pelo conteúdo do anexo NoticiaAdminTable.tsx enviado.
+*/

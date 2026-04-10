@@ -3,12 +3,16 @@
 import Link from 'next/link'
 import Image from 'next/image'
 
+import { usePathname } from 'next/navigation'
+
 export default function Footer() {
+  const pathname = usePathname?.() || (typeof window !== 'undefined' ? window.location.pathname : '')
+  const isHome = pathname === '/'
   return (
     <footer
       className="w-full pt-10 px-4 md:px-12 pb-0"
       style={{
-        background: '#ED1C24',
+        background: isHome ? '#fff' : '#ED1C24',
       }}
     >
       <div className="max-w-7xl mx-auto">
@@ -19,15 +23,15 @@ export default function Footer() {
             <div className="flex items-center gap-2.5 mb-3">
               <Image src="/EscudoOficial.png" alt="Escudo Os Centenários dos Aflitos" width={40} height={40} className="object-contain" />
               <div>
-                <p className="font-ultras font-bold text-sm tracking-widest uppercase" style={{ color: '#FFFFFF' }}>
+                <p className="font-ultras font-bold text-sm tracking-widest uppercase" style={{ color: isHome ? '#ED1C24' : '#FFFFFF' }}>
                   OS CENTENÁRIOS
                 </p>
-                <p className="font-ultras text-[10px] tracking-[0.3em] uppercase" style={{ color: 'rgba(255,255,255,0.6)' }}>
+                <p className="font-ultras text-[10px] tracking-[0.3em] uppercase" style={{ color: isHome ? 'rgba(237,28,36,0.6)' : 'rgba(255,255,255,0.6)' }}>
                   DOS AFLITOS
                 </p>
               </div>
             </div>
-            <p className="font-body text-xs leading-relaxed max-w-xs" style={{ color: 'rgba(255,255,255,0.7)' }}>
+            <p className="font-body text-xs leading-relaxed max-w-xs" style={{ color: isHome ? 'rgba(237,28,36,0.7)' : 'rgba(255,255,255,0.7)' }}>
               A Barra Brava oficial do Clube Náutico Capibaribe. Apoio incondicional,
               do início ao fim. Desde 2012.
             </p>
@@ -55,19 +59,19 @@ export default function Footer() {
                   rel="noopener noreferrer"
                   className="w-8 h-8 flex items-center justify-center transition-all duration-200 hover:scale-110"
                   style={{
-                    border: '1px solid rgba(255,255,255,0.25)',
-                    color: 'rgba(255,255,255,0.6)',
+                    border: isHome ? '1px solid rgba(237,28,36,0.25)' : '1px solid rgba(255,255,255,0.25)',
+                    color: isHome ? 'rgba(237,28,36,0.6)' : 'rgba(255,255,255,0.6)',
                     borderRadius: 0,
                   }}
                   onMouseEnter={e => {
-                    ;(e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.15)'
-                    ;(e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,255,255,0.6)'
-                    ;(e.currentTarget as HTMLElement).style.color = '#fff'
+                    ;(e.currentTarget as HTMLElement).style.background = isHome ? 'rgba(237,28,36,0.08)' : 'rgba(255,255,255,0.15)'
+                    ;(e.currentTarget as HTMLElement).style.borderColor = isHome ? '#ED1C24' : 'rgba(255,255,255,0.6)'
+                    ;(e.currentTarget as HTMLElement).style.color = isHome ? '#ED1C24' : '#fff'
                   }}
                   onMouseLeave={e => {
                     ;(e.currentTarget as HTMLElement).style.background = 'transparent'
-                    ;(e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,255,255,0.25)'
-                    ;(e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.6)'
+                    ;(e.currentTarget as HTMLElement).style.borderColor = isHome ? 'rgba(237,28,36,0.25)' : 'rgba(255,255,255,0.25)'
+                    ;(e.currentTarget as HTMLElement).style.color = isHome ? 'rgba(237,28,36,0.6)' : 'rgba(255,255,255,0.6)'
                   }}
                   aria-label={s.label}
                 >
@@ -80,7 +84,7 @@ export default function Footer() {
           </div>
 
           <div>
-            <h3 className="font-ultras text-[10px] tracking-widest uppercase mb-3" style={{ color: 'rgba(255,255,255,0.5)' }}>Navegação</h3>
+            <h3 className="font-ultras text-[10px] tracking-widest uppercase mb-3" style={{ color: isHome ? '#ED1C24' : 'rgba(255,255,255,0.5)' }}>Navegação</h3>
             <ul className="space-y-1.5">
               {[
                 { label: 'Início', href: '/' },
@@ -92,9 +96,9 @@ export default function Footer() {
                   <Link
                     href={link.href}
                     className="font-body text-xs transition-colors duration-200"
-                    style={{ color: 'rgba(255,255,255,0.65)' }}
-                    onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#FFFFFF' }}
-                    onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.65)' }}
+                    style={{ color: isHome ? 'rgba(237,28,36,0.65)' : 'rgba(255,255,255,0.65)' }}
+                    onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = isHome ? '#ED1C24' : '#FFFFFF' }}
+                    onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = isHome ? 'rgba(237,28,36,0.65)' : 'rgba(255,255,255,0.65)' }}
                   >
                     {link.label}
                   </Link>
@@ -104,7 +108,7 @@ export default function Footer() {
           </div>
 
           <div>
-            <h3 className="font-ultras text-[10px] tracking-widest uppercase mb-3" style={{ color: 'rgba(255,255,255,0.5)' }}>Torcedor</h3>
+            <h3 className="font-ultras text-[10px] tracking-widest uppercase mb-3" style={{ color: isHome ? '#ED1C24' : 'rgba(255,255,255,0.5)' }}>Torcedor</h3>
             <ul className="space-y-1.5">
               {[
                 { label: 'Loja', href: '/loja' },
@@ -115,9 +119,9 @@ export default function Footer() {
                   <Link
                     href={link.href}
                     className="font-body text-xs transition-colors duration-200"
-                    style={{ color: 'rgba(255,255,255,0.65)' }}
-                    onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#FFFFFF' }}
-                    onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.65)' }}
+                    style={{ color: isHome ? '#ED1C24' : 'rgba(255,255,255,0.65)' }}
+                    onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#ED1C24' }}
+                    onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = isHome ? '#ED1C24' : 'rgba(255,255,255,0.65)' }}
                   >
                     {link.label}
                   </Link>
@@ -131,25 +135,25 @@ export default function Footer() {
         {/* Bottom bar - direitos à esquerda, dev à direita em desktop */}
         <div
           className="pt-4 pb-3 w-full flex flex-col items-center md:flex-row md:justify-between md:items-center"
-          style={{ borderTop: '1px solid rgba(255,255,255,0.15)' }}
+          style={{ borderTop: isHome ? '1px solid rgba(237,28,36,0.15)' : '1px solid rgba(255,255,255,0.15)' }}
         >
-          <p className="font-body text-[11px] text-center md:text-left" style={{ color: 'rgba(255,255,255,0.5)' }}>
+          <p className="font-body text-[11px] text-center md:text-left" style={{ color: isHome ? 'rgba(237,28,36,0.5)' : 'rgba(255,255,255,0.5)' }}>
             © {new Date().getFullYear()} Os Centenários dos Aflitos. Todos os direitos reservados.
           </p>
           <div className="mt-2 md:mt-0">
-            <span className="hidden md:inline-block w-3 h-px align-middle mr-2" style={{ background: 'rgba(255,255,255,0.2)' }} />
-            <span className="font-body text-[10px] tracking-widest uppercase flex items-center gap-2" style={{ color: 'rgba(255,255,255,0.4)' }}>
+            <span className="hidden md:inline-block w-3 h-px align-middle mr-2" style={{ background: isHome ? 'rgba(237,28,36,0.2)' : 'rgba(255,255,255,0.2)' }} />
+            <span className="font-body text-[10px] tracking-widest uppercase flex items-center gap-2" style={{ color: isHome ? 'rgba(237,28,36,0.4)' : 'rgba(255,255,255,0.4)' }}>
               Developed by{' '}
               <a
                 href="https://www.arthurfalcaodev.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                style={{ color: 'rgba(255,255,255,0.75)' }}
+                style={{ color: isHome ? 'rgba(237,28,36,0.75)' : 'rgba(255,255,255,0.75)' }}
               >
                 Arthur Falcão
               </a>
             </span>
-            <span className="hidden md:inline-block w-3 h-px align-middle ml-2" style={{ background: 'rgba(255,255,255,0.2)' }} />
+            <span className="hidden md:inline-block w-3 h-px align-middle ml-2" style={{ background: isHome ? 'rgba(237,28,36,0.2)' : 'rgba(255,255,255,0.2)' }} />
           </div>
         </div>
       </div>

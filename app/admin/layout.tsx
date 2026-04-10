@@ -7,21 +7,31 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) {
-    // Para /admin/login, mostrar sem sidebar
     return (
-      <div className="min-h-screen flex" style={{ background: '#2a0000' }}>
+      <div className="min-h-screen flex" style={{ background: '#FFFFFF' }}>
         {children}
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen flex" style={{ background: '#2a0000' }}>
-      <AdminSidebar userEmail={user.email ?? ''} />
-      <div className="flex-1 flex flex-col min-w-0 lg:ml-64">
+    <div className="min-h-screen flex" style={{ background: '#FFFFFF' }}>
+      {/* Sidebar vermelha */}
+      <div
+        className="hidden lg:flex flex-col h-screen sticky top-0"
+        style={{ width: 240, background: '#ED1C24', flexShrink: 0 }}
+      >
+        <AdminSidebar userEmail={user.email ?? ''} />
+      </div>
+
+      {/* Conteúdo principal */}
+      <div className="flex-1 flex flex-col min-w-0">
         <AdminHeader />
-        <main className="flex-1 p-4 lg:p-8 overflow-auto">{children}</main>
+        <main className="flex-1 p-6 lg:p-8 overflow-auto" style={{ background: '#fafafa' }}>
+          {children}
+        </main>
       </div>
     </div>
   )
 }
+    

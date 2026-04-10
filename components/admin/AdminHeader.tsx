@@ -22,7 +22,7 @@ function getTitle(pathname: string): string {
 export default function AdminHeader() {
   const pathname = usePathname()
   return (
-    <header className="sticky top-0 z-30 h-16 flex items-center px-4 lg:px-8 border-b" style={{ background: 'rgba(42,0,0,0.9)', borderColor: 'rgba(237,28,36,0.15)', backdropFilter: 'blur(12px)' }}>
+    <header className="sticky top-0 z-30 h-16 flex items-center px-4 lg:px-8 border-b" style={{ background: '#ED1C24', borderColor: 'rgba(237,28,36,0.15)', backdropFilter: 'blur(12px)' }}>
       <div className="ml-10 lg:ml-0">
         <h1 className="text-lg font-bold uppercase tracking-widest" style={{ fontFamily: 'Oswald, sans-serif', color: '#fff' }}>
           {getTitle(pathname)}

@@ -3,13 +3,13 @@
 import { useState, useRef, FormEvent, ChangeEvent } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
-  CheckCircle, ChevronRight, Users, Shield, Zap,
-  Upload, X, FileImage, CreditCard, Banknote
+  CheckCircle, ChevronRight, Upload, X, FileImage, CreditCard, Banknote
 } from 'lucide-react'
 import { getSupabaseClient } from '@/lib/supabase'
 import Image from 'next/image'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
+import { Zap, Users, MapPin, Calendar, Shield, Heart } from 'lucide-react'
 
 type CarteirinhaOpcao = 'fisica' | 'virtual'
 type PlanoSocio = 'individual' | 'familia'
@@ -23,10 +23,15 @@ type FieldError = Partial<Record<keyof FormData, string>>
 
 const COMO_CONHECEU = ['Instagram', 'Facebook', 'Amigo ou familiar', 'No estádio', 'TikTok', 'Outro']
 
-const beneficiosRapidos = [
-  { icon: Users, texto: 'Comunidade de +500 membros' },
-  { icon: Shield, texto: 'Carteirinha oficial de membro' },
-  { icon: Zap, texto: 'Eventos e caravanas exclusivos' },
+
+// Benefícios detalhados (vindos da página "por-que")
+const beneficiosDetalhados = [
+  { icon: Zap, titulo: 'Acesso Antecipado', texto: 'Membros têm prioridade na compra de ingressos para jogos especiais e eventos exclusivos da torcida.' },
+  { icon: Users, titulo: 'Comunidade Forte', texto: 'Faça parte de uma rede de mais de 500 apaixonados pelo Timbu espalhados por todo o Brasil.' },
+  { icon: MapPin, titulo: 'Caravanas Organizadas', texto: 'Viagens para jogos fora de Recife com preços especiais para membros. Menos estresse, mais festa.' },
+  { icon: Calendar, titulo: 'Eventos Exclusivos', texto: 'Confraternizações, encontros antes dos jogos e eventos especiais só para quem é da família.' },
+  { icon: Shield, titulo: 'Identidade Oficial', texto: 'Carteirinha de membro, acesso ao uniforme oficial e reconhecimento como parte da barra brava.' },
+  { icon: Heart, titulo: 'Pertencimento Real', texto: 'Mais do que torcer, você ajuda a construir a história dos Centenários dos Aflitos.' },
 ]
 
 const PLANOS = [
@@ -90,6 +95,52 @@ function inputSt(hasError: boolean) {
   }
 }
 
+import { useEffect } from 'react'
+
+function JoinCTAStatic() {
+  // Versão estática do JoinCTA para SSR/uso fora do home
+  return (
+    <section
+      className="w-full py-28 px-4 md:px-12 text-center relative overflow-hidden"
+      style={{ backgroundColor: '#FFFFFF' }}
+    >
+      <div className="absolute -top-40 -left-20 w-96 h-96 rounded-full opacity-5 pointer-events-none" style={{ background: '#ED1C24' }} aria-hidden="true" />
+      <div className="absolute -bottom-40 -right-20 w-[500px] h-[500px] rounded-full opacity-5 pointer-events-none" style={{ background: '#ED1C24' }} aria-hidden="true" />
+      <div className="max-w-4xl mx-auto relative z-10">
+        <div className="flex justify-center mb-6">
+          <img src="/EscudoOficial.png" alt="Escudo Os Centenários" width={90} height={90} className="object-contain opacity-20 mx-auto" />
+        </div>
+        <p className="font-ultras text-sm tracking-widest uppercase mb-4" style={{ color: 'rgba(237,28,36,0.6)' }}>
+          Junte-se à família
+        </p>
+        <h2 className="font-ultras font-bold text-5xl md:text-7xl lg:text-8xl uppercase leading-none mb-6" style={{ color: '#ED1C24', textShadow: '0 4px 20px rgba(237,28,36,0.15)' }}>
+          SEJA UM<br />CENTENÁRIOS
+        </h2>
+        <div className="mx-auto mb-6" style={{ width: 48, height: 3, background: '#ED1C24', transformOrigin: 'center' }} />
+        <p className="font-body text-lg md:text-xl mb-10 max-w-lg mx-auto" style={{ color: 'rgba(237,28,36,0.75)' }}>
+          Apoio incondicional, do início ao fim. Faça parte desta história.
+        </p>
+        <div>
+          <span className="inline-block px-14 py-5 font-ultras font-bold text-base tracking-widest uppercase transition-all duration-200" style={{ background: '#ED1C24', color: '#FFFFFF', boxShadow: '0 8px 32px rgba(237,28,36,0.35)' }}>
+            CADASTRE-SE AGORA
+          </span>
+        </div>
+      </div>
+      {/* Stickers decorativos */}
+      <div className="absolute hidden lg:block" style={{ left: '3%', bottom: '0%', width: 200, pointerEvents: 'none', zIndex: 2 }}>
+        <div className="sticker-float" style={{ transform: 'rotate(-8deg)' }}>
+          <img src="/stick1.png" alt="Torcedor Centenários" width={200} style={{ mixBlendMode: 'multiply', filter: 'drop-shadow(0 8px 24px rgba(237,28,36,0.2))' }} />
+        </div>
+      </div>
+      <div className="absolute hidden lg:block" style={{ right: '3%', bottom: '5%', width: 160, pointerEvents: 'none', zIndex: 2 }}>
+        <div className="sticker-float" style={{ transform: 'rotate(9deg)', animationDelay: '2s' }}>
+          <img src="/stick2.png" alt="12º Jogador" width={160} style={{ mixBlendMode: 'multiply', filter: 'drop-shadow(0 8px 24px rgba(237,28,36,0.2))' }} />
+        </div>
+      </div>
+    </section>
+  )
+}
+
 export default function CadastroPage() {
   const [step, setStep] = useState<1 | 2>(1)
   const [form, setForm] = useState<FormData>({
@@ -145,14 +196,25 @@ export default function CadastroPage() {
       setUploadingComp(true)
       const comprovante_url = await uploadFile(comprovanteFile, 'socios-comprovantes')
       setUploadingComp(false)
-      const { error } = await supabase.from('socios').insert({
-        nome: form.nome.trim(), email: form.email.trim().toLowerCase(),
-        telefone: form.telefone, data_nascimento: form.data_nascimento || null,
-        cidade: form.cidade.trim(), como_conheceu: form.como_conheceu || null,
-        rg: form.rg.trim(), cpf: form.cpf.trim() || null, cep: form.cep.trim() || null,
-        endereco: form.endereco.trim() || null, foto_url, comprovante_url,
-        carteirinha: form.carteirinha, plano: form.plano, status: 'pendente',
-      })
+      const { error } = await supabase.from('socios').insert([
+        {
+          nome: form.nome.trim(),
+          email: form.email.trim().toLowerCase(),
+          telefone: form.telefone,
+          data_nascimento: form.data_nascimento || null,
+          cidade: form.cidade.trim(),
+          como_conheceu: form.como_conheceu || null,
+          rg: form.rg.trim(),
+          cpf: form.cpf.trim() || null,
+          cep: form.cep.trim() || null,
+          endereco: form.endereco.trim() || null,
+          foto_url,
+          comprovante_url,
+          carteirinha: form.carteirinha,
+          plano: form.plano,
+          status: 'pendente',
+        } as import('@/types').SocioInsert
+      ])
       if (error) {
         setServerError(error.code === '23505' ? 'Este e-mail já está cadastrado.' : 'Erro ao enviar. Tente novamente.')
       } else { setSuccess(true) }
@@ -165,13 +227,10 @@ export default function CadastroPage() {
     return (
       <main style={{ background: '#FFFFFF', minHeight: '100vh' }}>
         <Navbar />
+        <JoinCTAStatic />
         <section
           className="min-h-screen flex flex-col items-center justify-center px-4 pt-24 pb-16"
-          style={{
-            background: '#FFFFFF',
-            
-            
-          }}
+          style={{ background: '#FFFFFF' }}
         >
           <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }} className="text-center mb-14">
             <div className="inline-flex items-center gap-2 mb-6 px-4 py-1.5" style={{ background: '#ED1C24' }}>
@@ -399,12 +458,15 @@ export default function CadastroPage() {
             </button>
 
             <div className="space-y-3 mt-8">
-              {beneficiosRapidos.map((b, i) => (
-                <div key={i} className="flex items-center gap-3">
+              {beneficiosDetalhados.map((b, i) => (
+                <div key={i} className="flex items-start gap-3">
                   <div className="w-8 h-8 flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(255,255,255,0.15)' }}>
-                    <b.icon size={14} style={{ color: '#FFFFFF' }} />
+                    <b.icon size={18} style={{ color: '#FFFFFF' }} />
                   </div>
-                  <span className="text-sm" style={{ color: 'rgba(255,255,255,0.75)', fontFamily: 'DM Sans, sans-serif' }}>{b.texto}</span>
+                  <div>
+                    <span className="text-base font-bold block" style={{ color: '#fff', fontFamily: 'Oswald, sans-serif' }}>{b.titulo}</span>
+                    <span className="text-sm block" style={{ color: 'rgba(255,255,255,0.75)', fontFamily: 'DM Sans, sans-serif' }}>{b.texto}</span>
+                  </div>
                 </div>
               ))}
             </div>

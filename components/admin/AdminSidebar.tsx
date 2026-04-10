@@ -34,14 +34,14 @@ export default function AdminSidebar({ userEmail }: { userEmail: string }) {
   }
 
   const SidebarContent = () => (
-    <div className="flex flex-col h-full" style={{ background: '#1a0000' }}>
-      <div className="p-6 border-b" style={{ borderColor: 'rgba(237,28,36,0.2)' }}>
+    <div className="flex flex-col h-full" style={{ background: '#ED1C24' }}>
+      <div className="p-6 border-b border-red-100 border-opacity-20">
         <Link href="/admin" onClick={() => setMobileOpen(false)}>
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg flex items-center justify-center text-white font-bold text-sm" style={{ background: '#ED1C24', fontFamily: 'Oswald, sans-serif' }}>CA</div>
+            <div className="w-9 h-9 rounded-lg flex items-center justify-center text-white font-bold text-sm" style={{ background: '#fff2', fontFamily: 'Oswald, sans-serif' }}>CA</div>
             <div>
-              <p className="text-white font-bold text-sm leading-none" style={{ fontFamily: 'Oswald, sans-serif' }}>CENTENÁRIOS</p>
-              <p className="text-xs mt-0.5 opacity-40" style={{ color: '#fff', fontFamily: 'DM Sans, sans-serif' }}>Painel Admin</p>
+              <p className="font-bold text-sm leading-none" style={{ color: '#fff', fontFamily: 'Oswald, sans-serif' }}>CENTENÁRIOS</p>
+              <p className="text-xs mt-0.5 opacity-80" style={{ color: '#fff', fontFamily: 'DM Sans, sans-serif' }}>Painel Admin</p>
             </div>
           </div>
         </Link>
@@ -50,19 +50,19 @@ export default function AdminSidebar({ userEmail }: { userEmail: string }) {
         {navItems.map(item => {
           const active = isActive(item.href, item.exact)
           return (
-            <Link key={item.href} href={item.href} onClick={() => setMobileOpen(false)} className="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all" style={{ background: active ? 'rgba(237,28,36,0.15)' : 'transparent', border: active ? '1px solid rgba(237,28,36,0.3)' : '1px solid transparent' }} aria-current={active ? 'page' : undefined}>
-              <item.icon size={18} style={{ color: active ? '#ED1C24' : 'rgba(255,255,255,0.4)' }} />
-              <span className="flex-1 text-sm font-medium" style={{ color: active ? '#fff' : 'rgba(255,255,255,0.5)', fontFamily: 'DM Sans, sans-serif' }}>{item.label}</span>
-              {active && <ChevronRight size={14} style={{ color: '#ED1C24' }} />}
+            <Link key={item.href} href={item.href} onClick={() => setMobileOpen(false)} className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all ${active ? 'bg-white/10 border border-white/20' : 'hover:bg-white/10'}`} aria-current={active ? 'page' : undefined}>
+              <item.icon size={18} style={{ color: '#fff' }} />
+              <span className="flex-1 text-sm font-medium" style={{ color: '#fff', fontFamily: 'DM Sans, sans-serif' }}>{item.label}</span>
+              {active && <ChevronRight size={14} style={{ color: '#fff' }} />}
             </Link>
           )
         })}
       </nav>
-      <div className="p-4 border-t" style={{ borderColor: 'rgba(237,28,36,0.2)' }}>
-        <p className="text-xs opacity-40 truncate mb-3 px-3" style={{ color: '#fff', fontFamily: 'DM Sans, sans-serif' }}>{userEmail}</p>
-        <button onClick={handleLogout} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all hover:bg-red-900/20">
-          <LogOut size={18} style={{ color: 'rgba(255,255,255,0.4)' }} />
-          <span className="text-sm font-medium" style={{ color: 'rgba(255,255,255,0.5)', fontFamily: 'DM Sans, sans-serif' }}>Sair</span>
+      <div className="p-4 border-t border-white/20">
+        <p className="text-xs opacity-80 truncate mb-3 px-3" style={{ color: '#fff', fontFamily: 'DM Sans, sans-serif' }}>{userEmail}</p>
+        <button onClick={handleLogout} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all hover:bg-white/10">
+          <LogOut size={18} style={{ color: '#fff' }} />
+          <span className="text-sm font-medium" style={{ color: '#fff', fontFamily: 'DM Sans, sans-serif' }}>Sair</span>
         </button>
       </div>
     </div>

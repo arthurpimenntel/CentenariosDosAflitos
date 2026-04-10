@@ -14,7 +14,6 @@ const navLinks = [
   { label: 'Galeria', href: '/galeria' },
   { label: 'Notícias', href: '/noticias' },
   { label: 'Loja', href: '/loja' },
-  { label: 'Por Que?', href: '/por-que' },
 ]
 
 export default function Navbar() {
