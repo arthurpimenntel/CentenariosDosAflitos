@@ -113,7 +113,7 @@ export default function Footer() {
               {[
                 { label: 'Loja', href: '/loja' },
                 { label: 'Cadastro de Sócio', href: '/cadastro' },
-                { label: 'Por Que Fazer Parte?', href: '/por-que' },
+
               ].map((link) => (
                 <li key={link.href}>
                   <Link
