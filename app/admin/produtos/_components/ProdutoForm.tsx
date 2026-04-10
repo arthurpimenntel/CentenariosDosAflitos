@@ -1,22 +1,5 @@
-// Novo conteúdo do arquivo ProdutoForm.tsx
-/*
-Conteúdo omitido para brevidade, mas será substituído pelo conteúdo do anexo ProdutoForm.tsx enviado.
-*/
-// Aqui você deve incluir o novo conteúdo do arquivo ProdutoForm.tsx
-// Exemplo de novo conteúdo:
-import React from 'react';
 
-const NewProdutoForm = () => {
-  return (
-    <div>
-      <h1>Novo Formulário de Produto</h1>
-      {/* Adicione o restante do novo conteúdo aqui */}
-    </div>
-  );
-};
-
-export default NewProdutoForm;
-'use client'
+"use client";
 
 import { useState, FormEvent, useRef } from 'react'
 import { useRouter } from 'next/navigation'
