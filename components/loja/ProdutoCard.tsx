@@ -4,11 +4,9 @@ import { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
-import { MessageCircle, ShoppingBag, ChevronLeft, ChevronRight, X, ShoppingCart } from 'lucide-react'
+import { ShoppingBag, ChevronLeft, ChevronRight, X, ShoppingCart } from 'lucide-react'
 import { useCart } from '@/contexts/CartContext'
 import { Produto } from '@/types'
-
-const WHATSAPP_NUMBER = '5581989887060'
 
 export default function ProdutoCard({ produto, index = 0 }: { produto: Produto; index?: number }) {
   const allImages = (() => {
@@ -42,14 +40,6 @@ export default function ProdutoCard({ produto, index = 0 }: { produto: Produto; 
   function nextImg(e: React.MouseEvent) {
     e.stopPropagation()
     setImgIdx(i => (i === allImages.length - 1 ? 0 : i + 1))
-  }
-
-  function handleInteresse() {
-    const sizeInfo = selectedSize ? ` | Tamanho: ${selectedSize}` : ''
-    const msg = encodeURIComponent(
-      `Olá! Tenho interesse no produto *${produto.nome}*${sizeInfo} (R$ ${produto.preco.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}) da loja dos Centenários dos Aflitos.`
-    )
-    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`, '_blank')
   }
 
   function handleAddToCart() {
@@ -162,7 +152,6 @@ export default function ProdutoCard({ produto, index = 0 }: { produto: Produto; 
           </div>
         </div>
 
-
         {/* Conteúdo */}
         <div className="flex flex-col flex-1 p-5">
           <p className="text-xs mb-1 uppercase tracking-wider" style={{ color: 'rgba(237,28,36,0.5)', fontFamily: 'DM Sans, sans-serif' }}>
@@ -231,34 +220,22 @@ export default function ProdutoCard({ produto, index = 0 }: { produto: Produto; 
             </span>
 
             {canBuy ? (
-              <div className="flex flex-col gap-2">
-                <motion.button
-                  whileHover={{ scale: 1.03 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={handleAddToCart}
-                  className="flex items-center justify-center gap-2 px-5 py-3 text-sm font-semibold text-white rounded-lg"
-                  style={{
-                    background: '#ED1C24',
-                    fontFamily: 'DM Sans, sans-serif',
-                    boxShadow: '0 4px 16px rgba(237,28,36,0.3)',
-                  }}
-                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#C41219' }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = '#ED1C24' }}
-                >
-                  <ShoppingCart size={14} />
-                  Adicionar ao Carrinho
-                </motion.button>
-                <button
-                  onClick={handleInteresse}
-                  className="flex items-center justify-center gap-2 px-5 py-2 text-xs font-semibold transition-colors"
-                  style={{ border: '1px solid rgba(237,28,36,0.3)', color: '#ED1C24', fontFamily: 'DM Sans, sans-serif', borderRadius: 8 }}
-                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(237,28,36,0.06)' }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent' }}
-                >
-                  <MessageCircle size={12} />
-                  Pedir via WhatsApp
-                </button>
-              </div>
+              <motion.button
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={handleAddToCart}
+                className="flex items-center justify-center gap-2 px-5 py-3 text-sm font-semibold text-white rounded-lg"
+                style={{
+                  background: '#ED1C24',
+                  fontFamily: 'DM Sans, sans-serif',
+                  boxShadow: '0 4px 16px rgba(237,28,36,0.3)',
+                }}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#C41219' }}
+                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = '#ED1C24' }}
+              >
+                <ShoppingCart size={14} />
+                Adicionar ao Carrinho
+              </motion.button>
             ) : hasTamanhos && !selectedSize && !esgotado ? (
               <button
                 className="flex items-center justify-center gap-2 px-5 py-3 text-sm font-semibold opacity-50 cursor-default rounded-lg"

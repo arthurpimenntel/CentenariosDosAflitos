@@ -124,7 +124,7 @@ export default function HeroCarousel({ fotos }: Props) {
 
         <motion.p
           custom={2} variants={textVariants} initial="hidden" animate="visible"
-          className="font-body text-base md:text-xl mb-10"
+          className="font-body text-base md:text-xl mb-8"
           style={{ color: 'rgba(255,255,255,0.8)' }}
         >
           Apoio incondicional — do início ao fim. Desde 2012.
@@ -132,11 +132,11 @@ export default function HeroCarousel({ fotos }: Props) {
 
         <motion.div
           custom={3} variants={textVariants} initial="hidden" animate="visible"
-          className="flex flex-col sm:flex-row gap-4"
+          className="flex flex-col sm:flex-row gap-3"
         >
           <Link
             href="/cadastro"
-            className="px-8 py-4 font-ultras text-sm tracking-widest uppercase transition-all duration-200 hover:scale-105"
+            className="px-6 py-3 font-ultras text-xs tracking-widest uppercase transition-all duration-200 hover:scale-105"
             style={{
               background: '#FFFFFF',
               color: '#ED1C24',
@@ -149,9 +149,23 @@ export default function HeroCarousel({ fotos }: Props) {
           </Link>
           <Link
             href="/quem-somos"
-            className="px-8 py-4 border-2 border-white font-ultras text-sm tracking-widest uppercase text-white hover:bg-white hover:text-[#ED1C24] hover:scale-105 transition-all duration-200"
+            className="px-6 py-3 border-2 border-white font-ultras text-xs tracking-widest uppercase text-white hover:bg-white hover:text-[#ED1C24] hover:scale-105 transition-all duration-200"
           >
             NOSSA HISTÓRIA
+          </Link>
+          <Link
+            href="/loja"
+            className="px-6 py-3 font-ultras text-xs tracking-widest uppercase transition-all duration-200 hover:scale-105"
+            style={{
+              background: '#ED1C24',
+              color: '#FFFFFF',
+              border: '2px solid rgba(255,255,255,0.5)',
+              boxShadow: '0 4px 24px rgba(237,28,36,0.4)',
+            }}
+            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(200,10,18,0.9)' }}
+            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = '#ED1C24' }}
+          >
+            LOJA
           </Link>
         </motion.div>
       </div>

@@ -3,13 +3,14 @@
 import { useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Image from 'next/image'
-import { X, Minus, Plus, Trash2, ShoppingBag, CreditCard } from 'lucide-react'
+import { X, Minus, Plus, Trash2, ShoppingBag, MessageCircle, CreditCard } from 'lucide-react'
 import { useCart } from '@/contexts/CartContext'
-import { useRouter } from 'next/navigation'
+
+
+const WHATSAPP_NUMBER = '5581989887060' 
 
 export default function CartDrawer() {
   const { items, totalItems, totalPrice, removeItem, updateQuantity, isOpen, closeCart } = useCart()
-  const router = useRouter()
 
   // Bloquear scroll ao abrir
   useEffect(() => {
@@ -18,9 +19,33 @@ export default function CartDrawer() {
     return () => { document.body.style.overflow = '' }
   }, [isOpen])
 
-  function handleCheckout() {
+  function buildWhatsAppURL() {
+    const linhas = items.map(item => {
+      const tamanho = item.tamanho ? ` (${item.tamanho})` : ''
+      const subtotal = (item.produto.preco * item.quantidade).toLocaleString('pt-BR', {
+        style: 'currency', currency: 'BRL',
+      })
+      return `• ${item.produto.nome}${tamanho} — ${item.quantidade}x — ${subtotal}`
+    })
+
+    const total = totalPrice.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+
+    const mensagem = [
+      'Olá! Gostaria de fazer um pedido nos Centenários dos Aflitos:',
+      '',
+      ...linhas,
+      '',
+      `*Total: ${total}*`,
+      '',
+      'Por favor, me informe como prosseguir com o pagamento. Obrigado!',
+    ].join('\n')
+
+    return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(mensagem)}`
+  }
+
+  function handleWhatsApp() {
     closeCart()
-    router.push('/checkout')
+    window.open(buildWhatsAppURL(), '_blank')
   }
 
   return (
@@ -163,16 +188,35 @@ export default function CartDrawer() {
                     {totalPrice.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
                   </span>
                 </div>
+
+                {/* Botão WhatsApp — fluxo atual */}
                 <button
-                  onClick={handleCheckout}
+                  onClick={handleWhatsApp}
                   className="w-full flex items-center justify-center gap-2 py-4 font-bold text-base uppercase tracking-widest text-white transition hover:opacity-90 active:scale-95"
-                  style={{ background: '#ED1C24', fontFamily: 'Oswald, sans-serif', boxShadow: '0 4px 20px rgba(237,28,36,0.35)' }}
+                  style={{ background: '#25D366', fontFamily: 'Oswald, sans-serif', boxShadow: '0 4px 20px rgba(37,211,102,0.35)', borderRadius: 4 }}
                 >
-                  <CreditCard size={18} />
-                  Finalizar Compra
+                  <MessageCircle size={18} />
+                  Finalizar pelo WhatsApp
                 </button>
+
+                {/* Aviso Mercado Pago — desativado temporariamente */}
+                <button
+                  disabled
+                  className="w-full flex items-center justify-center gap-2 py-3 mt-2 font-semibold text-sm uppercase tracking-widest opacity-30 cursor-not-allowed"
+                  style={{
+                    background: 'transparent',
+                    color: '#ED1C24',
+                    border: '1px solid rgba(237,28,36,0.25)',
+                    fontFamily: 'DM Sans, sans-serif',
+                    borderRadius: 4,
+                  }}
+                >
+                  <CreditCard size={14} />
+                  Pagamento online — em breve
+                </button>
+
                 <p className="text-xs text-center mt-3" style={{ color: 'rgba(0,0,0,0.35)', fontFamily: 'DM Sans, sans-serif' }}>
-                  Pagamento seguro via Mercado Pago
+                  Você será redirecionado ao WhatsApp com seu pedido pronto
                 </p>
               </div>
             )}
