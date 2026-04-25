@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect, FormEvent, ChangeEvent } from 'react'
+import { useState, useRef, useEffect, Suspense, FormEvent, ChangeEvent } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
@@ -379,8 +379,8 @@ function JoinCTAStatic() {
   )
 }
 
-// ── Main Page ─────────────────────────────────────────────────────────────────
-export default function CadastroPage() {
+// ── Main Page (inner — needs Suspense for useSearchParams) ──────────────────
+function CadastroPageInner() {
   const searchParams = useSearchParams()
 
   const [step, setStep] = useState<1 | 2>(1)
@@ -875,5 +875,14 @@ export default function CadastroPage() {
 
       <Footer />
     </main>
+  )
+}
+
+// ── Suspense wrapper — required by Next.js 14 for useSearchParams ─────────────
+export default function CadastroPage() {
+  return (
+    <Suspense fallback={null}>
+      <CadastroPageInner />
+    </Suspense>
   )
 }
