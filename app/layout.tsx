@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Oswald, DM_Sans } from 'next/font/google'
 import './globals.css'
+import ScrollToTop from '@/components/ScrollToTop'  
 
 const oswald = Oswald({
   subsets: ['latin'],
@@ -36,6 +37,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="pt-BR" className={`${oswald.variable} ${dmSans.variable}`}>
       <body className="font-body antialiased">
+        <ScrollToTop />
         {children}
       </body>
     </html>
