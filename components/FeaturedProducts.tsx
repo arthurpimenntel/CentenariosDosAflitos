@@ -8,9 +8,8 @@ import { MessageCircle, ShoppingBag, X } from 'lucide-react'
 import { Produto } from '@/types'
 import { getSupabaseClient } from '@/lib/supabase'
 
-const WHATSAPP_NUMBER = '5581989887060' 
+const WHATSAPP_NUMBER = '5581989887060'
 
-// Produtos seed para exibição quando não há dados do banco
 export const SEED_PRODUTOS: Produto[] = [
   {
     id: 'seed-1',
@@ -71,11 +70,9 @@ interface CardProps {
 
 function ProdutoCardHome({ produto, index, isInView, onExpand }: CardProps) {
   const [hovered, setHovered] = useState(false)
-  const [selectedSize, setSelectedSize] = useState<string | null>(null)
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const allImages = produto.imagens?.length > 0 ? produto.imagens : produto.imagem_url ? [produto.imagem_url] : []
-  const tamanhos = produto.tamanhos ?? []
 
   const handleMouseEnter = () => {
     setHovered(true)
@@ -162,35 +159,10 @@ function ProdutoCardHome({ produto, index, isInView, onExpand }: CardProps) {
         )}
       </div>
 
-      {/* Info */}
+      {/* Info — sem tamanhos, usuário clica para ver na loja */}
       <div className="p-4">
         <p className="text-xs uppercase tracking-wider mb-0.5" style={{ color: 'rgba(237,28,36,0.5)', fontFamily: 'DM Sans, sans-serif' }}>{produto.categoria}</p>
-        <h3 className="font-bold text-base leading-snug mb-2" style={{ color: '#ED1C24', fontFamily: 'Oswald, sans-serif' }}>{produto.nome}</h3>
-
-        {tamanhos.length > 0 && produto.estoque > 0 && (
-          <div className="flex flex-wrap gap-1.5 mb-3">
-            {tamanhos.map(tam => {
-              const stock = (produto.estoque_por_tamanho ?? {})[tam] ?? produto.estoque
-              const esgotado = stock === 0
-              const sel = selectedSize === tam
-              return (
-                <button
-                  key={tam}
-                  onClick={() => !esgotado && setSelectedSize(sel ? null : tam)}
-                  disabled={esgotado}
-                  className="w-8 h-8 text-xs font-bold transition-all disabled:cursor-not-allowed"
-                  style={{
-                    background: sel ? '#ED1C24' : esgotado ? 'rgba(237,28,36,0.05)' : '#FFFFFF',
-                    color: sel ? '#FFFFFF' : esgotado ? 'rgba(237,28,36,0.25)' : '#ED1C24',
-                    border: `1px solid ${sel ? '#ED1C24' : esgotado ? 'rgba(237,28,36,0.1)' : 'rgba(237,28,36,0.3)'}`,
-                    fontFamily: 'DM Sans, sans-serif',
-                    textDecoration: esgotado ? 'line-through' : 'none',
-                  }}
-                >{tam}</button>
-              )
-            })}
-          </div>
-        )}
+        <h3 className="font-bold text-base leading-snug mb-3" style={{ color: '#ED1C24', fontFamily: 'Oswald, sans-serif' }}>{produto.nome}</h3>
 
         <div className="flex items-center justify-between pt-3" style={{ borderTop: '1px solid rgba(237,28,36,0.1)' }}>
           <span className="text-xl font-bold" style={{ color: produto.estoque > 0 ? '#ED1C24' : 'rgba(237,28,36,0.3)', fontFamily: 'Oswald, sans-serif' }}>
@@ -199,8 +171,7 @@ function ProdutoCardHome({ produto, index, isInView, onExpand }: CardProps) {
           {produto.estoque > 0 && (
             <button
               onClick={() => {
-                const sizeInfo = selectedSize ? ` | Tamanho: ${selectedSize}` : ''
-                const msg = encodeURIComponent(`Olá! Tenho interesse no produto *${produto.nome}*${sizeInfo} (${produto.preco.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}) da loja dos Centenários dos Aflitos.`)
+                const msg = encodeURIComponent(`Olá! Tenho interesse no produto *${produto.nome}* (${produto.preco.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}) da loja dos Centenários dos Aflitos.`)
                 window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`, '_blank')
               }}
               className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold transition-all hover:scale-105"
@@ -320,35 +291,23 @@ export default function FeaturedProducts() {
     }
   }, [])
 
-  useEffect(() => {
-    fetchProdutos()
-  }, [fetchProdutos])
+  useEffect(() => { fetchProdutos() }, [fetchProdutos])
 
   useEffect(() => {
     const supabase = getSupabaseClient()
     const channel = supabase
       .channel('produtos_changes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'produtos' }, () => {
-        fetchProdutos()
-      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'produtos' }, () => { fetchProdutos() })
       .subscribe()
-
-    return () => {
-      supabase.removeChannel(channel)
-    }
+    return () => { supabase.removeChannel(channel) }
   }, [fetchProdutos])
 
-  // Usa seed se não houver produtos do banco
   const displayProdutos = produtos.length > 0 ? produtos : SEED_PRODUTOS
 
   return (
     <section
       className="w-full py-24 px-4 md:px-12"
-      style={{
-        backgroundColor: '#FFFFFF',
-        
-        
-      }}
+      style={{ backgroundColor: '#FFFFFF' }}
       ref={ref}
     >
       <div className="max-w-7xl mx-auto">

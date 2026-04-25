@@ -12,9 +12,7 @@ export default function AboutPreview() {
   return (
     <section
       className="w-full py-24 px-4 md:px-12 overflow-hidden"
-      style={{
-        backgroundColor: '#ED1C24',
-      }}
+      style={{ backgroundColor: '#ED1C24' }}
       ref={ref}
     >
       <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-16">
@@ -30,7 +28,7 @@ export default function AboutPreview() {
             Quem Somos
           </p>
           <h2 className="font-ultras font-bold text-4xl md:text-5xl lg:text-6xl uppercase leading-tight mb-6" style={{ color: '#FFFFFF' }}>
-            UMA TORCIDA<br />DE ALMA<br />VERMELHA
+            NÓS TORCEMOS<br />COM ALMA
           </h2>
           {/* Linha animada */}
           <motion.div
@@ -40,11 +38,25 @@ export default function AboutPreview() {
             animate={isInView ? { scaleX: 1 } : {}}
             transition={{ duration: 0.7, delay: 0.3 }}
           />
-          <p className="font-body text-lg leading-relaxed mb-8 max-w-xl" style={{ color: 'rgba(255,255,255,0.8)' }}>
-            Fundados em 2012, os Centenários dos Aflitos nasceram com uma missão:
-            apoio incondicional ao Náutico do início ao fim. Somos paixão, somos
-            história, somos o coração que bate nas arquibancadas.
-          </p>
+
+          <div className="space-y-4 max-w-xl mb-8">
+            <p className="font-body text-base leading-relaxed" style={{ color: 'rgba(255,255,255,0.85)' }}>
+              Hoje não se pensa na arquibancada dos Aflitos sem pensar n'Os Centenários dos Aflitos.
+              O que nos une é simples: não importa o que aconteça, com a barra o Náutico sempre jogará com 12 em campo.
+              Nunca foi sobre resultado, nunca será. Sempre estaremos lá defendendo as nossas cores.
+            </p>
+            <p className="font-body text-base leading-relaxed" style={{ color: 'rgba(255,255,255,0.85)' }}>
+              Na arquibancada é onde o coração pulsa, 90 minutos de vida pelo Náutico. No Setor Caldeirão,
+              a regra é clara: apoiar o Náutico até o fim, aconteça o que acontecer.
+            </p>
+            <p className="font-body text-base leading-relaxed" style={{ color: 'rgba(255,255,255,0.85)' }}>
+              Fora do estádio, estamos ativos. Defendemos o clube em todas as frentes, ocupamos espaços
+              e pensamos no Náutico, dando voz à torcida alvirrubra e fazendo o melhor para o nosso clube.
+            </p>
+            <p className="font-body text-sm font-semibold tracking-widest uppercase" style={{ color: 'rgba(255,255,255,0.65)' }}>
+              Desde 2012, não se compara.
+            </p>
+          </div>
 
           <div className="flex gap-10 mb-10">
             {[

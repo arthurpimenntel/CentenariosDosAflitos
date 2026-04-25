@@ -9,12 +9,41 @@ import { useRef, useState } from 'react'
 import { Heart, Shield, Flame, Users, Trophy, Star, ChevronRight } from 'lucide-react'
 
 const timeline = [
-  { ano: '2012', titulo: 'O Início', texto: 'Um grupo de apaixonados pelo Náutico se reúne pela primeira vez nas arquibancadas dos Aflitos com um sonho: criar uma torcida organizada de verdade.' },
-  { ano: '2014', titulo: 'Primeiros Passos', texto: 'A torcida ganha nome, cores e identidade. Os primeiros uniformes são confeccionados e a presença nos jogos começa a crescer.' },
-  { ano: '2016', titulo: 'Crescimento', texto: 'Ultrapassamos 200 membros ativos. A festa nas arquibancadas passa a ser referência no futebol pernambucano.' },
-  { ano: '2018', titulo: 'Viagens', texto: 'Primeiras caravanas organizadas para jogos fora de Recife. A família Centenários começa a se espalhar pelo Nordeste.' },
-  { ano: '2020', titulo: 'Resistência', texto: 'Mesmo sem jogos presenciais, a comunidade se mantém unida pelas redes sociais e eventos virtuais.' },
-  { ano: '2026', titulo: 'Hoje', texto: 'Mais de 500 membros, presença em todo o Brasil e um compromisso inabalável com o Timbu.' },
+  {
+    ano: '2012',
+    titulo: 'O Início',
+    texto: 'No dia 16 de dezembro de 2012, num racha entre amigos e conhecidos, ficou decidido o que a gente já sentia fazia tempo: o Náutico precisava de uma torcida diferente. Não foi em reunião de diretoria, não foi com planejamento. Foi na base do sentimento em comum, uma inquietação compartilhada por torcedores que queriam transformar a arquibancada do Náutico.',
+  },
+  {
+    ano: '2013',
+    titulo: 'O Primeiro Jogo',
+    texto: 'O primeiro jogo do Pernambucano de 2013, nos Aflitos. Sem muito ensaio, sem muito recurso. Foram cerca de 3 ensaios da banda antes dessa partida. Naqueles primeiros 90 minutos ficou claro que a gente veio pra revolucionar.',
+  },
+  {
+    ano: '2013',
+    titulo: 'Quando Era Só Seis',
+    texto: '2013 foi duro dentro de campo. Um dos piores anos da história do clube. A torcida do Náutico foi levada pra Arena Pernambuco, longe de casa, longe de sua torcida. Teve jogo que a gente estava em seis pessoas. E ninguém baixou a bandeira. Ninguém foi embora mais cedo. Ninguém recuou um só jogo.',
+  },
+  {
+    ano: '2015–18',
+    titulo: 'Crescimento e Expansão',
+    texto: '2015 trouxe novos adeptos, novas amizades com barras do Nordeste. 2016 começou a ficar perceptível o que estava sendo construído — músicas lançadas na bancada, festas que ficaram na memória. 2017 foi a Série C, com jogos como mandante fora de Recife, no Lacerdão em Caruaru, e a gente sempre esteve lá. 2018 transformou um grupo de líderes em uma diretoria de verdade, com membros, estrutura e responsabilidade real.',
+  },
+  {
+    ano: '2019',
+    titulo: 'A Volta pra Casa',
+    texto: 'Voltamos aos Aflitos e buscamos nosso espaço na arquibancada do Eládio, em uma campanha que nos trouxe de volta à Série B com um título coroado em São Luís.',
+  },
+  {
+    ano: '2020–22',
+    titulo: 'Resistência na Pandemia',
+    texto: 'Veio 2020. E veio a pandemia. Até 2022, jogo sem público. A gente ergueu nossas faixas em um Eládio vazio. Mantivemos o movimento vivo e ainda mais forte.',
+  },
+  {
+    ano: '2023',
+    titulo: 'O Caldeirão',
+    texto: 'Saímos do setor vermelho, mais caro e elitizado, e fomos pro Caldeirão — um setor desativado nos Aflitos que tinha história, onde ficava a antiga barra do Country. Ajudamos a criar o Sócio Caldeirão, com apelo popular, acessível, pra quem ama o Náutico de verdade. Dezenas de bandeiras. Centenas de balões. Milhares de bandeirinhas. O Caldeirão é a nossa casa. Construída por nós, para ser de todos.',
+  },
 ]
 
 const valores = [
@@ -32,44 +61,6 @@ const stats = [
   { numero: '13+', label: 'Anos de história' },
   { numero: '90 min', label: 'De apoio incondicional' },
 ]
-
-function TimelineItem({ item, index }: { item: typeof timeline[0]; index: number }) {
-  const ref = useRef(null)
-  const inView = useInView(ref, { once: true, margin: '-80px' })
-  const isRed = index % 2 === 0
-
-  return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, x: -40 }}
-      animate={inView ? { opacity: 1, x: 0 } : {}}
-      transition={{ duration: 0.6, delay: index * 0.08 }}
-      className="relative flex gap-8 pl-24"
-    >
-      <div className="absolute left-10 top-8 bottom-0 w-px" style={{ background: 'rgba(212,0,0,0.2)' }} />
-      <div
-        className="absolute left-0 w-20 h-20 rounded-full flex flex-col items-center justify-center flex-shrink-0 z-10"
-        style={{ background: '#D40000', boxShadow: '0 4px 20px rgba(212,0,0,0.35)' }}
-      >
-        <span className="font-ultras font-bold text-sm text-white leading-none">{item.ano}</span>
-      </div>
-      <div
-        className="mb-10 p-6 flex-1"
-        style={{
-          background: isRed ? 'rgba(212,0,0,0.04)' : '#FFFFFF',
-          border: '1px solid rgba(212,0,0,0.15)',
-        }}
-      >
-        <h3 className="text-xl font-bold mb-2" style={{ fontFamily: 'Oswald, sans-serif', color: '#D40000' }}>
-          {item.titulo}
-        </h3>
-        <p className="leading-relaxed text-sm" style={{ color: 'rgba(212,0,0,0.75)', fontFamily: 'DM Sans, sans-serif' }}>
-          {item.texto}
-        </p>
-      </div>
-    </motion.div>
-  )
-}
 
 export default function QuemSomosPage() {
   const statsRef = useRef(null)
@@ -89,7 +80,6 @@ export default function QuemSomosPage() {
         <div className="absolute inset-0">
           <Image src="/torcida1.jpeg" alt="Os Centenários dos Aflitos" fill priority className="object-cover object-center" sizes="100vw" />
           <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(212,0,0,0.95) 0%, rgba(212,0,0,0.6) 50%, rgba(212,0,0,0.2) 100%)' }} />
-          {/* Listras camisa */}
           <div className="absolute inset-0 opacity-[0.05]" style={{ backgroundImage: 'repeating-linear-gradient(to right, rgba(255,255,255,0.6) 0px, rgba(255,255,255,0.6) 40px, transparent 40px, transparent 80px)' }} />
         </div>
 
@@ -130,7 +120,7 @@ export default function QuemSomosPage() {
         </div>
       </section>
 
-      {/* ── NÚMEROS ── fundo branco pontilhado */}
+      {/* ── NÚMEROS ── */}
       <section
         ref={statsRef}
         className="py-16 px-6"
@@ -161,7 +151,7 @@ export default function QuemSomosPage() {
         </div>
       </section>
 
-      {/* ── HISTÓRIA / TIMELINE ── fundo vermelho */}
+      {/* ── HISTÓRIA / TIMELINE ── */}
       <section
         className="px-6 py-24"
         style={{
@@ -178,23 +168,24 @@ export default function QuemSomosPage() {
             <div className="w-12 h-[3px] mt-4" style={{ background: 'rgba(255,255,255,0.5)' }} />
           </motion.div>
 
-          {/* Timeline com fundo branco sobre vermelho */}
           <div className="relative">
             {timeline.map((item, i) => (
               <motion.div
-                key={item.ano}
+                key={`${item.ano}-${i}`}
                 initial={{ opacity: 0, x: -40 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true, margin: '-80px' }}
                 transition={{ duration: 0.6, delay: i * 0.08 }}
-                className="relative flex gap-8 pl-24"
+                className="relative flex gap-8 pl-28"
               >
-                <div className="absolute left-10 top-8 bottom-0 w-px" style={{ background: 'rgba(255,255,255,0.2)' }} />
+                {i < timeline.length - 1 && (
+                  <div className="absolute left-12 top-16 bottom-0 w-px" style={{ background: 'rgba(255,255,255,0.2)' }} />
+                )}
                 <div
-                  className="absolute left-0 w-20 h-20 rounded-full flex flex-col items-center justify-center flex-shrink-0 z-10"
+                  className="absolute left-0 w-24 h-16 flex flex-col items-center justify-center flex-shrink-0 z-10"
                   style={{ background: '#FFFFFF', boxShadow: '0 4px 20px rgba(0,0,0,0.15)' }}
                 >
-                  <span className="font-ultras font-bold text-sm leading-none" style={{ color: '#D40000' }}>{item.ano}</span>
+                  <span className="font-ultras font-bold text-xs leading-none text-center px-1" style={{ color: '#D40000' }}>{item.ano}</span>
                 </div>
                 <div
                   className="mb-10 p-6 flex-1"
@@ -213,7 +204,7 @@ export default function QuemSomosPage() {
         </div>
       </section>
 
-      {/* ── VALORES ── fundo branco */}
+      {/* ── VALORES ── */}
       <section
         className="px-6 py-24"
         style={{
@@ -283,7 +274,7 @@ export default function QuemSomosPage() {
         </div>
       </section>
 
-      {/* ── CTA ── fundo vermelho */}
+      {/* ── CTA — O CALDEIRÃO ── */}
       <section
         className="py-32 px-6 text-center relative overflow-hidden"
         style={{
@@ -312,13 +303,13 @@ export default function QuemSomosPage() {
           className="max-w-2xl mx-auto relative z-10"
         >
           <Image src="/EscudoOficial.png" alt="Escudo" width={80} height={80} className="mx-auto mb-8 opacity-30" />
-          <p className="text-xs uppercase tracking-widest mb-4" style={{ color: 'rgba(255,255,255,0.6)', fontFamily: 'DM Sans, sans-serif' }}>Faça parte</p>
+          <p className="text-xs uppercase tracking-widest mb-4" style={{ color: 'rgba(255,255,255,0.6)', fontFamily: 'DM Sans, sans-serif' }}>O Caldeirão</p>
           <h2 className="text-5xl md:text-6xl font-bold uppercase mb-4" style={{ fontFamily: 'Oswald, sans-serif', color: '#FFFFFF' }}>
-            Faça parte da história
+            Se você acredita na força que vem da arquibancada
           </h2>
           <div className="w-12 h-[3px] mx-auto mb-8" style={{ background: 'rgba(255,255,255,0.5)' }} />
           <p className="mb-10 text-lg" style={{ color: 'rgba(255,255,255,0.8)', fontFamily: 'DM Sans, sans-serif' }}>
-            Seja Centenários. Apoio incondicional, do início ao fim.
+            Junte-se à barra do Náutico e vista a camisa 12.
           </p>
           <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }} style={{ display: 'inline-block' }}>
             <Link
@@ -328,7 +319,7 @@ export default function QuemSomosPage() {
               onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.9)' }}
               onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = '#FFFFFF' }}
             >
-              Quero ser Centenários
+              SEJA SÓCIO
               <ChevronRight size={24} />
             </Link>
           </motion.div>

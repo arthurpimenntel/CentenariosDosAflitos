@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useRef, FormEvent, ChangeEvent } from 'react'
+import { useState, useRef, useEffect, FormEvent, ChangeEvent } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   CheckCircle, ChevronRight, Upload, X, FileImage, CreditCard, Banknote
@@ -9,7 +10,7 @@ import { getSupabaseClient } from '@/lib/supabase'
 import Image from 'next/image'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
-import { Zap, Users, MapPin, Calendar, Shield, Heart } from 'lucide-react'
+import { Zap, Calendar, Bus, ShoppingBag } from 'lucide-react'
 
 type CarteirinhaOpcao = 'fisica' | 'virtual'
 type PlanoSocio = 'individual' | 'familia'
@@ -23,15 +24,12 @@ type FieldError = Partial<Record<keyof FormData, string>>
 
 const COMO_CONHECEU = ['Instagram', 'Facebook', 'Amigo ou familiar', 'No estádio', 'TikTok', 'Outro']
 
-
-// Benefícios detalhados (vindos da página "por-que")
 const beneficiosDetalhados = [
-  { icon: Zap, titulo: 'Acesso Antecipado', texto: 'Membros têm prioridade na compra de ingressos para jogos especiais e eventos exclusivos da torcida.' },
-  { icon: Users, titulo: 'Comunidade Forte', texto: 'Faça parte de uma rede de mais de 500 apaixonados pelo Timbu espalhados por todo o Brasil.' },
-  { icon: MapPin, titulo: 'Caravanas Organizadas', texto: 'Viagens para jogos fora de Recife com preços especiais para membros. Menos estresse, mais festa.' },
-  { icon: Calendar, titulo: 'Eventos Exclusivos', texto: 'Confraternizações, encontros antes dos jogos e eventos especiais só para quem é da família.' },
-  { icon: Shield, titulo: 'Identidade Oficial', texto: 'Carteirinha de membro, acesso ao uniforme oficial e reconhecimento como parte da barra brava.' },
-  { icon: Heart, titulo: 'Pertencimento Real', texto: 'Mais do que torcer, você ajuda a construir a história dos Centenários dos Aflitos.' },
+  { icon: ShoppingBag, titulo: 'Desconto na Loja', texto: 'Descontos e produtos exclusivos lançados pela barra.' },
+  { icon: Bus, titulo: 'Desconto em Caravanas', texto: 'Tenha desconto e condições especiais em caravanas organizadas.' },
+  { icon: Calendar, titulo: 'Eventos Exclusivos', texto: 'Eventos e confraternizações para associados.' },
+  { icon: Zap, titulo: 'Sorteios Mensais', texto: 'Sorteios mensais entre associados de produtos, serviços e muito mais.' },
+  { icon: CreditCard, titulo: 'Carteira de Sócio', texto: 'Carteirinha de sócio virtual gratuita. Física +R$16,00.' },
 ]
 
 const PLANOS = [
@@ -81,7 +79,6 @@ async function uploadFile(file: File, bucket: 'socios-fotos' | 'socios-comprovan
   return url
 }
 
-// Estilos de input — sem preto
 const inputBase = 'w-full px-4 py-3.5 outline-none transition-all text-sm'
 const labelBase = 'block text-xs font-semibold uppercase tracking-widest mb-2'
 
@@ -95,10 +92,252 @@ function inputSt(hasError: boolean) {
   }
 }
 
-import { useEffect } from 'react'
+const RED = '#ED1C24'
 
+// ── Card de plano com o novo design ──────────────────────────────────────────
+function PlanCard({
+  plano,
+  index,
+  selectedPlano,
+  onSelect,
+}: {
+  plano: (typeof PLANOS)[0]
+  index: number
+  selectedPlano: PlanoSocio
+  onSelect: (id: PlanoSocio) => void
+}) {
+  const feat = plano.id === 'familia'
+  const isSelected = selectedPlano === plano.id
+
+  const beneficios: { bold: string | null; texto: string }[] =
+    plano.id === 'individual'
+      ? [
+          { bold: null, texto: 'Carteirinha Virtual Grátis' },
+          { bold: null, texto: 'Acesso a Caravanas' },
+          { bold: null, texto: 'Comunidade Exclusiva' },
+          { bold: '+R$16', texto: 'Carteirinha Física' },
+        ]
+      : [
+          { bold: null, texto: 'Carteirinha Virtual Grátis' },
+          { bold: null, texto: 'Acesso a Caravanas' },
+          { bold: null, texto: 'Comunidade Exclusiva' },
+          { bold: null, texto: 'A partir de 3 pessoas da mesma família' },
+        ]
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 40 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.55, delay: 0.2 + index * 0.12 }}
+      whileHover={{ y: -8 }}
+      whileTap={{ scale: 0.98 }}
+      onClick={() => onSelect(plano.id)}
+      className="relative flex flex-col h-full cursor-pointer"
+      style={{
+        background: feat ? RED : '#FFFFFF',
+        border: feat
+          ? isSelected ? '3px solid rgba(255,255,255,0.6)' : 'none'
+          : `${isSelected ? '2px' : '1px'} solid ${isSelected ? RED : 'rgba(237,28,36,0.18)'}`,
+        boxShadow: isSelected
+          ? feat ? '0 0 0 3px rgba(237,28,36,0.35)' : '0 8px 32px rgba(237,28,36,0.15)'
+          : 'none',
+        paddingTop: feat ? 14 : 0,
+      }}
+    >
+      {/* Selected indicator */}
+      {isSelected && (
+        <div
+          className="absolute top-3 right-3 flex items-center justify-center z-10"
+          style={{
+            width: 22, height: 22,
+            background: feat ? '#FFFFFF' : RED,
+            color: feat ? RED : '#FFFFFF',
+            fontSize: 12, fontWeight: 700,
+          }}
+        >
+          ✓
+        </div>
+      )}
+
+      {/* Top accent bar */}
+      {!feat && (
+        <div
+          className="absolute top-0 left-0 right-0"
+          style={{ height: 4, background: 'rgba(237,28,36,0.25)' }}
+        />
+      )}
+
+      {/* MAIS POPULAR badge */}
+      {feat && (
+        <div
+          className="absolute left-1/2 -translate-x-1/2 px-4 py-1"
+          style={{
+            top: -14,
+            background: '#FFFFFF',
+            color: RED,
+            fontFamily: 'Oswald, sans-serif',
+            fontSize: 10, fontWeight: 700,
+            letterSpacing: '0.12em',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          MAIS POPULAR
+        </div>
+      )}
+
+      {/* Image area */}
+      <div
+        className="relative flex items-center justify-center overflow-hidden flex-shrink-0"
+        style={{
+          height: 96,
+          background: feat ? 'rgba(255,255,255,0.1)' : 'rgba(237,28,36,0.05)',
+          borderBottom: feat
+            ? '1px solid rgba(255,255,255,0.15)'
+            : '1px solid rgba(237,28,36,0.1)',
+        }}
+      >
+        {feat && (
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              backgroundImage:
+                'repeating-linear-gradient(90deg, transparent 0, transparent 18px, rgba(255,255,255,0.06) 18px, rgba(255,255,255,0.06) 22px)',
+            }}
+          />
+        )}
+        <Image
+          src="/EscudoOficial.png"
+          alt="Escudo Os Centenários"
+          width={54} height={54}
+          className="object-contain"
+          style={{ opacity: feat ? 0.3 : 0.12 }}
+        />
+        <span
+          className="absolute bottom-2 tracking-widest uppercase"
+          style={{
+            fontSize: 9,
+            fontFamily: 'Oswald, sans-serif',
+            fontWeight: 700,
+            letterSpacing: '0.2em',
+            color: feat ? 'rgba(255,255,255,0.5)' : 'rgba(237,28,36,0.35)',
+          }}
+        >
+          SEJA SÓCIO
+        </span>
+      </div>
+
+      {/* Body */}
+      <div className="flex flex-col flex-1 p-6">
+        <p
+          className="uppercase font-bold mb-0.5"
+          style={{
+            fontFamily: 'Oswald, sans-serif',
+            fontSize: 22,
+            color: feat ? '#FFFFFF' : RED,
+            letterSpacing: '0.04em',
+          }}
+        >
+          {plano.nome}
+        </p>
+        <span
+          className="uppercase tracking-widest block mb-3"
+          style={{
+            fontSize: 10,
+            color: feat ? 'rgba(255,255,255,0.5)' : 'rgba(237,28,36,0.45)',
+            fontFamily: 'DM Sans, sans-serif',
+          }}
+        >
+          Plano Anual
+        </span>
+
+        <div className="flex items-baseline gap-1 mb-4">
+          <span
+            style={{
+              fontFamily: 'Oswald, sans-serif',
+              fontSize: 38, fontWeight: 700,
+              color: feat ? '#FFFFFF' : RED,
+              lineHeight: 1,
+            }}
+          >
+            {plano.preco}
+          </span>
+          <span
+            style={{
+              fontSize: 13,
+              color: feat ? 'rgba(255,255,255,0.55)' : 'rgba(237,28,36,0.45)',
+              fontFamily: 'DM Sans, sans-serif',
+            }}
+          >
+            {plano.id === 'familia' ? '/pessoa/ano' : '/ano'}
+          </span>
+        </div>
+
+        {plano.detalhe && (
+          <p
+            className="text-xs italic mb-3"
+            style={{
+              color: feat ? 'rgba(255,255,255,0.6)' : 'rgba(237,28,36,0.5)',
+              fontFamily: 'DM Sans, sans-serif',
+            }}
+          >
+            {plano.detalhe}
+          </p>
+        )}
+
+        <div
+          className="mb-3"
+          style={{ height: 1, background: feat ? 'rgba(255,255,255,0.2)' : 'rgba(237,28,36,0.1)' }}
+        />
+
+        <span
+          className="uppercase tracking-widest block mb-2.5"
+          style={{
+            fontSize: 10,
+            color: feat ? 'rgba(255,255,255,0.45)' : 'rgba(237,28,36,0.4)',
+            fontFamily: 'DM Sans, sans-serif',
+          }}
+        >
+          Benefícios Inclusos
+        </span>
+
+        <ul className="flex flex-col gap-1.5 flex-1">
+          {beneficios.map((b, i) => (
+            <li
+              key={i}
+              className="flex items-center gap-2"
+              style={{
+                fontSize: 13,
+                color: feat ? 'rgba(255,255,255,0.9)' : 'rgba(237,28,36,0.75)',
+                fontFamily: 'DM Sans, sans-serif',
+              }}
+            >
+              <span
+                className="inline-flex items-center justify-center flex-shrink-0 rounded-full"
+                style={{
+                  width: 18, height: 18,
+                  background: feat ? 'rgba(255,255,255,0.2)' : 'rgba(237,28,36,0.1)',
+                  color: feat ? '#FFFFFF' : RED,
+                  fontSize: 10, fontWeight: 700,
+                }}
+              >
+                ✓
+              </span>
+              {b.bold && (
+                <strong style={{ color: feat ? '#FFFFFF' : RED, marginRight: 2 }}>
+                  {b.bold}
+                </strong>
+              )}
+              {b.texto}
+            </li>
+          ))}
+        </ul>
+      </div>
+    </motion.div>
+  )
+}
+
+// ── Static CTA ────────────────────────────────────────────────────────────────
 function JoinCTAStatic() {
-  // Versão estática do JoinCTA para SSR/uso fora do home
   return (
     <section
       className="w-full py-28 px-4 md:px-12 text-center relative overflow-hidden"
@@ -116,17 +355,16 @@ function JoinCTAStatic() {
         <h2 className="font-ultras font-bold text-5xl md:text-7xl lg:text-8xl uppercase leading-none mb-6" style={{ color: '#ED1C24', textShadow: '0 4px 20px rgba(237,28,36,0.15)' }}>
           SEJA UM<br />CENTENÁRIOS
         </h2>
-        <div className="mx-auto mb-6" style={{ width: 48, height: 3, background: '#ED1C24', transformOrigin: 'center' }} />
+        <div className="mx-auto mb-6" style={{ width: 48, height: 3, background: '#ED1C24' }} />
         <p className="font-body text-lg md:text-xl mb-10 max-w-lg mx-auto" style={{ color: 'rgba(237,28,36,0.75)' }}>
           Apoio incondicional, do início ao fim. Faça parte desta história.
         </p>
         <div>
-          <span className="inline-block px-14 py-5 font-ultras font-bold text-base tracking-widest uppercase transition-all duration-200" style={{ background: '#ED1C24', color: '#FFFFFF', boxShadow: '0 8px 32px rgba(237,28,36,0.35)' }}>
+          <span className="inline-block px-14 py-5 font-ultras font-bold text-base tracking-widest uppercase" style={{ background: '#ED1C24', color: '#FFFFFF', boxShadow: '0 8px 32px rgba(237,28,36,0.35)' }}>
             CADASTRE-SE AGORA
           </span>
         </div>
       </div>
-      {/* Stickers decorativos */}
       <div className="absolute hidden lg:block" style={{ left: '3%', bottom: '0%', width: 200, pointerEvents: 'none', zIndex: 2 }}>
         <div className="sticker-float" style={{ transform: 'rotate(-8deg)' }}>
           <img src="/stick1.png" alt="Torcedor Centenários" width={200} style={{ mixBlendMode: 'multiply', filter: 'drop-shadow(0 8px 24px rgba(237,28,36,0.2))' }} />
@@ -141,7 +379,10 @@ function JoinCTAStatic() {
   )
 }
 
+// ── Main Page ─────────────────────────────────────────────────────────────────
 export default function CadastroPage() {
+  const searchParams = useSearchParams()
+
   const [step, setStep] = useState<1 | 2>(1)
   const [form, setForm] = useState<FormData>({
     nome: '', email: '', telefone: '', data_nascimento: '',
@@ -163,6 +404,18 @@ export default function CadastroPage() {
   const fotoRef = useRef<HTMLInputElement>(null)
   const comprovanteRef = useRef<HTMLInputElement>(null)
   const supabase = getSupabaseClient()
+
+  // Pré-preenche plano e carteirinha vindos da home via query params
+  useEffect(() => {
+    const plano = searchParams.get('plano') as PlanoSocio | null
+    const carteirinha = searchParams.get('carteirinha') as CarteirinhaOpcao | null
+    if (plano && ['individual', 'familia'].includes(plano)) {
+      setForm(f => ({ ...f, plano }))
+    }
+    if (carteirinha && ['virtual', 'fisica'].includes(carteirinha)) {
+      setForm(f => ({ ...f, carteirinha }))
+    }
+  }, [])
 
   function set(field: keyof FormData, value: string) {
     setForm(f => ({ ...f, [field]: value }))
@@ -222,7 +475,7 @@ export default function CadastroPage() {
     finally { setLoading(false); setUploadingFoto(false); setUploadingComp(false) }
   }
 
-  // ── STEP 1 ─────────────────────────────────────────────
+  // ── STEP 1 ────────────────────────────────────────────────────────────────
   if (!success && step === 1) {
     return (
       <main style={{ background: '#FFFFFF', minHeight: '100vh' }}>
@@ -260,56 +513,16 @@ export default function CadastroPage() {
             </p>
           </motion.div>
 
-          {/* Cards de plano */}
-          <div className="grid md:grid-cols-2 gap-6 w-full max-w-2xl">
+          {/* Cards de plano — novo design */}
+          <div className="grid md:grid-cols-2 gap-5 w-full max-w-2xl items-stretch pt-6">
             {PLANOS.map((plano, i) => (
-              <motion.div
+              <PlanCard
                 key={plano.id}
-                initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 + i * 0.1, duration: 0.6 }}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.97 }}
-                className="relative p-8 cursor-pointer transition-all"
-                style={{
-                  background: form.plano === plano.id ? 'rgba(237,28,36,0.04)' : '#FFFFFF',
-                  border: `2px solid ${form.plano === plano.id ? '#ED1C24' : 'rgba(237,28,36,0.2)'}`,
-                  boxShadow: form.plano === plano.id ? '0 8px 32px rgba(237,28,36,0.15)' : 'none',
-                }}
-                onClick={() => setForm(f => ({ ...f, plano: plano.id }))}
-              >
-                {form.plano === plano.id && (
-                  <div className="absolute top-4 right-4 w-6 h-6 flex items-center justify-center" style={{ background: '#ED1C24' }}>
-                    <CheckCircle size={14} color="#fff" />
-                  </div>
-                )}
-                <div className="mb-4">
-                  <span className="text-xs font-bold uppercase tracking-widest" style={{ color: '#ED1C24', fontFamily: 'DM Sans, sans-serif' }}>
-                    {plano.nome}
-                  </span>
-                </div>
-                <div className="flex items-baseline gap-1 mb-2">
-                  <span className="text-4xl font-bold" style={{ fontFamily: 'Oswald, sans-serif', color: '#ED1C24' }}>{plano.preco}</span>
-                  <span className="text-sm" style={{ color: 'rgba(237,28,36,0.5)', fontFamily: 'DM Sans, sans-serif' }}>/ano</span>
-                </div>
-                <p className="text-sm mb-1" style={{ color: 'rgba(237,28,36,0.7)', fontFamily: 'DM Sans, sans-serif' }}>{plano.desc}</p>
-                {plano.detalhe && <p className="text-xs italic" style={{ color: 'rgba(237,28,36,0.5)', fontFamily: 'DM Sans, sans-serif' }}>{plano.detalhe}</p>}
-                <div className="mt-6 pt-5" style={{ borderTop: '1px solid rgba(237,28,36,0.12)' }}>
-                  <ul className="space-y-2">
-                    {['Carteirinha virtual grátis', 'Acesso a caravanas', 'Comunidade exclusiva'].map(b => (
-                      <li key={b} className="flex items-center gap-2 text-xs" style={{ color: 'rgba(237,28,36,0.7)', fontFamily: 'DM Sans, sans-serif' }}>
-                        <div className="w-1.5 h-1.5 rounded-full" style={{ background: '#ED1C24' }} />
-                        {b}
-                      </li>
-                    ))}
-                    {plano.id === 'individual' && (
-                      <li className="flex items-center gap-2 text-xs" style={{ color: 'rgba(237,28,36,0.7)', fontFamily: 'DM Sans, sans-serif' }}>
-                        <div className="w-1.5 h-1.5 rounded-full" style={{ background: '#ED1C24' }} />
-                        Carteirinha física por <span className="font-semibold ml-1" style={{ color: '#ED1C24' }}>+R$15</span>
-                      </li>
-                    )}
-                  </ul>
-                </div>
-              </motion.div>
+                plano={plano}
+                index={i}
+                selectedPlano={form.plano}
+                onSelect={(id) => setForm(f => ({ ...f, plano: id }))}
+              />
             ))}
           </div>
 
@@ -319,7 +532,7 @@ export default function CadastroPage() {
             <div className="flex gap-3">
               {[
                 { id: 'virtual' as CarteirinhaOpcao, label: 'Virtual (Grátis)', icon: CreditCard },
-                { id: 'fisica' as CarteirinhaOpcao, label: 'Física (+R$15)', icon: CreditCard },
+                { id: 'fisica'  as CarteirinhaOpcao, label: 'Física (+R$16)',   icon: CreditCard },
               ].map(opt => (
                 <button
                   key={opt.id}
@@ -327,8 +540,8 @@ export default function CadastroPage() {
                   className="px-5 py-3 text-sm font-semibold flex items-center gap-2 transition-all"
                   style={{
                     background: form.carteirinha === opt.id ? '#ED1C24' : 'rgba(237,28,36,0.04)',
-                    color: form.carteirinha === opt.id ? '#FFFFFF' : '#ED1C24',
-                    border: `1px solid ${form.carteirinha === opt.id ? '#ED1C24' : 'rgba(237,28,36,0.25)'}`,
+                    color:      form.carteirinha === opt.id ? '#FFFFFF' : '#ED1C24',
+                    border:     `1px solid ${form.carteirinha === opt.id ? '#ED1C24' : 'rgba(237,28,36,0.25)'}`,
                     fontFamily: 'DM Sans, sans-serif',
                   }}
                 >
@@ -364,7 +577,7 @@ export default function CadastroPage() {
     )
   }
 
-  // ── SUCCESS ──────────────────────────────────────────────
+  // ── SUCCESS ───────────────────────────────────────────────────────────────
   if (success) {
     return (
       <main style={{ background: '#FFFFFF', minHeight: '100vh' }}>
@@ -399,19 +612,17 @@ export default function CadastroPage() {
     )
   }
 
-  // ── STEP 2: Formulário ──────────────────────────────────
+  // ── STEP 2: Formulário ────────────────────────────────────────────────────
   return (
     <main style={{ background: '#FFFFFF', minHeight: '100vh' }}>
       <Navbar />
 
       <div className="min-h-screen flex flex-col lg:flex-row pt-20">
 
-        {/* ── LADO ESQUERDO — fundo vermelho ── */}
+        {/* Lado esquerdo — vermelho */}
         <div
           className="relative lg:w-5/12 flex flex-col justify-end p-10 lg:p-16 overflow-hidden min-h-[40vh] lg:min-h-screen"
-          style={{
-            background: '#ED1C24',
-          }}
+          style={{ background: '#ED1C24' }}
         >
           <motion.div
             className="absolute bottom-0 right-0 hidden lg:block"
@@ -445,7 +656,7 @@ export default function CadastroPage() {
                 {form.plano === 'individual' ? 'Individual — R$ 50,00/ano' : 'Família — R$ 40,00/pessoa/ano'}
               </p>
               <p className="text-xs mt-0.5" style={{ color: 'rgba(255,255,255,0.55)', fontFamily: 'DM Sans, sans-serif' }}>
-                Carteirinha {form.carteirinha === 'fisica' ? 'física (+R$15)' : 'virtual (grátis)'}
+                Carteirinha {form.carteirinha === 'fisica' ? 'física (+R$16)' : 'virtual (grátis)'}
               </p>
             </div>
 
@@ -473,7 +684,7 @@ export default function CadastroPage() {
           </div>
         </div>
 
-        {/* ── LADO DIREITO — formulário branco ── */}
+        {/* Lado direito — formulário */}
         <div className="flex-1 flex items-start justify-center px-6 py-16 bg-white">
           <div className="w-full max-w-xl">
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
@@ -486,14 +697,12 @@ export default function CadastroPage() {
               <div className="p-6 md:p-8" style={{ border: '1px solid rgba(237,28,36,0.15)', boxShadow: '0 4px 24px rgba(237,28,36,0.06)' }}>
                 <form onSubmit={handleSubmit} className="space-y-5">
 
-                  {/* Nome */}
                   <div>
                     <label className={labelBase} style={{ color: 'rgba(237,28,36,0.7)', fontFamily: 'DM Sans, sans-serif' }}>Nome completo *</label>
                     <input value={form.nome} onChange={e => set('nome', e.target.value)} className={inputBase} style={inputSt(!!errors.nome)} placeholder="Seu nome completo" />
                     {errors.nome && <p className="text-xs mt-1.5" style={{ color: '#ED1C24', fontFamily: 'DM Sans, sans-serif' }}>{errors.nome}</p>}
                   </div>
 
-                  {/* Telefone */}
                   <div>
                     <label className={labelBase} style={{ color: 'rgba(237,28,36,0.7)', fontFamily: 'DM Sans, sans-serif' }}>
                       Número de contato * <span className="normal-case" style={{ color: 'rgba(237,28,36,0.4)' }}>(DDD + 9 + 8 dígitos)</span>
@@ -502,14 +711,12 @@ export default function CadastroPage() {
                     {errors.telefone && <p className="text-xs mt-1.5" style={{ color: '#ED1C24', fontFamily: 'DM Sans, sans-serif' }}>{errors.telefone}</p>}
                   </div>
 
-                  {/* Email */}
                   <div>
                     <label className={labelBase} style={{ color: 'rgba(237,28,36,0.7)', fontFamily: 'DM Sans, sans-serif' }}>E-mail *</label>
                     <input type="email" value={form.email} onChange={e => set('email', e.target.value)} className={inputBase} style={inputSt(!!errors.email)} placeholder="seu@email.com" />
                     {errors.email && <p className="text-xs mt-1.5" style={{ color: '#ED1C24', fontFamily: 'DM Sans, sans-serif' }}>{errors.email}</p>}
                   </div>
 
-                  {/* RG + CPF */}
                   <div className="grid md:grid-cols-2 gap-4">
                     <div>
                       <label className={labelBase} style={{ color: 'rgba(237,28,36,0.7)', fontFamily: 'DM Sans, sans-serif' }}>RG *</label>
@@ -522,7 +729,6 @@ export default function CadastroPage() {
                     </div>
                   </div>
 
-                  {/* Data nascimento + Cidade */}
                   <div className="grid md:grid-cols-2 gap-4">
                     <div>
                       <label className={labelBase} style={{ color: 'rgba(237,28,36,0.7)', fontFamily: 'DM Sans, sans-serif' }}>Data de nascimento</label>
@@ -535,7 +741,6 @@ export default function CadastroPage() {
                     </div>
                   </div>
 
-                  {/* CEP + Endereço */}
                   <div className="grid md:grid-cols-2 gap-4">
                     <div>
                       <label className={labelBase} style={{ color: 'rgba(237,28,36,0.7)', fontFamily: 'DM Sans, sans-serif' }}>CEP</label>
@@ -547,7 +752,6 @@ export default function CadastroPage() {
                     </div>
                   </div>
 
-                  {/* Como conheceu */}
                   <div>
                     <label className={labelBase} style={{ color: 'rgba(237,28,36,0.7)', fontFamily: 'DM Sans, sans-serif' }}>Como nos conheceu?</label>
                     <select value={form.como_conheceu} onChange={e => set('como_conheceu', e.target.value)} className={inputBase} style={inputSt(false)}>

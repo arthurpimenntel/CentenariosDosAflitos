@@ -3,8 +3,8 @@
 import { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import Image from 'next/image'
-import { motion } from 'framer-motion'
-import { ShoppingBag, ChevronLeft, ChevronRight, X, ShoppingCart } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { ShoppingBag, ChevronLeft, ChevronRight, X, ShoppingCart, ChevronDown } from 'lucide-react'
 import { useCart } from '@/contexts/CartContext'
 import { Produto } from '@/types'
 
@@ -18,20 +18,21 @@ export default function ProdutoCard({ produto, index = 0 }: { produto: Produto; 
 
   const [imgIdx, setImgIdx] = useState(0)
   const [selectedSize, setSelectedSize] = useState<string | null>(null)
+  const [showSizes, setShowSizes] = useState(false)
   const [hovered, setHovered] = useState(false)
   const [lightboxOpen, setLightboxOpen] = useState(false)
   const [mounted, setMounted] = useState(false)
   const { addItem } = useCart()
 
-  useEffect(() => {
-    setMounted(true)
-  }, [])
+  useEffect(() => { setMounted(true) }, [])
 
   const tamanhos = produto.tamanhos ?? []
   const estoquePorTamanho = produto.estoque_por_tamanho ?? {}
   const hasTamanhos = tamanhos.length > 0
   const esgotado = (produto.estoque ?? 0) === 0
-  const estoqueSelected = selectedSize ? (estoquePorTamanho[selectedSize] ?? 0) : (produto.estoque ?? 0)
+  const estoqueSelected = selectedSize
+    ? (estoquePorTamanho[selectedSize] ?? 0)
+    : (produto.estoque ?? 0)
 
   function prevImg(e: React.MouseEvent) {
     e.stopPropagation()
@@ -166,47 +167,67 @@ export default function ProdutoCard({ produto, index = 0 }: { produto: Produto; 
             </p>
           )}
 
-          {/* Tamanhos */}
+          {/* Tamanhos — só aparecem quando o usuário clicar */}
           {hasTamanhos && !esgotado && (
             <div className="mb-4">
-              <p className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: 'rgba(237,28,36,0.5)', fontFamily: 'DM Sans, sans-serif' }}>
-                Tamanho
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {tamanhos.map(tam => {
-                  const stockTam = estoquePorTamanho[tam] ?? produto.estoque
-                  const esgotadoTam = stockTam === 0
-                  const isSelected = selectedSize === tam
-                  return (
-                    <button
-                      key={tam}
-                      onClick={() => !esgotadoTam && setSelectedSize(isSelected ? null : tam)}
-                      disabled={esgotadoTam}
-                      title={esgotadoTam ? `${tam} — esgotado` : `${tam} — ${stockTam} disponíveis`}
-                      className="w-10 h-10 text-sm font-bold transition-all duration-200 disabled:cursor-not-allowed"
-                      style={{
-                        background: isSelected ? '#ED1C24' : esgotadoTam ? 'rgba(237,28,36,0.04)' : '#FFFFFF',
-                        color: isSelected ? '#FFFFFF' : esgotadoTam ? 'rgba(237,28,36,0.2)' : '#ED1C24',
-                        border: `1px solid ${isSelected ? '#ED1C24' : esgotadoTam ? 'rgba(237,28,36,0.1)' : 'rgba(237,28,36,0.3)'}`,
-                        fontFamily: 'DM Sans, sans-serif',
-                        textDecoration: esgotadoTam ? 'line-through' : 'none',
-                      }}
-                    >
-                      {tam}
-                    </button>
-                  )
-                })}
-              </div>
-              {selectedSize && estoqueSelected > 0 && (
-                <p className="text-xs mt-1.5" style={{ color: 'rgba(237,28,36,0.6)', fontFamily: 'DM Sans, sans-serif' }}>
-                  {estoqueSelected} disponíveis nesse tamanho
-                </p>
-              )}
-              {selectedSize && estoqueSelected === 0 && (
-                <p className="text-xs mt-1.5" style={{ color: '#ED1C24', fontFamily: 'DM Sans, sans-serif' }}>
-                  Tamanho esgotado
-                </p>
-              )}
+              <button
+                onClick={() => setShowSizes(v => !v)}
+                className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider mb-0 transition-colors"
+                style={{ color: showSizes ? '#ED1C24' : 'rgba(237,28,36,0.55)', fontFamily: 'DM Sans, sans-serif' }}
+              >
+                {selectedSize ? `Tamanho: ${selectedSize}` : 'Selecionar tamanho'}
+                <motion.span animate={{ rotate: showSizes ? 180 : 0 }} transition={{ duration: 0.2 }}>
+                  <ChevronDown size={14} />
+                </motion.span>
+              </button>
+
+              <AnimatePresence>
+                {showSizes && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    transition={{ duration: 0.25 }}
+                    className="overflow-hidden"
+                  >
+                    <div className="flex flex-wrap gap-2 pt-3">
+                      {tamanhos.map(tam => {
+                        const stockTam = estoquePorTamanho[tam] ?? produto.estoque
+                        const esgotadoTam = stockTam === 0
+                        const isSelected = selectedSize === tam
+                        return (
+                          <button
+                            key={tam}
+                            onClick={() => !esgotadoTam && setSelectedSize(isSelected ? null : tam)}
+                            disabled={esgotadoTam}
+                            title={esgotadoTam ? `${tam} — esgotado` : `${tam} — ${stockTam} disponíveis`}
+                            className="h-9 px-2 min-w-[40px] text-xs font-bold transition-all duration-200 disabled:cursor-not-allowed leading-none"
+                            style={{
+                              background: isSelected ? '#ED1C24' : esgotadoTam ? 'rgba(237,28,36,0.04)' : '#FFFFFF',
+                              color: isSelected ? '#FFFFFF' : esgotadoTam ? 'rgba(237,28,36,0.2)' : '#ED1C24',
+                              border: `1px solid ${isSelected ? '#ED1C24' : esgotadoTam ? 'rgba(237,28,36,0.1)' : 'rgba(237,28,36,0.3)'}`,
+                              fontFamily: 'DM Sans, sans-serif',
+                              textDecoration: esgotadoTam ? 'line-through' : 'none',
+                            }}
+                          >
+                            {tam}
+                          </button>
+                        )
+                      })}
+                    </div>
+                    {selectedSize && estoqueSelected > 0 && (
+                      <p className="text-xs mt-2" style={{ color: 'rgba(237,28,36,0.6)', fontFamily: 'DM Sans, sans-serif' }}>
+                        {estoqueSelected} disponíveis nesse tamanho
+                      </p>
+                    )}
+                    {selectedSize && estoqueSelected === 0 && (
+                      <p className="text-xs mt-2" style={{ color: '#ED1C24', fontFamily: 'DM Sans, sans-serif' }}>
+                        Tamanho esgotado
+                      </p>
+                    )}
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           )}
 
@@ -224,7 +245,7 @@ export default function ProdutoCard({ produto, index = 0 }: { produto: Produto; 
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={handleAddToCart}
-                className="flex items-center justify-center gap-2 px-5 py-3 text-sm font-semibold text-white rounded-lg"
+                className="flex items-center justify-center gap-2 px-5 py-3 text-sm font-semibold text-white"
                 style={{
                   background: '#ED1C24',
                   fontFamily: 'DM Sans, sans-serif',
@@ -236,10 +257,18 @@ export default function ProdutoCard({ produto, index = 0 }: { produto: Produto; 
                 <ShoppingCart size={14} />
                 Adicionar ao Carrinho
               </motion.button>
-            ) : hasTamanhos && !selectedSize && !esgotado ? (
+            ) : hasTamanhos && !esgotado ? (
               <button
-                className="flex items-center justify-center gap-2 px-5 py-3 text-sm font-semibold opacity-50 cursor-default rounded-lg"
-                style={{ border: '1px solid rgba(237,28,36,0.3)', color: '#ED1C24', fontFamily: 'DM Sans, sans-serif' }}
+                onClick={() => setShowSizes(true)}
+                className="flex items-center justify-center gap-2 px-5 py-3 text-sm font-semibold transition-all"
+                style={{
+                  border: '1px solid rgba(237,28,36,0.3)',
+                  color: '#ED1C24',
+                  fontFamily: 'DM Sans, sans-serif',
+                  background: 'rgba(237,28,36,0.03)',
+                }}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(237,28,36,0.06)' }}
+                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(237,28,36,0.03)' }}
               >
                 Selecione o tamanho
               </button>
