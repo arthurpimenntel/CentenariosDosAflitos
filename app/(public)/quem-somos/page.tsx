@@ -4,10 +4,11 @@ import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import Image from 'next/image'
 import Link from 'next/link'
-import { motion, useInView } from 'framer-motion'
-import { useRef, useState } from 'react'
-import { Heart, Shield, Flame, Users, Trophy, Star, ChevronRight } from 'lucide-react'
+import { motion, useInView, AnimatePresence } from 'framer-motion'
+import { useRef, useState, useEffect, useCallback } from 'react'
+import { ChevronRight, ZoomIn, X, ChevronLeft } from 'lucide-react'
 
+// ── Timeline ──────────────────────────────────────────────────────────────────
 const timeline = [
   {
     ano: '2012',
@@ -46,30 +47,165 @@ const timeline = [
   },
 ]
 
-const valores = [
-  { icon: Heart, titulo: 'Paixão', texto: 'Amor incondicional ao Clube Náutico Capibaribe, em todas as divisões e momentos.' },
-  { icon: Shield, titulo: 'Lealdade', texto: 'Ao clube, aos companheiros e à história de mais de um século de tradição!' },
-  { icon: Flame, titulo: 'Intensidade', texto: 'Dentro e fora dos estádios, representamos o Timbu com garra e vibração.' },
-  { icon: Users, titulo: 'Família', texto: 'Mais do que torcida, somos uma comunidade que se apoia dentro e fora do futebol.' },
-  { icon: Trophy, titulo: 'Orgulho', texto: 'Carregamos a tradição centenária do Náutico como uma honra e responsabilidade.' },
-  { icon: Star, titulo: 'Respeito', texto: 'Somos exemplo de organização, disciplina e amor ao esporte.' },
+// ── Fotos do mosaico — ajuste os nomes para os seus arquivos reais ────────────
+const fotos = [
+  { src: '/torcida3.jpeg', alt: 'Torcida Os Centenários',   span: 'col-span-2 row-span-2' },
+  { src: '/torcida2.jpeg', alt: 'Caldeirão em chamas',      span: 'col-span-1 row-span-1' },
+  { src: '/torcida1.jpeg', alt: 'Bandeiras e fumaça',       span: 'col-span-1 row-span-1' },
+  { src: '/torcida4.jpeg', alt: 'Setor Caldeirão',          span: 'col-span-1 row-span-1' },
+  { src: '/torcida5.jpeg', alt: 'Festa na arquibancada',    span: 'col-span-1 row-span-1' },
 ]
 
-const stats = [
-  { numero: '2012', label: 'Fundação' },
-  { numero: '500+', label: 'Membros ativos' },
-  { numero: '13+', label: 'Anos de história' },
-  { numero: '90 min', label: 'De apoio incondicional' },
-]
+// ── Lightbox ──────────────────────────────────────────────────────────────────
+function Lightbox({
+  index, onClose, onPrev, onNext,
+}: {
+  index: number; onClose: () => void; onPrev: () => void; onNext: () => void
+}) {
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') onClose()
+      if (e.key === 'ArrowLeft') onPrev()
+      if (e.key === 'ArrowRight') onNext()
+    }
+    window.addEventListener('keydown', onKey)
+    document.body.style.overflow = 'hidden'
+    return () => {
+      window.removeEventListener('keydown', onKey)
+      document.body.style.overflow = ''
+    }
+  }, [onClose, onPrev, onNext])
 
+  return (
+    <motion.div
+      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+      transition={{ duration: 0.25 }}
+      className="fixed inset-0 z-[999] flex items-center justify-center"
+      style={{ background: 'rgba(0,0,0,0.96)' }}
+      onClick={onClose}
+    >
+      {/* Grain */}
+      <div className="absolute inset-0 pointer-events-none opacity-[0.03]"
+        style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")` }} />
+
+      {/* Close */}
+      <button onClick={onClose} aria-label="Fechar"
+        className="absolute top-5 right-5 z-10 flex items-center justify-center transition-all hover:scale-110"
+        style={{ width: 44, height: 44, background: 'rgba(212,0,0,0.9)', backdropFilter: 'blur(8px)' }}>
+        <X size={18} color="#fff" />
+      </button>
+
+      {/* Counter */}
+      <div className="absolute top-5 left-5 z-10 px-3 py-1.5"
+        style={{ background: 'rgba(255,255,255,0.07)', backdropFilter: 'blur(8px)', fontFamily: 'Oswald, sans-serif', fontSize: 12, letterSpacing: '0.15em', color: 'rgba(255,255,255,0.6)' }}>
+        {index + 1} / {fotos.length}
+      </div>
+
+      {/* Prev */}
+      <button onClick={e => { e.stopPropagation(); onPrev() }} aria-label="Anterior"
+        className="absolute left-4 z-10 flex items-center justify-center transition-all hover:scale-110 hover:bg-white/10"
+        style={{ width: 52, height: 52, border: '1px solid rgba(255,255,255,0.15)', backdropFilter: 'blur(8px)' }}>
+        <ChevronLeft size={22} color="#fff" />
+      </button>
+
+      {/* Next */}
+      <button onClick={e => { e.stopPropagation(); onNext() }} aria-label="Próxima"
+        className="absolute right-4 z-10 flex items-center justify-center transition-all hover:scale-110 hover:bg-white/10"
+        style={{ width: 52, height: 52, border: '1px solid rgba(255,255,255,0.15)', backdropFilter: 'blur(8px)' }}>
+        <ChevronRight size={22} color="#fff" />
+      </button>
+
+      {/* Image */}
+      <motion.div
+        key={index}
+        initial={{ opacity: 0, scale: 0.94, y: 12 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.96 }}
+        transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
+        className="relative w-full max-w-5xl mx-16"
+        style={{ aspectRatio: '16/9' }}
+        onClick={e => e.stopPropagation()}
+      >
+        <Image src={fotos[index].src} alt={fotos[index].alt} fill className="object-contain" sizes="90vw" priority />
+        <div className="absolute bottom-0 left-0 right-0 px-6 py-4"
+          style={{ background: 'linear-gradient(transparent, rgba(0,0,0,0.7))', fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: 'rgba(255,255,255,0.6)', letterSpacing: '0.08em' }}>
+          {fotos[index].alt}
+        </div>
+      </motion.div>
+
+      {/* Thumbnail strip */}
+      <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-2">
+        {fotos.map((f, i) => (
+          <button key={i} onClick={e => e.stopPropagation()} className="relative overflow-hidden transition-all"
+            style={{ width: i === index ? 48 : 32, height: 32, opacity: i === index ? 1 : 0.4, outline: i === index ? '2px solid #D40000' : 'none', outlineOffset: 2 }}>
+            <Image src={f.src} alt={f.alt} fill className="object-cover" sizes="48px" />
+          </button>
+        ))}
+      </div>
+    </motion.div>
+  )
+}
+
+// ── Mosaico ───────────────────────────────────────────────────────────────────
+function Mosaico() {
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null)
+  const open  = useCallback((i: number) => setLightboxIndex(i), [])
+  const close = useCallback(() => setLightboxIndex(null), [])
+  const prev  = useCallback(() => setLightboxIndex(i => i === null ? null : (i - 1 + fotos.length) % fotos.length), [])
+  const next  = useCallback(() => setLightboxIndex(i => i === null ? null : (i + 1) % fotos.length), [])
+
+  return (
+    <>
+      <div className="grid gap-1.5 w-full"
+        style={{ gridTemplateColumns: 'repeat(3, 1fr)', gridTemplateRows: 'repeat(2, 220px)' }}>
+        {fotos.map((foto, i) => (
+          <motion.button
+            key={i}
+            initial={{ opacity: 0, scale: 0.96 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true, margin: '-60px' }}
+            transition={{ duration: 0.5, delay: i * 0.07 }}
+            whileHover="hover"
+            onClick={() => open(i)}
+            className={`relative overflow-hidden group focus:outline-none ${foto.span}`}
+            aria-label={`Abrir foto: ${foto.alt}`}
+          >
+            <Image src={foto.src} alt={foto.alt} fill className="object-cover transition-transform duration-700 group-hover:scale-105" sizes="(max-width: 768px) 50vw, 33vw" />
+            <motion.div className="absolute inset-0" style={{ background: 'rgba(0,0,0,0)' }}
+              variants={{ hover: { background: 'rgba(0,0,0,0.45)' } }} transition={{ duration: 0.3 }} />
+            <motion.div className="absolute bottom-0 left-0 right-0"
+              style={{ height: 3, background: '#D40000', scaleX: 0, transformOrigin: 'left' }}
+              variants={{ hover: { scaleX: 1 } }} transition={{ duration: 0.35 }} />
+            <motion.div className="absolute inset-0 flex items-center justify-center"
+              style={{ opacity: 0 }} variants={{ hover: { opacity: 1 } }} transition={{ duration: 0.25 }}>
+              <div className="flex items-center justify-center"
+                style={{ width: 44, height: 44, background: 'rgba(212,0,0,0.85)', backdropFilter: 'blur(4px)' }}>
+                <ZoomIn size={18} color="#fff" />
+              </div>
+            </motion.div>
+            <motion.div className="absolute bottom-3 left-3 right-3"
+              style={{ opacity: 0, y: 6 }} variants={{ hover: { opacity: 1, y: 0 } }} transition={{ duration: 0.25 }}>
+              <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 11, letterSpacing: '0.1em', color: 'rgba(255,255,255,0.8)', textTransform: 'uppercase' }}>
+                {foto.alt}
+              </p>
+            </motion.div>
+          </motion.button>
+        ))}
+      </div>
+
+      <AnimatePresence>
+        {lightboxIndex !== null && (
+          <Lightbox index={lightboxIndex} onClose={close} onPrev={prev} onNext={next} />
+        )}
+      </AnimatePresence>
+    </>
+  )
+}
+
+// ── Page ──────────────────────────────────────────────────────────────────────
 export default function QuemSomosPage() {
-  const statsRef = useRef(null)
-  const statsInView = useInView(statsRef, { once: true })
   const stickerRef = useRef(null)
   const stickerInView = useInView(stickerRef, { once: true, margin: '-100px' })
-  const valoresRef = useRef(null)
-  const valoresInView = useInView(valoresRef, { once: true, margin: '-80px' })
-  const [hoveredValor, setHoveredValor] = useState<number | null>(null)
 
   return (
     <main style={{ background: '#FFFFFF', minHeight: '100vh' }}>
@@ -98,58 +234,62 @@ export default function QuemSomosPage() {
 
         <div className="relative z-10 max-w-7xl mx-auto px-6 pb-20 pt-40 w-full">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
-            className="inline-flex items-center gap-2 mb-6 px-4 py-1.5" style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.3)' }}
-          >
+            className="inline-flex items-center gap-2 mb-6 px-4 py-1.5"
+            style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.3)' }}>
             <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
             <span className="text-xs font-semibold uppercase tracking-widest text-white" style={{ fontFamily: 'DM Sans, sans-serif' }}>Desde 2012</span>
           </motion.div>
 
           <motion.h1 initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.1 }}
-            className="text-7xl md:text-9xl font-bold uppercase leading-none mb-6 text-white" style={{ fontFamily: 'Oswald, sans-serif' }}
-          >
+            className="text-7xl md:text-9xl font-bold uppercase leading-none mb-6 text-white" style={{ fontFamily: 'Oswald, sans-serif' }}>
             Quem<br />
             <span style={{ color: 'rgba(255,255,255,0.6)', WebkitTextStroke: '1px rgba(255,255,255,0.4)' }}>Somos</span>
           </motion.h1>
 
           <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.25 }}
-            className="text-lg md:text-xl max-w-2xl leading-relaxed" style={{ color: 'rgba(255,255,255,0.8)', fontFamily: 'DM Sans, sans-serif' }}
-          >
+            className="text-lg md:text-xl max-w-2xl leading-relaxed"
+            style={{ color: 'rgba(255,255,255,0.8)', fontFamily: 'DM Sans, sans-serif' }}>
             Os Centenários dos Aflitos nasceram da paixão genuína pelo Clube Náutico Capibaribe.
             Somos a barra brava que pulsa nas arquibancadas e ecoa pelo Brasil.
           </motion.p>
         </div>
       </section>
 
-      {/* ── NÚMEROS ── */}
-      <section
-        ref={statsRef}
-        className="py-16 px-6"
+      {/* ── MARQUEE BAND — separa os dois blocos vermelhos ── */}
+      <div
+        className="w-full overflow-hidden flex items-center"
         style={{
           background: '#FFFFFF',
-          backgroundImage: 'radial-gradient(circle, rgba(212,0,0,0.06) 1px, transparent 1px)',
-          backgroundSize: '24px 24px',
+          height: 52,
+          borderTop: '1px solid rgba(212,0,0,0.12)',
+          borderBottom: '1px solid rgba(212,0,0,0.12)',
         }}
       >
-        <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8">
-          {stats.map((s, i) => (
-            <motion.div
-              key={s.label}
-              initial={{ opacity: 0, y: 20 }}
-              animate={statsInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ delay: i * 0.1 }}
-              className="text-center p-6"
-              style={{ border: '1px solid rgba(212,0,0,0.12)' }}
+        <motion.div
+          className="flex whitespace-nowrap"
+          animate={{ x: ['0%', '-50%'] }}
+          transition={{ repeat: Infinity, duration: 18, ease: 'linear' }}
+          style={{ willChange: 'transform' }}
+        >
+          {Array.from({ length: 12 }).map((_, i) => (
+            <span
+              key={i}
+              className="inline-flex items-center gap-4 px-8"
+              style={{
+                fontFamily: 'Oswald, sans-serif',
+                fontSize: 15,
+                fontWeight: 700,
+                letterSpacing: '0.18em',
+                color: '#D40000',
+                textTransform: 'uppercase',
+              }}
             >
-              <p className="text-5xl md:text-6xl font-bold mb-1" style={{ fontFamily: 'Oswald, sans-serif', color: '#D40000' }}>
-                {s.numero}
-              </p>
-              <p className="text-xs uppercase tracking-widest" style={{ color: 'rgba(212,0,0,0.5)', fontFamily: 'DM Sans, sans-serif' }}>
-                {s.label}
-              </p>
-            </motion.div>
+              TRADIÇÃO NÃO VENDE NA FARMÁCIA!
+              <span style={{ color: 'rgba(212,0,0,0.3)', fontSize: 18 }}>✦</span>
+            </span>
           ))}
-        </div>
-      </section>
+        </motion.div>
+      </div>
 
       {/* ── HISTÓRIA / TIMELINE ── */}
       <section
@@ -181,22 +321,14 @@ export default function QuemSomosPage() {
                 {i < timeline.length - 1 && (
                   <div className="absolute left-12 top-16 bottom-0 w-px" style={{ background: 'rgba(255,255,255,0.2)' }} />
                 )}
-                <div
-                  className="absolute left-0 w-24 h-16 flex flex-col items-center justify-center flex-shrink-0 z-10"
-                  style={{ background: '#FFFFFF', boxShadow: '0 4px 20px rgba(0,0,0,0.15)' }}
-                >
-                  <span className="font-ultras font-bold text-xs leading-none text-center px-1" style={{ color: '#D40000' }}>{item.ano}</span>
+                <div className="absolute left-0 w-24 h-16 flex flex-col items-center justify-center flex-shrink-0 z-10"
+                  style={{ background: '#FFFFFF', boxShadow: '0 4px 20px rgba(0,0,0,0.15)' }}>
+                  <span className="font-bold text-xs leading-none text-center px-1" style={{ color: '#D40000', fontFamily: 'Oswald, sans-serif' }}>{item.ano}</span>
                 </div>
-                <div
-                  className="mb-10 p-6 flex-1"
-                  style={{ background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)' }}
-                >
-                  <h3 className="text-xl font-bold mb-2" style={{ fontFamily: 'Oswald, sans-serif', color: '#FFFFFF' }}>
-                    {item.titulo}
-                  </h3>
-                  <p className="leading-relaxed text-sm" style={{ color: 'rgba(255,255,255,0.8)', fontFamily: 'DM Sans, sans-serif' }}>
-                    {item.texto}
-                  </p>
+                <div className="mb-10 p-6 flex-1"
+                  style={{ background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)' }}>
+                  <h3 className="text-xl font-bold mb-2" style={{ fontFamily: 'Oswald, sans-serif', color: '#FFFFFF' }}>{item.titulo}</h3>
+                  <p className="leading-relaxed text-sm" style={{ color: 'rgba(255,255,255,0.8)', fontFamily: 'DM Sans, sans-serif' }}>{item.texto}</p>
                 </div>
               </motion.div>
             ))}
@@ -204,73 +336,33 @@ export default function QuemSomosPage() {
         </div>
       </section>
 
-      {/* ── VALORES ── */}
+      {/* ── MOSAICO DE FOTOS (substituiu os cards de valores e os stats) ── */}
       <section
         className="px-6 py-24"
         style={{
           background: '#FFFFFF',
-          backgroundImage: 'radial-gradient(circle, rgba(212,0,0,0.06) 1px, transparent 1px)',
+          backgroundImage: 'radial-gradient(circle, rgba(212,0,0,0.05) 1px, transparent 1px)',
           backgroundSize: '24px 24px',
         }}
-        ref={valoresRef}
       >
         <div className="max-w-6xl mx-auto">
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mb-16 text-center">
-            <p className="text-xs uppercase tracking-widest mb-3" style={{ color: 'rgba(212,0,0,0.5)', fontFamily: 'DM Sans, sans-serif' }}>— O que nos move</p>
-            <h2 className="text-5xl font-bold uppercase" style={{ fontFamily: 'Oswald, sans-serif', color: '#D40000' }}>Nossos Valores</h2>
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mb-10">
+            <p className="text-xs uppercase tracking-widest mb-3" style={{ color: 'rgba(212,0,0,0.5)', fontFamily: 'DM Sans, sans-serif' }}>— Nossa galeria</p>
+            <h2 className="text-5xl font-bold uppercase" style={{ fontFamily: 'Oswald, sans-serif', color: '#D40000' }}>Momentos que ficam</h2>
             <motion.div
-              className="mx-auto mt-5"
-              style={{ width: 48, height: 3, background: '#D40000', transformOrigin: 'center' }}
+              className="mt-4"
+              style={{ width: 48, height: 3, background: '#D40000', transformOrigin: 'left' }}
               initial={{ scaleX: 0 }}
               whileInView={{ scaleX: 1 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: 0.2 }}
             />
+            <p className="mt-3 text-sm" style={{ color: 'rgba(212,0,0,0.45)', fontFamily: 'DM Sans, sans-serif', letterSpacing: '0.06em' }}>
+              Clique em qualquer foto para ampliar
+            </p>
           </motion.div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {valores.map((v, i) => {
-              const hov = hoveredValor === i
-              return (
-                <motion.div
-                  key={v.titulo}
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={valoresInView ? { opacity: 1, y: 0 } : {}}
-                  transition={{ delay: i * 0.08, duration: 0.5 }}
-                  whileHover={{ scale: 1.02, y: -6 }}
-                  whileTap={{ scale: 0.97 }}
-                  className="group relative p-8 overflow-hidden cursor-default"
-                  style={{
-                    background: 'rgba(212,0,0,0.04)',
-                    border: `1px solid ${hov ? 'rgba(212,0,0,0.4)' : 'rgba(212,0,0,0.15)'}`,
-                    boxShadow: hov ? '0 20px 48px rgba(212,0,0,0.12)' : 'none',
-                    transition: 'border-color 0.3s ease, box-shadow 0.3s ease',
-                  }}
-                  onMouseEnter={() => setHoveredValor(i)}
-                  onMouseLeave={() => setHoveredValor(null)}
-                >
-                  <motion.div
-                    className="absolute top-0 left-0 right-0 h-[3px]"
-                    style={{ background: '#D40000', transformOrigin: 'left' }}
-                    animate={{ scaleX: hov ? 1 : 0 }}
-                    transition={{ duration: 0.3 }}
-                  />
-                  <div
-                    className="w-14 h-14 flex items-center justify-center mb-6 transition-all duration-300 group-hover:scale-110"
-                    style={{ background: 'rgba(212,0,0,0.10)' }}
-                  >
-                    <v.icon size={26} style={{ color: '#D40000' }} />
-                  </div>
-                  <h3 className="text-2xl font-bold mb-3" style={{ fontFamily: 'Oswald, sans-serif', color: '#D40000' }}>
-                    {v.titulo}
-                  </h3>
-                  <p className="text-sm leading-relaxed" style={{ color: 'rgba(212,0,0,0.75)', fontFamily: 'DM Sans, sans-serif' }}>
-                    {v.texto}
-                  </p>
-                </motion.div>
-              )
-            })}
-          </div>
+          <Mosaico />
         </div>
       </section>
 
