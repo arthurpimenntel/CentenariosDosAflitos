@@ -16,16 +16,15 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
   return (
     <div className="min-h-screen flex" style={{ background: '#FFFFFF' }}>
-      {/* Sidebar vermelha */}
-      <div
-        className="hidden lg:flex flex-col h-screen sticky top-0"
-        style={{ width: 240, background: '#ED1C24', flexShrink: 0 }}
-      >
-        <AdminSidebar userEmail={user.email ?? ''} />
-      </div>
+      {/*
+        AdminSidebar fica FORA do hidden lg:flex para que o botão sanduíche
+        e o drawer mobile sempre existam no DOM, mesmo em telas pequenas.
+        Em desktop, o próprio AdminSidebar se posiciona como fixed/sticky via aside.
+      */}
+      <AdminSidebar userEmail={user.email ?? ''} />
 
       {/* Conteúdo principal */}
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col min-w-0 lg:ml-64">
         <AdminHeader />
         <main className="flex-1 p-6 lg:p-8 overflow-auto" style={{ background: '#fafafa' }}>
           {children}
@@ -34,4 +33,3 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     </div>
   )
 }
-    
