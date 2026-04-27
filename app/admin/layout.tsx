@@ -1,19 +1,27 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { createServerSupabaseClient } from '@/lib/supabase-server'
 import AdminSidebar from '@/components/admin/AdminSidebar'
 import AdminHeader from '@/components/admin/AdminHeader'
 import AdminPwaRegistrar from '@/components/admin/AdminPwaRegistrar'
 
-// ── PWA metadata — only injected for admin pages ─────────────────
 export const metadata: Metadata = {
   manifest: '/api/admin-manifest',
   title: 'Centenários Admin',
-  themeColor: '#ED1C24',
   appleWebApp: {
     capable: true,
     title: 'CA Admin',
     statusBarStyle: 'black-translucent',
   },
+}
+
+// Viewport separado — corrige aviso do Next.js e garante modo standalone no iOS
+export const viewport: Viewport = {
+  themeColor: '#ED1C24',
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: 'cover', // ← isso remove a barra de URL no PWA
 }
 
 export default async function AdminLayout({
@@ -46,12 +54,6 @@ export default async function AdminLayout({
           {children}
         </main>
       </div>
-      {/*
-        AdminPwaRegistrar:
-        • Registers the service worker scoped to the secret admin path
-        • Shows "Install App" banner (only Chrome/Edge/Android)
-        • NEVER rendered on the public site
-      */}
       <AdminPwaRegistrar />
     </div>
   )
