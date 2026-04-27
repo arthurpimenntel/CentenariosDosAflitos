@@ -51,7 +51,7 @@ self.addEventListener('fetch', (event) => {
       .catch(() =>
         // Offline fallback: serve from cache
         caches.match(request).then(
-          (cached) =>
+          (cached) =>        
             cached ??
             new Response(
               '<h1>Sem conexão</h1><p>Abra o painel quando estiver online.</p>',
@@ -61,3 +61,4 @@ self.addEventListener('fetch', (event) => {
       )
   )
 })
+

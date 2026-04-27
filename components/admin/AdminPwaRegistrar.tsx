@@ -33,8 +33,7 @@ export default function AdminPwaRegistrar() {
   useEffect(() => {
     // ── 1. Register service worker ──────────────────────────────
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker
-        .register('/admin-sw.js', { scope: `${adminPath}/` })
+      navigator.serviceWorker.register(`${adminPath}/admin-sw.js`)
         .then((reg) => {
           console.log('[CA-Admin PWA] SW registered — scope:', reg.scope)
         })
