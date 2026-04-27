@@ -1,8 +1,3 @@
-// Novo conteúdo do arquivo SociosAdminClient.tsx
-/*
-Conteúdo omitido para brevidade, mas será substituído pelo conteúdo do anexo SociosAdminClient.tsx enviado.
-*/
-// ...existing code...
 'use client'
 
 import { useState, useEffect } from 'react'
@@ -14,15 +9,9 @@ import { Socio, SocioStatus } from '@/types'
 import AdminStatusBadge from '@/components/admin/AdminStatusBadge'
 import { getSupabaseClient } from '@/lib/supabase'
 import { useToast } from '@/hooks/useToast'
+import { useAdminPath } from '@/hooks/useAdminPath'
 import Toast from '@/components/ui/Toast'
 
-const STATUS_FILTERS = [
-  { label: 'Todos', value: '' },
-  { label: 'Pendentes', value: 'pendente' },
-  { label: 'Em conversa', value: 'em_conversa' },
-  { label: 'Aprovados', value: 'aprovado' },
-  { label: 'Recusados', value: 'recusado' },
-]
 const STATUS_OPTIONS: SocioStatus[] = ['pendente', 'em_conversa', 'aprovado', 'recusado']
 
 function Field({ label, value }: { label: string; value: string | null | undefined }) {
@@ -43,6 +32,15 @@ export default function SociosAdminClient({ socios, activeFilter }: { socios: So
   const { toasts, addToast, removeToast } = useToast()
   const router = useRouter()
   const supabase = getSupabaseClient()
+  const adminBase = useAdminPath()
+
+  const STATUS_FILTERS = [
+    { label: 'Todos',       value: '' },
+    { label: 'Pendentes',   value: 'pendente' },
+    { label: 'Em conversa', value: 'em_conversa' },
+    { label: 'Aprovados',   value: 'aprovado' },
+    { label: 'Recusados',   value: 'recusado' },
+  ]
 
   useEffect(() => { setSelected(null); setObs(''); setStatusEdit('pendente') }, [activeFilter, socios.length])
 
@@ -72,15 +70,18 @@ export default function SociosAdminClient({ socios, activeFilter }: { socios: So
         {/* Título da seção */}
         <div className="flex items-center justify-between mb-2">
           <h2 className="text-2xl font-bold" style={{ color: '#ED1C24', fontFamily: 'Oswald, sans-serif' }}>Últimos Sócios Cadastrados</h2>
-          <Link href="/admin/socios" className="text-lg font-bold uppercase tracking-widest" style={{ color: '#ED1C24', fontFamily: 'Oswald, sans-serif', letterSpacing: 2 }}>
+          <Link href={`${adminBase}/socios`} className="text-lg font-bold uppercase tracking-widest" style={{ color: '#ED1C24', fontFamily: 'Oswald, sans-serif', letterSpacing: 2 }}>
             VER TODOS
           </Link>
         </div>
+
         {/* Filtros + CSV */}
         <div className="flex items-center justify-between flex-wrap gap-4">
           <div className="flex gap-2 flex-wrap">
             {STATUS_FILTERS.map(f => (
-              <Link key={f.value} href={f.value ? `/admin/socios?status=${f.value}` : '/admin/socios'}
+              <Link
+                key={f.value}
+                href={f.value ? `${adminBase}/socios?status=${f.value}` : `${adminBase}/socios`}
                 className="px-4 py-2 rounded-full text-sm font-semibold transition-all hover:scale-[1.02]"
                 style={{ background: (activeFilter ?? '') === f.value ? '#ED1C24' : '#FFFFFF', color: (activeFilter ?? '') === f.value ? '#FFFFFF' : 'rgba(237,28,36,0.6)', border: `1px solid ${(activeFilter ?? '') === f.value ? '#ED1C24' : 'rgba(237,28,36,0.2)'}`, fontFamily: 'DM Sans, sans-serif', boxShadow: (activeFilter ?? '') === f.value ? '0 2px 12px rgba(237,28,36,0.25)' : 'none' }}>
                 {f.label}

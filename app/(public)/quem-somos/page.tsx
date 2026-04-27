@@ -133,7 +133,7 @@ function Lightbox({
         </div>
       </motion.div>
 
-      {/* Thumbnail strip */}
+      {/* NAO MEXER AQUI*/}
       <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-2">
         {fotos.map((f, i) => (
           <button key={i} onClick={e => e.stopPropagation()} className="relative overflow-hidden transition-all"

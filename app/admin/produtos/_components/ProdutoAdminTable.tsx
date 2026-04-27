@@ -1,7 +1,3 @@
-// Novo conteúdo do arquivo ProdutoAdminTable.tsx
-/*
-Conteúdo omitido para brevidade, mas será substituído pelo conteúdo do anexo ProdutoAdminTable.tsx enviado.
-*/
 'use client'
 
 import { useState } from 'react'
@@ -14,6 +10,7 @@ import { getSupabaseClient } from '@/lib/supabase'
 import { useToast } from '@/hooks/useToast'
 import Toast from '@/components/ui/Toast'
 import Modal from '@/components/ui/Modal'
+import { useAdminPath } from '@/hooks/useAdminPath'
 
 export default function ProdutoAdminTable({ produtos }: { produtos: Produto[] }) {
   const [deleteTarget, setDeleteTarget] = useState<Produto | null>(null)
@@ -21,6 +18,7 @@ export default function ProdutoAdminTable({ produtos }: { produtos: Produto[] })
   const { toasts, addToast, removeToast } = useToast()
   const router = useRouter()
   const supabase = getSupabaseClient()
+  const adminBase = useAdminPath()
 
   async function handleDelete() {
     if (!deleteTarget) return
@@ -57,7 +55,9 @@ export default function ProdutoAdminTable({ produtos }: { produtos: Produto[] })
                   </td>
                   <td className="px-5 py-4 font-medium max-w-[180px] truncate" style={{ color: '#ED1C24', fontFamily: 'DM Sans, sans-serif' }}>{p.nome}</td>
                   <td className="px-5 py-4 text-xs" style={{ color: 'rgba(237,28,36,0.45)', fontFamily: 'DM Sans, sans-serif' }}>{p.categoria}</td>
-                  <td className="px-5 py-4 font-semibold" style={{ color: '#ED1C24', fontFamily: 'DM Sans, sans-serif' }}>{p.preco.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
+                  <td className="px-5 py-4 font-semibold" style={{ color: '#ED1C24', fontFamily: 'DM Sans, sans-serif' }}>
+                    {p.preco.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                  </td>
                   <td className="px-5 py-4">
                     <span className="inline-block px-2 py-0.5 rounded-full text-xs font-semibold"
                       style={{ background: p.estoque > 0 ? 'rgba(74,222,128,0.10)' : 'rgba(237,28,36,0.08)', color: p.estoque > 0 ? '#16a34a' : '#ED1C24', fontFamily: 'DM Sans, sans-serif' }}>
@@ -72,10 +72,14 @@ export default function ProdutoAdminTable({ produtos }: { produtos: Produto[] })
                   </td>
                   <td className="px-5 py-4">
                     <div className="flex items-center gap-2">
-                      <Link href={`/admin/produtos/${p.id}`}>
-                        <button className="p-1.5 rounded-lg transition hover:scale-110" style={{ background: 'rgba(237,28,36,0.08)' }} aria-label="Editar"><Edit2 size={14} style={{ color: '#ED1C24' }} /></button>
+                      <Link href={`${adminBase}/produtos/${p.id}`}>
+                        <button className="p-1.5 rounded-lg transition hover:scale-110" style={{ background: 'rgba(237,28,36,0.08)' }} aria-label="Editar">
+                          <Edit2 size={14} style={{ color: '#ED1C24' }} />
+                        </button>
                       </Link>
-                      <button onClick={() => setDeleteTarget(p)} className="p-1.5 rounded-lg transition hover:scale-110" style={{ background: 'rgba(237,28,36,0.08)' }} aria-label="Excluir"><Trash2 size={14} style={{ color: '#ED1C24' }} /></button>
+                      <button onClick={() => setDeleteTarget(p)} className="p-1.5 rounded-lg transition hover:scale-110" style={{ background: 'rgba(237,28,36,0.08)' }} aria-label="Excluir">
+                        <Trash2 size={14} style={{ color: '#ED1C24' }} />
+                      </button>
                     </div>
                   </td>
                 </tr>
@@ -84,7 +88,16 @@ export default function ProdutoAdminTable({ produtos }: { produtos: Produto[] })
           </table>
         </div>
       </div>
-      <Modal open={!!deleteTarget} onClose={() => setDeleteTarget(null)} title="Excluir produto?" description={`"${deleteTarget?.nome}" será removido permanentemente.`} confirmLabel="Excluir" onConfirm={handleDelete} loading={loading} danger />
+      <Modal
+        open={!!deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        title="Excluir produto?"
+        description={`"${deleteTarget?.nome}" será removido permanentemente.`}
+        confirmLabel="Excluir"
+        onConfirm={handleDelete}
+        loading={loading}
+        danger
+      />
       <Toast toasts={toasts} onRemove={removeToast} />
     </>
   )

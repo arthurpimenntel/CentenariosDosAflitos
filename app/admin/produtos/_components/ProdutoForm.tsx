@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, FormEvent, useRef } from 'react'
@@ -7,6 +6,7 @@ import Image from 'next/image'
 import { Produto, ProdutoFormData } from '@/types'
 import { uploadImageAdmin } from '@/lib/upload-client'
 import { useToast } from '@/hooks/useToast'
+import { useAdminPath } from '@/hooks/useAdminPath'
 import Toast from '@/components/ui/Toast'
 import { Plus, X, GripVertical, Upload } from 'lucide-react'
 
@@ -43,6 +43,7 @@ function Toggle({ checked, onChange, label }: { checked: boolean; onChange: (v: 
 export default function ProdutoForm({ produto }: { produto?: Produto }) {
   const isEdit = !!produto
   const router = useRouter()
+  const adminBase = useAdminPath()
   const { toasts, addToast, removeToast } = useToast()
   const imgInputRef = useRef<HTMLInputElement>(null)
 
@@ -107,7 +108,7 @@ export default function ProdutoForm({ produto }: { produto?: Produto }) {
       const res = await fetch(isEdit ? `/api/admin/produtos/${produto.id}` : '/api/admin/produtos', { method: isEdit ? 'PATCH' : 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
       if (!res.ok) throw new Error()
       addToast('success', isEdit ? 'Produto atualizado!' : 'Produto criado!')
-      setTimeout(() => router.push('/admin/produtos'), 1000)
+      setTimeout(() => router.push(`${adminBase}/produtos`), 1000)
     } catch { addToast('error', 'Erro ao salvar.') }
     finally { setSaving(false) }
   }
@@ -234,7 +235,7 @@ export default function ProdutoForm({ produto }: { produto?: Produto }) {
 
         {/* Botões */}
         <div className="flex gap-3 pt-2">
-          <button type="button" onClick={() => router.push('/admin/produtos')} className="px-6 py-3 rounded-xl text-sm font-semibold transition hover:scale-[1.02]"
+          <button type="button" onClick={() => router.push(`${adminBase}/produtos`)} className="px-6 py-3 rounded-xl text-sm font-semibold transition hover:scale-[1.02]"
             style={{ background: '#FFFFFF', color: 'rgba(237,28,36,0.5)', border: '1px solid rgba(237,28,36,0.2)', fontFamily: 'DM Sans, sans-serif' }}>
             Cancelar
           </button>

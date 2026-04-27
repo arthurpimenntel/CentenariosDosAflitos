@@ -8,6 +8,7 @@ import { uploadImageAdmin } from '@/lib/upload-client'
 import { useToast } from '@/hooks/useToast'
 import Toast from '@/components/ui/Toast'
 import AdminImageUpload from '@/components/admin/AdminImageUpload'
+import { useAdminPath } from '@/hooks/useAdminPath'
 
 const FIELD_STYLE = {
   background: '#FFFFFF',
@@ -28,6 +29,8 @@ export default function NoticiaForm({ noticia }: { noticia?: Noticia }) {
   const isEdit = !!noticia
   const router = useRouter()
   const { toasts, addToast, removeToast } = useToast()
+  const adminBase = useAdminPath()
+
   const [form, setForm] = useState<NoticiaFormData>({
     titulo: noticia?.titulo ?? '',
     slug: noticia?.slug ?? '',
@@ -46,22 +49,41 @@ export default function NoticiaForm({ noticia }: { noticia?: Noticia }) {
 
   async function handleImageUpload(file: File) {
     setUploading(true)
-    try { const url = await uploadImageAdmin(file, 'noticias'); setForm(f => ({ ...f, imagem_url: url })) }
-    catch { addToast('error', 'Erro ao fazer upload da imagem.') }
-    finally { setUploading(false) }
+    try {
+      const url = await uploadImageAdmin(file, 'noticias')
+      setForm(f => ({ ...f, imagem_url: url }))
+    } catch {
+      addToast('error', 'Erro ao fazer upload da imagem.')
+    } finally {
+      setUploading(false)
+    }
   }
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
     setSaving(true)
-    const payload = { titulo: form.titulo, slug: form.slug, resumo: form.resumo || null, conteudo: form.conteudo || null, imagem_url: form.imagem_url || null, publicado: form.publicado, publicado_em: form.publicado && form.publicado_em ? new Date(form.publicado_em).toISOString() : null }
+    const payload = {
+      titulo: form.titulo,
+      slug: form.slug,
+      resumo: form.resumo || null,
+      conteudo: form.conteudo || null,
+      imagem_url: form.imagem_url || null,
+      publicado: form.publicado,
+      publicado_em: form.publicado && form.publicado_em ? new Date(form.publicado_em).toISOString() : null,
+    }
     try {
-      const res = await fetch(isEdit ? `/api/admin/noticias/${noticia.id}` : '/api/admin/noticias', { method: isEdit ? 'PATCH' : 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
+      const res = await fetch(
+        isEdit ? `/api/admin/noticias/${noticia.id}` : '/api/admin/noticias',
+        { method: isEdit ? 'PATCH' : 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }
+      )
       if (!res.ok) throw new Error()
       addToast('success', isEdit ? 'Notícia atualizada!' : 'Notícia criada!')
-      setTimeout(() => router.push('/admin/noticias'), 1000)
-    } catch { addToast('error', 'Erro ao salvar. Tente novamente.') }
-    finally { setSaving(false) }
+      setTimeout(() => router.push(`${adminBase}/noticias`), 1000)
+    } catch {
+      addToast('error', 'Erro ao salvar. Tente novamente.')
+    } finally {
+      setSaving(false)
+    }
   }
 
   const inputClass = 'w-full px-4 py-3 rounded-xl outline-none transition-all'
@@ -71,7 +93,6 @@ export default function NoticiaForm({ noticia }: { noticia?: Noticia }) {
   return (
     <>
       <form onSubmit={handleSubmit} className="space-y-4 max-w-2xl">
-
         <div style={SECTION_STYLE} className="space-y-4">
           <p className="text-xs font-bold uppercase tracking-widest" style={{ color: '#ED1C24', fontFamily: 'DM Sans, sans-serif' }}>Informações básicas</p>
           <div>
@@ -121,13 +142,18 @@ export default function NoticiaForm({ noticia }: { noticia?: Noticia }) {
         </div>
 
         <div className="flex gap-3 pt-2">
-          <button type="button" onClick={() => router.push('/admin/noticias')} className="px-6 py-3 rounded-xl text-sm font-semibold transition hover:scale-[1.02]"
+          <button type="button" onClick={() => router.push(`${adminBase}/noticias`)}
+            className="px-6 py-3 rounded-xl text-sm font-semibold transition hover:scale-[1.02]"
             style={{ background: '#FFFFFF', color: 'rgba(237,28,36,0.5)', border: '1px solid rgba(237,28,36,0.2)', fontFamily: 'DM Sans, sans-serif' }}>
             Cancelar
           </button>
-          <button type="submit" disabled={saving || uploading} className="px-8 py-3 rounded-xl text-sm font-semibold disabled:opacity-60 transition hover:scale-[1.02]"
+          <button type="submit" disabled={saving || uploading}
+            className="px-8 py-3 rounded-xl text-sm font-semibold disabled:opacity-60 transition hover:scale-[1.02]"
             style={{ background: '#ED1C24', color: '#FFFFFF', fontFamily: 'DM Sans, sans-serif', boxShadow: '0 4px 16px rgba(237,28,36,0.3)' }}>
-            {saving ? <span className="flex items-center gap-2"><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />Salvando...</span> : isEdit ? 'Salvar Alterações' : 'Criar Notícia'}
+            {saving
+              ? <span className="flex items-center gap-2"><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />Salvando...</span>
+              : isEdit ? 'Salvar Alterações' : 'Criar Notícia'
+            }
           </button>
         </div>
       </form>

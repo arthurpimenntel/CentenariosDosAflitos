@@ -9,6 +9,7 @@ import { getSupabaseClient } from '@/lib/supabase'
 import { useToast } from '@/hooks/useToast'
 import Toast from '@/components/ui/Toast'
 import Modal from '@/components/ui/Modal'
+import { useAdminPath } from '@/hooks/useAdminPath'
 
 export default function NoticiaAdminTable({ noticias }: { noticias: Noticia[] }) {
   const [deleteTarget, setDeleteTarget] = useState<Noticia | null>(null)
@@ -16,6 +17,7 @@ export default function NoticiaAdminTable({ noticias }: { noticias: Noticia[] })
   const { toasts, addToast, removeToast } = useToast()
   const router = useRouter()
   const supabase = getSupabaseClient()
+  const adminBase = useAdminPath()
 
   async function handleDelete() {
     if (!deleteTarget) return
@@ -57,10 +59,14 @@ export default function NoticiaAdminTable({ noticias }: { noticias: Noticia[] })
                   </td>
                   <td className="px-5 py-4">
                     <div className="flex items-center gap-2">
-                      <Link href={`/admin/noticias/${n.id}`}>
-                        <button className="p-1.5 rounded-lg transition hover:scale-110" style={{ background: 'rgba(237,28,36,0.08)' }} aria-label="Editar"><Edit2 size={14} style={{ color: '#ED1C24' }} /></button>
+                      <Link href={`${adminBase}/noticias/${n.id}`}>
+                        <button className="p-1.5 rounded-lg transition hover:scale-110" style={{ background: 'rgba(237,28,36,0.08)' }} aria-label="Editar">
+                          <Edit2 size={14} style={{ color: '#ED1C24' }} />
+                        </button>
                       </Link>
-                      <button onClick={() => setDeleteTarget(n)} className="p-1.5 rounded-lg transition hover:scale-110" style={{ background: 'rgba(237,28,36,0.08)' }} aria-label="Excluir"><Trash2 size={14} style={{ color: '#ED1C24' }} /></button>
+                      <button onClick={() => setDeleteTarget(n)} className="p-1.5 rounded-lg transition hover:scale-110" style={{ background: 'rgba(237,28,36,0.08)' }} aria-label="Excluir">
+                        <Trash2 size={14} style={{ color: '#ED1C24' }} />
+                      </button>
                     </div>
                   </td>
                 </tr>
@@ -69,12 +75,17 @@ export default function NoticiaAdminTable({ noticias }: { noticias: Noticia[] })
           </table>
         </div>
       </div>
-      <Modal open={!!deleteTarget} onClose={() => setDeleteTarget(null)} title="Excluir notícia?" description={`"${deleteTarget?.titulo}" será removida permanentemente.`} confirmLabel="Excluir" onConfirm={handleDelete} loading={loading} danger />
+      <Modal
+        open={!!deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        title="Excluir notícia?"
+        description={`"${deleteTarget?.titulo}" será removida permanentemente.`}
+        confirmLabel="Excluir"
+        onConfirm={handleDelete}
+        loading={loading}
+        danger
+      />
       <Toast toasts={toasts} onRemove={removeToast} />
     </>
   )
 }
-// Novo conteúdo do arquivo NoticiaAdminTable.tsx
-/*
-Conteúdo omitido para brevidade, mas será substituído pelo conteúdo do anexo NoticiaAdminTable.tsx enviado.
-*/
