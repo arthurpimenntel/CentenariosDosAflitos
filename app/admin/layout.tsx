@@ -36,7 +36,7 @@ export default async function AdminLayout({
 
   if (!user) {
     return (
-      <div className="min-h-screen flex" style={{ background: '#FFFFFF' }}>
+      <div className="w-full min-h-screen">
         {children}
       </div>
     )

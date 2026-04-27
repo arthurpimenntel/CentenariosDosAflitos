@@ -30,9 +30,8 @@ export default function Navbar() {
   useEffect(() => { setMenuOpen(false) }, [pathname])
 
   const isHome = pathname === '/'
-  // Só transparente na home antes de scrollar (hero tem foto como fundo)
   const transparent = isHome && !scrolled
-  const isRedBackground = !transparent && isHome // on home when scrolled, red; on other pages, white
+  const isRedBackground = !transparent && isHome
   const textColor = transparent || isRedBackground ? '#FFFFFF' : '#ED1C24'
   const textColorMuted = transparent || isRedBackground ? 'rgba(255,255,255,0.78)' : 'rgba(237,28,36,0.7)'
 
@@ -45,11 +44,8 @@ export default function Navbar() {
         className="fixed top-0 left-0 right-0 z-[100] transition-all duration-300"
         style={{
           background: transparent ? 'rgba(0,0,0,0.35)' : isRedBackground ? '#ED1C24' : '#FFFFFF',
-          // Borda branca na base — garante separação visual mesmo sobre fundo vermelho
           borderBottom: transparent ? 'none' : isRedBackground ? '1px solid rgba(255,255,255,0.18)' : '1px solid rgba(0,0,0,0.1)',
-          boxShadow: transparent
-            ? 'none'
-            : isRedBackground ? '0 2px 24px rgba(0,0,0,0.25)' : '0 2px 24px rgba(0,0,0,0.1)',
+          boxShadow: transparent ? 'none' : isRedBackground ? '0 2px 24px rgba(0,0,0,0.25)' : '0 2px 24px rgba(0,0,0,0.1)',
           backdropFilter: transparent ? 'blur(4px)' : 'none',
         }}
         aria-label="Navegação principal"
@@ -58,23 +54,23 @@ export default function Navbar() {
           <div className="flex items-center justify-between h-16 md:h-20">
 
             {/* Logo */}
-            <Link href="/" className="flex items-center gap-3 group" aria-label="Os Centenários dos Aflitos">
+            <Link href="/" className="flex items-center gap-2 group flex-shrink-0" aria-label="Os Centenários dos Aflitos">
               <Image
                 src="/EscudoOficial.png"
                 alt="Escudo Os Centenários dos Aflitos"
-                width={56}
-                height={56}
-                className="object-contain transition-transform duration-300 group-hover:scale-105 drop-shadow-sm"
+                width={48}
+                height={48}
+                className="object-contain transition-transform duration-300 group-hover:scale-105 drop-shadow-sm md:w-[56px] md:h-[56px]"
               />
               <div className="flex flex-col leading-none">
                 <span
-                  className="font-ultras font-bold text-base md:text-lg tracking-widest uppercase"
-                  style={{ color: textColor, letterSpacing: '0.15em', textShadow: transparent || isRedBackground ? '0 1px 4px rgba(0,0,0,0.3)' : 'none' }}
+                  className="font-ultras font-bold text-sm lg:text-base tracking-widest uppercase whitespace-nowrap"
+                  style={{ color: textColor, letterSpacing: '0.12em', textShadow: transparent || isRedBackground ? '0 1px 4px rgba(0,0,0,0.3)' : 'none' }}
                 >
                   OS CENTENÁRIOS
                 </span>
                 <span
-                  className="font-ultras text-xs tracking-[0.3em] uppercase"
+                  className="font-ultras text-[10px] lg:text-xs tracking-[0.3em] uppercase"
                   style={{ color: transparent || isRedBackground ? 'rgba(255,255,255,0.72)' : 'rgba(237,28,36,0.7)', textShadow: transparent || isRedBackground ? '0 1px 4px rgba(0,0,0,0.3)' : 'none' }}
                 >
                   DOS AFLITOS
@@ -83,26 +79,24 @@ export default function Navbar() {
             </Link>
 
             {/* Links desktop */}
-            <div className="hidden md:flex items-center gap-6 lg:gap-7">
+            <div className="hidden md:flex items-center gap-3 lg:gap-6 xl:gap-7">
               {navLinks.map((link) => {
                 const active = pathname === link.href
                 return (
                   <Link
                     key={link.href}
                     href={link.href}
-                    className="font-ultras text-sm tracking-widest uppercase relative group transition-colors duration-200"
+                    className="font-ultras text-xs lg:text-sm tracking-wider lg:tracking-widest uppercase relative group transition-colors duration-200 whitespace-nowrap"
                     style={{
                       color: active ? textColor : textColorMuted,
                       textShadow: transparent || isRedBackground ? '0 1px 4px rgba(0,0,0,0.2)' : 'none',
                     }}
                   >
                     {link.label}
-                    {/* Underline ativo */}
                     <span
                       className="absolute -bottom-1 left-0 h-[2px] transition-all duration-300"
                       style={{ width: active ? '100%' : '0', opacity: active ? 1 : 0, background: textColor }}
                     />
-                    {/* Underline hover */}
                     <span className="absolute -bottom-1 left-0 w-0 h-[2px] group-hover:w-full transition-all duration-300 opacity-70" style={{ background: textColor }} />
                   </Link>
                 )
@@ -111,7 +105,7 @@ export default function Navbar() {
               {/* CTA */}
               <Link
                 href="/cadastro"
-                className="ml-1 px-5 py-2.5 font-ultras text-sm font-bold tracking-widest uppercase transition-all duration-200 hover:scale-105"
+                className="ml-1 px-3 py-2 lg:px-5 lg:py-2.5 font-ultras text-xs lg:text-sm font-bold tracking-widest uppercase transition-all duration-200 hover:scale-105 whitespace-nowrap flex-shrink-0"
                 style={{
                   background: '#FFFFFF',
                   color: '#ED1C24',
@@ -156,11 +150,8 @@ export default function Navbar() {
             exit={{ opacity: 0, x: '100%' }}
             transition={{ duration: 0.32, ease: 'easeInOut' }}
             className="fixed inset-0 z-[90] flex flex-col items-center justify-center gap-7"
-            style={{
-              background: '#ED1C24',
-            }}
+            style={{ background: '#ED1C24' }}
           >
-            {/* Linha decorativa topo */}
             <div className="absolute top-0 left-0 right-0 h-1" style={{ background: 'rgba(255,255,255,0.15)' }} />
 
             <Image src="/EscudoOficial.png" alt="Escudo" width={68} height={68} className="object-contain mb-2 opacity-90" />

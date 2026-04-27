@@ -26,6 +26,16 @@ export default function GaleriaClient({ fotos, categorias }: { fotos: GaleriaFot
     return () => window.removeEventListener('keydown', onKey)
   }, [lightboxIdx, prev, next])
 
+  // lock scroll when lightbox open
+  useEffect(() => {
+    if (lightboxIdx !== null) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
+    }
+    return () => { document.body.style.overflow = '' }
+  }, [lightboxIdx])
+
   return (
     <>
       {/* Filtros de categoria */}
@@ -33,15 +43,13 @@ export default function GaleriaClient({ fotos, categorias }: { fotos: GaleriaFot
         <div className="flex gap-2 flex-wrap mb-10">
           <button
             onClick={() => setFiltro(null)}
-            className="px-5 py-2 text-sm font-semibold uppercase tracking-wider transition-all"
+            className="px-5 py-2 text-sm font-semibold uppercase tracking-wider transition-all rounded-full"
             style={{
               background: !filtro ? '#ED1C24' : 'rgba(237,28,36,0.04)',
               color: !filtro ? '#FFFFFF' : '#ED1C24',
               border: `1px solid ${!filtro ? '#ED1C24' : 'rgba(237,28,36,0.2)'}`,
               fontFamily: 'DM Sans, sans-serif',
             }}
-            onMouseEnter={e => { if (filtro !== null) { (e.currentTarget as HTMLElement).style.borderColor = '#ED1C24'; (e.currentTarget as HTMLElement).style.background = 'rgba(237,28,36,0.08)' } }}
-            onMouseLeave={e => { if (filtro !== null) { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(237,28,36,0.2)'; (e.currentTarget as HTMLElement).style.background = 'rgba(237,28,36,0.04)' } }}
           >
             Todas
           </button>
@@ -49,15 +57,13 @@ export default function GaleriaClient({ fotos, categorias }: { fotos: GaleriaFot
             <button
               key={cat}
               onClick={() => setFiltro(cat)}
-              className="px-5 py-2 text-sm font-semibold uppercase tracking-wider capitalize transition-all"
+              className="px-5 py-2 text-sm font-semibold uppercase tracking-wider capitalize transition-all rounded-full"
               style={{
                 background: filtro === cat ? '#ED1C24' : 'rgba(237,28,36,0.04)',
                 color: filtro === cat ? '#FFFFFF' : '#ED1C24',
                 border: `1px solid ${filtro === cat ? '#ED1C24' : 'rgba(237,28,36,0.2)'}`,
                 fontFamily: 'DM Sans, sans-serif',
               }}
-              onMouseEnter={e => { if (filtro !== cat) { (e.currentTarget as HTMLElement).style.borderColor = '#ED1C24'; (e.currentTarget as HTMLElement).style.background = 'rgba(237,28,36,0.08)' } }}
-              onMouseLeave={e => { if (filtro !== cat) { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(237,28,36,0.2)'; (e.currentTarget as HTMLElement).style.background = 'rgba(237,28,36,0.04)' } }}
             >
               {cat}
             </button>
@@ -78,8 +84,8 @@ export default function GaleriaClient({ fotos, categorias }: { fotos: GaleriaFot
           >
             <button
               onClick={() => setLightboxIdx(i)}
-              className="group w-full block overflow-hidden relative"
-              style={{ border: '1px solid rgba(237,28,36,0.12)' }}
+              className="group w-full block overflow-hidden relative rounded-xl"
+              style={{ border: '1px solid rgba(237,28,36,0.10)' }}
             >
               <div className="relative w-full">
                 <Image
@@ -89,101 +95,106 @@ export default function GaleriaClient({ fotos, categorias }: { fotos: GaleriaFot
                   height={300}
                   className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105"
                 />
-                {/* Red overlay on hover */}
                 <div
-                  className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                  style={{ background: 'rgba(237,28,36,0.35)' }}
-                />
-                {/* Top bar */}
-                <div
-                  className="absolute top-0 left-0 right-0 h-[3px] scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"
-                  style={{ background: '#ED1C24' }}
-                />
+                  className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-3"
+                  style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 60%)' }}
+                >
+                  {foto.descricao && (
+                    <p className="text-white text-xs font-medium line-clamp-2" style={{ fontFamily: 'DM Sans, sans-serif' }}>
+                      {foto.descricao}
+                    </p>
+                  )}
+                </div>
               </div>
             </button>
           </motion.div>
         ))}
       </div>
 
-      {/* Lightbox */}
+      {/* Lightbox premium */}
       <AnimatePresence>
-        {current && lightboxIdx !== null && (
-          <motion.div
-            className="fixed inset-0 z-50 flex items-center justify-center"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-          >
-            <motion.div
-              className="absolute inset-0"
-              style={{ background: 'rgba(237,28,36,0.92)' }}
-              onClick={() => setLightboxIdx(null)}
-            />
+  {current && lightboxIdx !== null && (
+    <motion.div
+      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+      transition={{ duration: 0.25 }}
+      className="fixed inset-0 z-[999] flex items-center justify-center"
+      style={{ background: 'rgba(0,0,0,0.94)', backdropFilter: 'blur(10px)' }}
+      onClick={() => setLightboxIdx(null)}
+    >
+      {/* Botão fechar */}
+      <button
+        onClick={() => setLightboxIdx(null)}
+        className="absolute top-5 right-5 z-20 flex items-center justify-center rounded-full transition-all hover:scale-110"
+        style={{ width: 44, height: 44, background: 'rgba(237,28,36,0.9)', border: '1px solid rgba(255,255,255,0.15)' }}
+        aria-label="Fechar"
+      >
+        <X size={18} color="#fff" />
+      </button>
 
-            <motion.div
-              className="relative z-10 max-w-5xl w-full mx-4"
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              transition={{ duration: 0.3 }}
-            >
-              <Image
-                src={current.imagem_url}
-                alt={current.descricao || 'Foto galeria'}
-                width={1200}
-                height={800}
-                className="w-full h-auto max-h-[80vh] object-contain"
-              />
-              {current.descricao && (
-                <p className="mt-3 text-center text-sm" style={{ color: 'rgba(255,255,255,0.75)', fontFamily: 'DM Sans, sans-serif' }}>
-                  {current.descricao}
-                </p>
-              )}
-            </motion.div>
+      {/* Contador */}
+      <div className="absolute top-5 left-5 z-20 px-3 py-1.5 rounded-full"
+        style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', fontFamily: 'Oswald, sans-serif', fontSize: 12, letterSpacing: '0.15em', color: 'rgba(255,255,255,0.6)' }}>
+        {lightboxIdx + 1} / {filtered.length}
+      </div>
 
-            {/* Controles */}
-            <button
-              onClick={() => setLightboxIdx(null)}
-              className="absolute top-4 right-4 z-20 w-10 h-10 flex items-center justify-center transition-all"
-              style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.3)', color: '#FFFFFF' }}
-              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#FFFFFF'; (e.currentTarget as HTMLElement).style.color = '#ED1C24' }}
-              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.15)'; (e.currentTarget as HTMLElement).style.color = '#FFFFFF' }}
-            >
-              <X size={18} />
-            </button>
+      {/* Botão prev */}
+      {filtered.length > 1 && (
+        <button
+          onClick={e => { e.stopPropagation(); prev() }}
+          className="absolute left-4 top-1/2 -translate-y-1/2 z-20 flex items-center justify-center rounded-full transition-all hover:scale-110"
+          style={{ width: 52, height: 52, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)' }}
+          aria-label="Anterior"
+        >
+          <ChevronLeft size={22} color="#fff" />
+        </button>
+      )}
 
-            {filtered.length > 1 && (
-              <>
-                <button
-                  onClick={prev}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 flex items-center justify-center transition-all"
-                  style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.3)', color: '#FFFFFF' }}
-                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#FFFFFF'; (e.currentTarget as HTMLElement).style.color = '#ED1C24' }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.15)'; (e.currentTarget as HTMLElement).style.color = '#FFFFFF' }}
-                >
-                  <ChevronLeft size={20} />
-                </button>
-                <button
-                  onClick={next}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 flex items-center justify-center transition-all"
-                  style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.3)', color: '#FFFFFF' }}
-                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#FFFFFF'; (e.currentTarget as HTMLElement).style.color = '#ED1C24' }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.15)'; (e.currentTarget as HTMLElement).style.color = '#FFFFFF' }}
-                >
-                  <ChevronRight size={20} />
-                </button>
-              </>
-            )}
+      {/* Botão next */}
+      {filtered.length > 1 && (
+        <button
+          onClick={e => { e.stopPropagation(); next() }}
+          className="absolute right-4 top-1/2 -translate-y-1/2 z-20 flex items-center justify-center rounded-full transition-all hover:scale-110"
+          style={{ width: 52, height: 52, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)' }}
+          aria-label="Próxima"
+        >
+          <ChevronRight size={22} color="#fff" />
+        </button>
+      )}
 
-            {/* Contador */}
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 px-3 py-1" style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.2)' }}>
-              <span className="text-xs font-bold text-white" style={{ fontFamily: 'Oswald, sans-serif' }}>
-                {lightboxIdx + 1} / {filtered.length}
-              </span>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Imagem */}
+      <motion.div
+        key={lightboxIdx}
+        initial={{ opacity: 0, scale: 0.94, y: 12 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.96 }}
+        transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
+        className="relative z-10 flex flex-col items-center px-20"
+        style={{ maxWidth: 900, width: '100%' }}
+        onClick={e => e.stopPropagation()}
+      >
+        <div className="relative w-full overflow-hidden" style={{ borderRadius: 12, boxShadow: '0 32px 80px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.06)' }}>
+          <div className="absolute top-0 left-0 right-0 h-[3px] z-10" style={{ background: '#ED1C24' }} />
+          <Image
+            src={current.imagem_url}
+            alt={current.descricao || `Foto ${lightboxIdx + 1}`}
+            width={900}
+            height={600}
+            className="w-full h-auto object-contain"
+            style={{ maxHeight: '72vh', display: 'block' }}
+            sizes="90vw"
+            priority
+          />
+        </div>
+        {/* Legenda abaixo da imagem */}
+        <div className="flex items-center justify-between w-full mt-3 px-1">
+          <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: 'rgba(255,255,255,0.45)', letterSpacing: '0.08em' }}>
+            {current.descricao || ''}
+          </p>
+        </div>
+      </motion.div>
+    </motion.div>
+  )}
+</AnimatePresence>
     </>
   )
 }

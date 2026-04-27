@@ -56,7 +56,6 @@ const fotos = [
   { src: '/torcida5.jpeg', alt: 'Festa na arquibancada',    span: 'col-span-1 row-span-1' },
 ]
 
-// ── Lightbox ──────────────────────────────────────────────────────────────────
 function Lightbox({
   index, onClose, onPrev, onNext,
 }: {
@@ -81,63 +80,83 @@ function Lightbox({
       initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
       transition={{ duration: 0.25 }}
       className="fixed inset-0 z-[999] flex items-center justify-center"
-      style={{ background: 'rgba(0,0,0,0.96)' }}
+      style={{ background: 'rgba(0,0,0,0.94)', backdropFilter: 'blur(10px)' }}
       onClick={onClose}
     >
-      {/* Grain */}
-      <div className="absolute inset-0 pointer-events-none opacity-[0.03]"
-        style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")` }} />
-
-      {/* Close */}
-      <button onClick={onClose} aria-label="Fechar"
-        className="absolute top-5 right-5 z-10 flex items-center justify-center transition-all hover:scale-110"
-        style={{ width: 44, height: 44, background: 'rgba(212,0,0,0.9)', backdropFilter: 'blur(8px)' }}>
+      {/* Botão fechar */}
+      <button
+        onClick={onClose}
+        className="absolute top-5 right-5 z-20 flex items-center justify-center rounded-full transition-all hover:scale-110"
+        style={{ width: 44, height: 44, background: 'rgba(237,28,36,0.9)', border: '1px solid rgba(255,255,255,0.15)' }}
+        aria-label="Fechar"
+      >
         <X size={18} color="#fff" />
       </button>
 
-      {/* Counter */}
-      <div className="absolute top-5 left-5 z-10 px-3 py-1.5"
-        style={{ background: 'rgba(255,255,255,0.07)', backdropFilter: 'blur(8px)', fontFamily: 'Oswald, sans-serif', fontSize: 12, letterSpacing: '0.15em', color: 'rgba(255,255,255,0.6)' }}>
+      {/* Contador */}
+      <div className="absolute top-5 left-5 z-20 px-3 py-1.5 rounded-full"
+        style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', fontFamily: 'Oswald, sans-serif', fontSize: 12, letterSpacing: '0.15em', color: 'rgba(255,255,255,0.6)' }}>
         {index + 1} / {fotos.length}
       </div>
 
-      {/* Prev */}
-      <button onClick={e => { e.stopPropagation(); onPrev() }} aria-label="Anterior"
-        className="absolute left-4 z-10 flex items-center justify-center transition-all hover:scale-110 hover:bg-white/10"
-        style={{ width: 52, height: 52, border: '1px solid rgba(255,255,255,0.15)', backdropFilter: 'blur(8px)' }}>
+      {/* Botão prev */}
+      <button
+        onClick={e => { e.stopPropagation(); onPrev() }}
+        className="absolute left-4 top-1/2 -translate-y-1/2 z-20 flex items-center justify-center rounded-full transition-all hover:scale-110"
+        style={{ width: 52, height: 52, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)' }}
+        aria-label="Anterior"
+      >
         <ChevronLeft size={22} color="#fff" />
       </button>
 
-      {/* Next */}
-      <button onClick={e => { e.stopPropagation(); onNext() }} aria-label="Próxima"
-        className="absolute right-4 z-10 flex items-center justify-center transition-all hover:scale-110 hover:bg-white/10"
-        style={{ width: 52, height: 52, border: '1px solid rgba(255,255,255,0.15)', backdropFilter: 'blur(8px)' }}>
+      {/* Botão next */}
+      <button
+        onClick={e => { e.stopPropagation(); onNext() }}
+        className="absolute right-4 top-1/2 -translate-y-1/2 z-20 flex items-center justify-center rounded-full transition-all hover:scale-110"
+        style={{ width: 52, height: 52, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)' }}
+        aria-label="Próxima"
+      >
         <ChevronRight size={22} color="#fff" />
       </button>
 
-      {/* Image */}
+      {/* Imagem */}
       <motion.div
         key={index}
         initial={{ opacity: 0, scale: 0.94, y: 12 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.96 }}
         transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
-        className="relative w-full max-w-5xl mx-16"
-        style={{ aspectRatio: '16/9' }}
+        className="relative z-10 flex flex-col items-center px-20"
+        style={{ maxWidth: 900, width: '100%' }}
         onClick={e => e.stopPropagation()}
       >
-        <Image src={fotos[index].src} alt={fotos[index].alt} fill className="object-contain" sizes="90vw" priority />
-        <div className="absolute bottom-0 left-0 right-0 px-6 py-4"
-          style={{ background: 'linear-gradient(transparent, rgba(0,0,0,0.7))', fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: 'rgba(255,255,255,0.6)', letterSpacing: '0.08em' }}>
-          {fotos[index].alt}
+        <div className="relative w-full overflow-hidden" style={{ borderRadius: 12, boxShadow: '0 32px 80px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.06)' }}>
+          <div className="absolute top-0 left-0 right-0 h-[3px] z-10" style={{ background: '#ED1C24' }} />
+          <Image
+            src={fotos[index].src}
+            alt={fotos[index].alt}
+            width={900}
+            height={600}
+            className="w-full h-auto object-contain"
+            style={{ maxHeight: '72vh', display: 'block' }}
+            sizes="90vw"
+            priority
+          />
+        </div>
+        {/* Legenda abaixo da imagem */}
+        <div className="flex items-center justify-between w-full mt-3 px-1">
+          <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: 'rgba(255,255,255,0.45)', letterSpacing: '0.08em' }}>
+            {fotos[index].alt}
+          </p>
         </div>
       </motion.div>
 
-      {/* NAO MEXER AQUI*/}
-      <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-2">
+      {/* Thumbnails */}
+      <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-2 z-20">
         {fotos.map((f, i) => (
-          <button key={i} onClick={e => e.stopPropagation()} className="relative overflow-hidden transition-all"
-            style={{ width: i === index ? 48 : 32, height: 32, opacity: i === index ? 1 : 0.4, outline: i === index ? '2px solid #D40000' : 'none', outlineOffset: 2 }}>
+          <button key={i} onClick={e => { e.stopPropagation() }}
+            className="relative overflow-hidden rounded transition-all"
+            style={{ width: i === index ? 48 : 32, height: 32, opacity: i === index ? 1 : 0.4, outline: i === index ? '2px solid #ED1C24' : 'none', outlineOffset: 2 }}>
             <Image src={f.src} alt={f.alt} fill className="object-cover" sizes="48px" />
           </button>
         ))}
