@@ -38,7 +38,7 @@ export default function HeroCarousel({ fotos }: Props) {
     hidden: { opacity: 0, y: 40 },
     visible: (i: number) => ({
       opacity: 1, y: 0,
-      transition: { delay: i * 0.15, duration: 0.7, ease: "easeOut" },
+      transition: { delay: i * 0.15, duration: 0.7, ease: 'easeOut' },
     }),
   }
 
@@ -46,55 +46,13 @@ export default function HeroCarousel({ fotos }: Props) {
     <section className="relative h-screen w-full overflow-hidden" aria-label="Hero">
       {/* Background slides */}
       {photos.map((photo, idx) => (
-        <div
-          key={photo.id}
-          className="absolute inset-0 transition-opacity duration-[1500ms]"
-          style={{ opacity: idx === current ? 1 : 0 }}
-        >
-          <Image
-            src={photo.imagem_url}
-            alt={`Os Centenários dos Aflitos - foto ${idx + 1}`}
-            fill priority={idx === 0}
-            className="object-cover object-center"
-            sizes="100vw"
-          />
+        <div key={photo.id} className="absolute inset-0 transition-opacity duration-[1500ms]" style={{ opacity: idx === current ? 1 : 0 }}>
+          <Image src={photo.imagem_url} alt={`Os Centenários dos Aflitos - foto ${idx + 1}`} fill priority={idx === 0} className="object-cover object-center" sizes="100vw" />
         </div>
       ))}
 
-      {/* Overlay vermelho dramático */}
-      <div
-        className="absolute inset-0 z-10"
-        style={{ background: 'linear-gradient(to bottom, rgba(237,28,36,0.55) 0%, rgba(140,0,0,0.82) 100%)' }}
-        aria-hidden="true"
-      />
-
-      {/* Stick1 — à direita */}
-      <motion.div
-        className="absolute z-20 hidden md:block"
-        style={{ right: '4%', bottom: '8%', width: 200, pointerEvents: 'none', rotate: '6deg' }}
-        initial={{ opacity: 0, x: 60, rotate: '6deg' }}
-        animate={{ opacity: 0.92, x: 0, rotate: '6deg' }}
-        transition={{ duration: 1, delay: 0.8, ease: 'easeOut' }}
-        whileHover={{ scale: 1.08, rotate: '4deg' }}
-      >
-        <div className="sticker-float">
-          <img src="/stick1.png" alt="Torcedor Centenários" width={200} style={{ mixBlendMode: 'screen', filter: 'drop-shadow(0 4px 16px rgba(237,28,36,0.6))' }} />
-        </div>
-      </motion.div>
-
-      {/* Stick2 — à esquerda */}
-      <motion.div
-        className="absolute z-20 hidden lg:block"
-        style={{ left: '3%', bottom: '12%', width: 160, pointerEvents: 'none', rotate: '-8deg' }}
-        initial={{ opacity: 0, x: -60, rotate: '-8deg' }}
-        animate={{ opacity: 0.88, x: 0, rotate: '-8deg' }}
-        transition={{ duration: 1, delay: 1.1, ease: 'easeOut' }}
-        whileHover={{ scale: 1.1, rotate: '-5deg' }}
-      >
-        <div className="sticker-float" style={{ animationDelay: '1.5s' }}>
-          <img src="/stick2.png" alt="12° Jogador" width={160} style={{ mixBlendMode: 'screen', filter: 'drop-shadow(0 4px 16px rgba(237,28,36,0.6))' }} />
-        </div>
-      </motion.div>
+      {/* Overlay vermelho */}
+      <div className="absolute inset-0 z-10" style={{ background: 'linear-gradient(to bottom, rgba(237,28,36,0.55) 0%, rgba(140,0,0,0.82) 100%)' }} aria-hidden="true" />
 
       {/* Hero content */}
       <div className="absolute inset-0 z-20 flex flex-col items-center justify-center text-center px-4">
@@ -115,7 +73,6 @@ export default function HeroCarousel({ fotos }: Props) {
           <span style={{ color: '#FFFFFF', WebkitTextStroke: '2px rgba(255,255,255,0.4)' }}>CENTENÁRIOS</span>
         </motion.h1>
 
-        {/* Linha decorativa */}
         <motion.div
           custom={1.5} variants={textVariants} initial="hidden" animate="visible"
           className="w-24 h-[3px] mb-6"
@@ -130,41 +87,23 @@ export default function HeroCarousel({ fotos }: Props) {
           Apoio incondicional — do início ao fim. Desde 2012.
         </motion.p>
 
-        <motion.div
-          custom={3} variants={textVariants} initial="hidden" animate="visible"
-          className="flex flex-col sm:flex-row gap-3"
-        >
-          <Link
-            href="/cadastro"
+        <motion.div custom={3} variants={textVariants} initial="hidden" animate="visible" className="flex flex-col sm:flex-row gap-3">
+          <Link href="/cadastro"
             className="px-6 py-3 font-ultras text-xs tracking-widest uppercase transition-all duration-200 hover:scale-105"
-            style={{
-              background: '#FFFFFF',
-              color: '#ED1C24',
-              boxShadow: '0 4px 24px rgba(0,0,0,0.2)',
-            }}
+            style={{ background: '#FFFFFF', color: '#ED1C24', boxShadow: '0 4px 24px rgba(0,0,0,0.2)' }}
             onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.9)' }}
-            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = '#FFFFFF' }}
-          >
+            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = '#FFFFFF' }}>
             SEJA SÓCIO
           </Link>
-          <Link
-            href="/quem-somos"
-            className="px-6 py-3 border-2 border-white font-ultras text-xs tracking-widest uppercase text-white hover:bg-white hover:text-[#ED1C24] hover:scale-105 transition-all duration-200"
-          >
+          <Link href="/quem-somos"
+            className="px-6 py-3 border-2 border-white font-ultras text-xs tracking-widest uppercase text-white hover:bg-white hover:text-[#ED1C24] hover:scale-105 transition-all duration-200">
             NOSSA HISTÓRIA
           </Link>
-          <Link
-            href="/loja"
+          <Link href="/loja"
             className="px-6 py-3 font-ultras text-xs tracking-widest uppercase transition-all duration-200 hover:scale-105"
-            style={{
-              background: '#ED1C24',
-              color: '#FFFFFF',
-              border: '2px solid rgba(255,255,255,0.5)',
-              boxShadow: '0 4px 24px rgba(237,28,36,0.4)',
-            }}
+            style={{ background: '#ED1C24', color: '#FFFFFF', border: '2px solid rgba(255,255,255,0.5)', boxShadow: '0 4px 24px rgba(237,28,36,0.4)' }}
             onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(200,10,18,0.9)' }}
-            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = '#ED1C24' }}
-          >
+            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = '#ED1C24' }}>
             LOJA
           </Link>
         </motion.div>
@@ -174,22 +113,13 @@ export default function HeroCarousel({ fotos }: Props) {
       {photos.length > 1 && (
         <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-20 flex gap-3" role="tablist">
           {photos.map((_, idx) => (
-            <button
-              key={idx} role="tab"
-              aria-selected={idx === current}
-              aria-label={`Slide ${idx + 1}`}
-              onClick={() => goTo(idx)}
-              className="h-1.5 rounded-full transition-all duration-500"
-              style={{
-                width: idx === current ? '2rem' : '0.75rem',
-                background: idx === current ? '#FFFFFF' : 'rgba(255,255,255,0.4)',
-              }}
-            />
+            <button key={idx} role="tab" aria-selected={idx === current} aria-label={`Slide ${idx + 1}`}
+              onClick={() => goTo(idx)} className="h-1.5 rounded-full transition-all duration-500"
+              style={{ width: idx === current ? '2rem' : '0.75rem', background: idx === current ? '#FFFFFF' : 'rgba(255,255,255,0.4)' }} />
           ))}
         </div>
       )}
 
-      {/* Scroll arrow */}
       <div className="absolute bottom-8 right-8 z-20 bounce-arrow" aria-hidden="true">
         <ChevronDown size={28} className="text-white/70" />
       </div>

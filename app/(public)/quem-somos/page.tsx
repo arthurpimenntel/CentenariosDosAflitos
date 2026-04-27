@@ -227,9 +227,7 @@ export default function QuemSomosPage() {
           transition={{ duration: 0.9, delay: 0.6 }}
           whileHover={{ scale: 1.1, rotate: '5deg' }}
         >
-          <div className="sticker-float">
-            <img src="/stick2.png" alt="12º Jogador" width={160} style={{ mixBlendMode: 'screen' }} />
-          </div>
+          
         </motion.div>
 
         <div className="relative z-10 max-w-7xl mx-auto px-6 pb-20 pt-40 w-full">
@@ -383,9 +381,7 @@ export default function QuemSomosPage() {
           transition={{ duration: 0.8, delay: 0.3 }}
           whileHover={{ scale: 1.06, rotate: '5deg' }}
         >
-          <div className="sticker-float" style={{ animationDelay: '1s' }}>
-            <img src="/stick1.png" alt="Torcedor Centenários" width={180} style={{ mixBlendMode: 'screen' }} />
-          </div>
+          
         </motion.div>
 
         <motion.div
