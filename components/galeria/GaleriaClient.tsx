@@ -168,7 +168,7 @@ export default function GaleriaClient({ fotos, categorias }: { fotos: GaleriaFot
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.96 }}
         transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
-        className="relative z-10 flex flex-col items-center px-20"
+        className="relative z-10 flex flex-col items-center px-3 sm:px-20"
         style={{ maxWidth: 900, width: '100%' }}
         onClick={e => e.stopPropagation()}
       >
