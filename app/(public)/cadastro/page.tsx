@@ -3,14 +3,13 @@
 import { useState, useRef, useEffect, Suspense, FormEvent, ChangeEvent } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { motion } from 'framer-motion'
-import {
-  CheckCircle, ChevronRight, Upload, X, FileImage, CreditCard, Banknote
-} from 'lucide-react'
+import {CheckCircle, ChevronRight, Upload, X, FileImage, CreditCard, Banknote} from 'lucide-react'
 import { getSupabaseClient } from '@/lib/supabase'
 import Image from 'next/image'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import { Zap, Calendar, Bus, ShoppingBag } from 'lucide-react'
+import DatePicker from '@/components/DatePicker'
 
 type CarteirinhaOpcao = 'fisica' | 'virtual'
 type PlanoSocio = 'individual' | 'familia'
@@ -448,9 +447,15 @@ function CadastroPageInner() {
                   </div>
                   <div className="grid md:grid-cols-2 gap-4">
                     <div>
-                      <label className={labelBase} style={{ color: 'rgba(237,28,36,0.7)', fontFamily: 'DM Sans, sans-serif' }}>Data de nascimento</label>
-                      <input type="date" value={form.data_nascimento} onChange={e => set('data_nascimento', e.target.value)} className={inputBase} style={inputSt(false)} />
-                    </div>
+                     <label className={labelBase} style={{ color: 'rgba(237,28,36,0.7)', fontFamily: 'DM Sans, sans-serif' }}>
+                       Data de nascimento
+                       </label>
+                       <DatePicker
+                       value={form.data_nascimento}
+                        onChange={val => set('data_nascimento', val)}
+                         maxDate={new Date()}
+                              />
+                       </div>
                     <div>
                       <label className={labelBase} style={{ color: 'rgba(237,28,36,0.7)', fontFamily: 'DM Sans, sans-serif' }}>Cidade *</label>
                       <input value={form.cidade} onChange={e => set('cidade', e.target.value)} className={inputBase} style={inputSt(!!errors.cidade)} placeholder="Sua cidade" />
