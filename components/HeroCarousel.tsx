@@ -61,16 +61,16 @@ export default function HeroCarousel({ fotos }: Props) {
           className="font-ultras text-sm md:text-base tracking-[0.5em] uppercase mb-6"
           style={{ color: 'rgba(255,255,255,0.85)' }}
         >
-          Barra Brava do Clube Náutico Capibaribe
+          A Barra do Clube Náutico Capibaribe
         </motion.p>
 
         <motion.h1
           custom={1} variants={textVariants} initial="hidden" animate="visible"
-          className="font-ultras font-bold text-[2.6rem] sm:text-6xl md:text-8xl lg:text-9xl uppercase leading-none mb-4 text-white"
+          className="font-ultras font-bold text-[2.8rem] sm:text-text-[3.3rem] sm:text-5xl md:text-7xl lg:text-8xl uppercase leading-none mb-4 text-white"
           style={{ textShadow: '0 4px 32px rgba(0,0,0,0.3)' }}
         >
-          OS<br />
-          <span style={{ color: '#FFFFFF', WebkitTextStroke: '2px rgba(255,255,255,0.4)' }}>CENTENÁRIOS</span>
+          OS CENTENÁRIOS<br />
+          <span style={{ color: '#FFFFFF', WebkitTextStroke: '2px rgba(255,255,255,0.4)' }}>DOS AFLITOS</span>
         </motion.h1>
 
         <motion.div
@@ -84,7 +84,7 @@ export default function HeroCarousel({ fotos }: Props) {
           className="font-body text-base md:text-xl mb-8"
           style={{ color: 'rgba(255,255,255,0.8)' }}
         >
-          Apoio incondicional — do início ao fim. Desde 2012.
+          Desde 2012 apoiando o Náutico incondicionalmente.
         </motion.p>
 
         <motion.div custom={3} variants={textVariants} initial="hidden" animate="visible" className="flex flex-col sm:flex-row gap-3">

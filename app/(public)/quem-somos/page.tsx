@@ -385,7 +385,7 @@ export default function QuemSomosPage() {
 
       {/* ── CTA — O CALDEIRÃO ── */}
       <section
-        className="py-32 px-6 text-center relative overflow-hidden"
+        className="pt-10 pb-32 px-6 text-center relative overflow-hidden"
         style={{
           background: '#D40000',
           backgroundImage: 'repeating-linear-gradient(to right, rgba(255,255,255,0.04) 0px, rgba(255,255,255,0.04) 30px, transparent 30px, transparent 60px)',
@@ -407,11 +407,11 @@ export default function QuemSomosPage() {
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="max-w-2xl mx-auto relative z-10"
+          className="max-w-2xl mx-auto relative z-10 pt-0"
         >
-          <Image src="/EscudoOficial.png" alt="Escudo" width={80} height={80} className="mx-auto mb-8 opacity-30" />
+          <Image src="/EscudoOficial.png" alt="Escudo" width={80} height={80} className="mx-auto mb-4 opacity-30" />
           <p className="text-xs uppercase tracking-widest mb-4" style={{ color: 'rgba(255,255,255,0.6)', fontFamily: 'DM Sans, sans-serif' }}>O Caldeirão</p>
-          <h2 className="text-5xl md:text-6xl font-bold uppercase mb-4" style={{ fontFamily: 'Oswald, sans-serif', color: '#FFFFFF' }}>
+          <h2 className="text-3xl md:text-6xl font-bold uppercase mb-4 px-4 text-center" style={{ fontFamily: 'Oswald, sans-serif', color: '#FFFFFF' }}>
             Se você acredita na força que vem da arquibancada
           </h2>
           <div className="w-12 h-[3px] mx-auto mb-8" style={{ background: 'rgba(255,255,255,0.5)' }} />
