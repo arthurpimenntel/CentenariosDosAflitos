@@ -1,9 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { motion, AnimatePresence } from 'framer-motion'
 import {
   LayoutDashboard, FileText, ShoppingBag, Users,
   ImageIcon, Star, LogOut, Menu, X, ChevronRight,
@@ -11,37 +10,33 @@ import {
 import { getSupabaseClient } from '@/lib/supabase'
 import { useAdminPath } from '@/hooks/useAdminPath'
 
-export default function AdminSidebar({ userEmail }: { userEmail: string }) {
-  const [mobileOpen, setMobileOpen] = useState(false)
-  const adminBase = useAdminPath()
-  const pathname = usePathname()
-  const router = useRouter()
-  const supabase = getSupabaseClient()
+// ─── Tipagem ────────────────────────────────────────────────────────────────
+interface NavItem {
+  href: string
+  icon: React.ElementType
+  label: string
+  exact?: boolean
+}
 
-  const navItems = [
-    { href: adminBase,                   icon: LayoutDashboard, label: 'Dashboard',      exact: true },
-    { href: `${adminBase}/noticias`,     icon: FileText,        label: 'Notícias'                    },
-    { href: `${adminBase}/produtos`,     icon: ShoppingBag,     label: 'Produtos'                    },
-    { href: `${adminBase}/socios`,       icon: Users,           label: 'Sócios'                      },
-    { href: `${adminBase}/galeria`,      icon: ImageIcon,       label: 'Galeria'                     },
-    { href: `${adminBase}/hero`,         icon: Star,            label: 'Hero / Carrossel'            },
-  ]
+interface SidebarContentProps {
+  navItems: NavItem[]
+  userEmail: string
+  pathname: string
+  onClose: () => void
+  onLogout: () => void
+}
 
-  async function handleLogout() {
-    await supabase.auth.signOut()
-    router.push(`${adminBase}/login`)
-    router.refresh()
-  }
-
+// ─── Conteúdo da sidebar extraído para fora — evita remount a cada render ──
+function SidebarContent({ navItems, userEmail, pathname, onClose, onLogout }: SidebarContentProps) {
   function isActive(href: string, exact = false) {
     if (exact) return pathname === href
     return pathname.startsWith(href)
   }
 
-  const SidebarContent = () => (
+  return (
     <div className="flex flex-col h-full" style={{ background: '#ED1C24' }}>
       <div className="p-6 border-b border-red-100 border-opacity-20">
-        <Link href={adminBase} onClick={() => setMobileOpen(false)}>
+        <Link href={navItems[0].href} onClick={onClose}>
           <div className="flex items-center gap-3">
             <div
               className="w-9 h-9 rounded-lg flex items-center justify-center text-white font-bold text-sm"
@@ -68,7 +63,7 @@ export default function AdminSidebar({ userEmail }: { userEmail: string }) {
             <Link
               key={item.href}
               href={item.href}
-              onClick={() => setMobileOpen(false)}
+              onClick={onClose}
               className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all ${
                 active ? 'bg-white/10 border border-white/20' : 'hover:bg-white/10'
               }`}
@@ -89,7 +84,7 @@ export default function AdminSidebar({ userEmail }: { userEmail: string }) {
           {userEmail}
         </p>
         <button
-          onClick={handleLogout}
+          onClick={onLogout}
           className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all hover:bg-white/10"
         >
           <LogOut size={18} style={{ color: '#fff' }} />
@@ -100,9 +95,41 @@ export default function AdminSidebar({ userEmail }: { userEmail: string }) {
       </div>
     </div>
   )
+}
+
+// ─── Componente principal ───────────────────────────────────────────────────
+export default function AdminSidebar({ userEmail }: { userEmail: string }) {
+  const [mobileOpen, setMobileOpen] = useState(false)
+  const adminBase = useAdminPath()
+  const pathname = usePathname()
+  const router = useRouter()
+  const supabase = getSupabaseClient()
+
+  const navItems: NavItem[] = [
+    { href: adminBase,                   icon: LayoutDashboard, label: 'Dashboard',      exact: true },
+    { href: `${adminBase}/noticias`,     icon: FileText,        label: 'Notícias'                    },
+    { href: `${adminBase}/produtos`,     icon: ShoppingBag,     label: 'Produtos'                    },
+    { href: `${adminBase}/socios`,       icon: Users,           label: 'Sócios'                      },
+    { href: `${adminBase}/galeria`,      icon: ImageIcon,       label: 'Galeria'                     },
+    { href: `${adminBase}/hero`,         icon: Star,            label: 'Hero / Carrossel'            },
+  ]
+
+  // Prefetch de todas as rotas da nav ao montar — elimina o delay na primeira abertura
+  useEffect(() => {
+    navItems.forEach(item => router.prefetch(item.href))
+  }, [adminBase]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const handleLogout = useCallback(async () => {
+    await supabase.auth.signOut()
+    router.push(`${adminBase}/login`)
+    router.refresh()
+  }, [supabase, router, adminBase])
+
+  const closeMobile = useCallback(() => setMobileOpen(false), [])
 
   return (
     <>
+      {/* Botão hamburguer — mobile */}
       <button
         onClick={() => setMobileOpen(true)}
         className="fixed top-4 left-4 z-50 p-2 rounded-lg lg:hidden"
@@ -112,42 +139,56 @@ export default function AdminSidebar({ userEmail }: { userEmail: string }) {
         <Menu size={20} color="#fff" />
       </button>
 
+      {/* Sidebar desktop */}
       <aside
         className="fixed inset-y-0 left-0 w-64 hidden lg:block z-40 border-r"
         style={{ borderColor: 'rgba(237,28,36,0.15)' }}
       >
-        <SidebarContent />
+        <SidebarContent
+          navItems={navItems}
+          userEmail={userEmail}
+          pathname={pathname}
+          onClose={closeMobile}
+          onLogout={handleLogout}
+        />
       </aside>
 
-      <AnimatePresence>
-        {mobileOpen && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 z-40 bg-black/60 lg:hidden"
-              onClick={() => setMobileOpen(false)}
-            />
-            <motion.aside
-              initial={{ x: -280 }}
-              animate={{ x: 0 }}
-              exit={{ x: -280 }}
-              transition={{ type: 'tween', duration: 0.25 }}
-              className="fixed inset-y-0 left-0 w-72 z-50 lg:hidden"
-            >
-              <button
-                onClick={() => setMobileOpen(false)}
-                className="absolute top-4 right-4 p-1 rounded-lg opacity-60 hover:opacity-100"
-                aria-label="Fechar menu"
-              >
-                <X size={20} color="#fff" />
-              </button>
-              <SidebarContent />
-            </motion.aside>
-          </>
-        )}
-      </AnimatePresence>
+      {/* Overlay — mobile (CSS puro, sem Framer Motion) */}
+      <div
+        className="fixed inset-0 z-40 bg-black/60 lg:hidden"
+        style={{
+          opacity: mobileOpen ? 1 : 0,
+          pointerEvents: mobileOpen ? 'auto' : 'none',
+          transition: 'opacity 0.25s ease',
+        }}
+        onClick={closeMobile}
+        aria-hidden="true"
+      />
+
+      {/* Drawer — mobile (CSS puro, sem Framer Motion) */}
+      <aside
+        className="fixed inset-y-0 left-0 w-72 z-50 lg:hidden"
+        style={{
+          transform: mobileOpen ? 'translateX(0)' : 'translateX(-100%)',
+          transition: 'transform 0.25s ease',
+        }}
+        aria-hidden={!mobileOpen}
+      >
+        <button
+          onClick={closeMobile}
+          className="absolute top-4 right-4 p-1 rounded-lg opacity-60 hover:opacity-100"
+          aria-label="Fechar menu"
+        >
+          <X size={20} color="#fff" />
+        </button>
+        <SidebarContent
+          navItems={navItems}
+          userEmail={userEmail}
+          pathname={pathname}
+          onClose={closeMobile}
+          onLogout={handleLogout}
+        />
+      </aside>
     </>
   )
 }

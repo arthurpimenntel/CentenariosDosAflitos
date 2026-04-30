@@ -1,19 +1,13 @@
-import { createAdminClient } from '@/lib/supabase-admin'
-import { createServerSupabaseClient } from '@/lib/supabase-server'
+export const revalidate = 30
+
 import { NextResponse } from 'next/server'
+import { createAdminClient } from '@/lib/supabase-admin'
 
-async function requireAuth() {
-  const supabase = await createServerSupabaseClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  return user
-}
-
-export async function POST(req: Request) {
-  const user = await requireAuth()
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  const body = await req.json()
+export async function GET() {
   const supabase = createAdminClient()
-  const { data, error } = await supabase.from('noticias').insert(body).select().single()
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 })
-  return NextResponse.json(data)
+  const { data } = await supabase
+    .from('noticias')
+    .select('*')
+    .order('created_at', { ascending: false })
+  return NextResponse.json(data ?? [])
 }

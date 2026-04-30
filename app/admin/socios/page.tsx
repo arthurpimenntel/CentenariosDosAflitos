@@ -1,59 +1,41 @@
-import { createAdminClient } from '@/lib/supabase-admin'
+'use client'
+
+import { useState, useEffect } from 'react'
+import { useSearchParams } from 'next/navigation'
 import SociosAdminClient from './_components/SociosAdminClient'
 
-const SIGNED_URL_EXPIRY = 60 * 60 * 24 // 24 horas
-
-function parseStoragePath(url: string) {
-  if (!url) return null
-
-  try {
-    if (url.startsWith('http')) {
-      const parsed = new URL(url)
-      const marker = '/storage/v1/object/public/'
-      const index = parsed.pathname.indexOf(marker)
-      if (index === -1) return null
-      const objectPath = parsed.pathname.slice(index + marker.length)
-      const [bucket, ...rest] = objectPath.split('/')
-      if (!bucket || rest.length === 0) return null
-      return { bucket, path: rest.join('/') }
-    }
-
-    const [bucket, ...rest] = url.split('/')
-    if (!bucket || rest.length === 0) return null
-    return { bucket, path: rest.join('/') }
-  } catch {
-    return null
-  }
-}
-
-async function resolveSignedUrl(supabase: ReturnType<typeof createAdminClient>, url: string) {
-  const storagePath = parseStoragePath(url)
-  if (!storagePath) return url
-
-  const { data, error } = await supabase.storage
-    .from(storagePath.bucket)
-    .createSignedUrl(storagePath.path, SIGNED_URL_EXPIRY)
-
-  if (error || !data?.signedUrl) {
-    return url
-  }
-
-  return data.signedUrl
-}
-
-export default async function AdminSociosPage({ searchParams }: { searchParams: { status?: string } }) {
-  const supabase = createAdminClient()
-  let query = supabase.from('socios').select('*').order('created_at', { ascending: false })
-  if (searchParams.status) query = query.eq('status', searchParams.status)
-  const { data: socios } = await query
-
-  const sociosWithSignedUrls = await Promise.all(
-    (socios ?? []).map(async socio => ({
-      ...socio,
-      foto_url: socio.foto_url ? await resolveSignedUrl(supabase, socio.foto_url) : null,
-      comprovante_url: socio.comprovante_url ? await resolveSignedUrl(supabase, socio.comprovante_url) : null,
-    }))
+function ListSkeleton() {
+  return (
+    <div className="space-y-3 animate-pulse">
+      {[...Array(6)].map((_, i) => (
+        <div key={i} className="flex items-center gap-4 p-4 rounded-xl" style={{ background: '#FFFFFF', border: '1px solid rgba(237,28,36,0.1)' }}>
+          <div className="w-10 h-10 rounded-full" style={{ background: 'rgba(237,28,36,0.1)' }} />
+          <div className="flex-1 space-y-2">
+            <div className="h-4 w-40 rounded" style={{ background: 'rgba(237,28,36,0.08)' }} />
+            <div className="h-3 w-24 rounded" style={{ background: 'rgba(237,28,36,0.05)' }} />
+          </div>
+          <div className="h-5 w-20 rounded-full" style={{ background: 'rgba(237,28,36,0.08)' }} />
+        </div>
+      ))}
+    </div>
   )
+}
 
-  return <SociosAdminClient socios={sociosWithSignedUrls} activeFilter={searchParams.status} />
+export default function AdminSociosPage() {
+  const searchParams = useSearchParams()
+  const status = searchParams.get('status') ?? undefined
+  const [socios, setSocios] = useState<any[] | null>(null)
+
+  useEffect(() => {
+    setSocios(null) // reset ao trocar filtro
+    const url = status ? `/api/admin/socios?status=${status}` : '/api/admin/socios'
+    fetch(url)
+      .then(r => r.json())
+      .then(data => setSocios(data))
+      .catch(() => setSocios([]))
+  }, [status])
+
+  return socios === null
+    ? <ListSkeleton />
+    : <SociosAdminClient socios={socios} activeFilter={status} />
 }
