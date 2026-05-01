@@ -6,6 +6,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import {
   LayoutDashboard, FileText, ShoppingBag, Users,
   ImageIcon, Star, LogOut, Menu, X, ChevronRight,
+  Home, BookOpen, Shield,
 } from 'lucide-react'
 import { getSupabaseClient } from '@/lib/supabase'
 import { useAdminPath } from '@/hooks/useAdminPath'
@@ -106,12 +107,15 @@ export default function AdminSidebar({ userEmail }: { userEmail: string }) {
   const supabase = getSupabaseClient()
 
   const navItems: NavItem[] = [
-    { href: adminBase,                   icon: LayoutDashboard, label: 'Dashboard',      exact: true },
-    { href: `${adminBase}/noticias`,     icon: FileText,        label: 'Notícias'                    },
-    { href: `${adminBase}/produtos`,     icon: ShoppingBag,     label: 'Produtos'                    },
-    { href: `${adminBase}/socios`,       icon: Users,           label: 'Sócios'                      },
-    { href: `${adminBase}/galeria`,      icon: ImageIcon,       label: 'Galeria'                     },
-    { href: `${adminBase}/hero`,         icon: Star,            label: 'Hero / Carrossel'            },
+    { href: adminBase,                          icon: LayoutDashboard, label: 'Dashboard',        exact: true },
+    { href: `${adminBase}/noticias`,            icon: FileText,        label: 'Notícias'                      },
+    { href: `${adminBase}/produtos`,            icon: ShoppingBag,     label: 'Produtos'                      },
+    { href: `${adminBase}/socios`,              icon: Users,           label: 'Sócios'                        },
+    { href: `${adminBase}/galeria`,             icon: ImageIcon,       label: 'Galeria'                       },
+    { href: `${adminBase}/hero`,                icon: Star,            label: 'Hero / Carrossel'              },
+    { href: `${adminBase}/home-fotos`,          icon: Home,            label: 'Fotos da Home'                 },
+    { href: `${adminBase}/quem-somos-fotos`,    icon: BookOpen,        label: 'Fotos Quem Somos'              },
+    { href: `${adminBase}/auditoria`,           icon: Shield,          label: 'Auditoria'                     },
   ]
 
   // Prefetch de todas as rotas da nav ao montar — elimina o delay na primeira abertura

@@ -37,6 +37,5 @@ export async function deleteImageAdmin(
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ bucket, url }),
   })
-  // Não lança erro se falhar — imagem órfã não quebra o fluxo
   if (!res.ok) console.warn('Falha ao deletar imagem do storage:', url)
 }
