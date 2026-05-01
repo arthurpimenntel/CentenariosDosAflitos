@@ -94,14 +94,62 @@ export default function SociosAdminClient({ socios, activeFilter }: { socios: So
           </button>
         </div>
 
-        {/* Tabela */}
+        {/* Lista / Tabela */}
         <div className="overflow-hidden" style={{ background: '#FFFFFF', border: '1px solid rgba(237,28,36,0.15)', borderRadius: 16, boxShadow: '0 2px 12px rgba(237,28,36,0.06)' }}>
-          <div className="overflow-x-auto">
+
+          {/* ── MOBILE CARDS (< 640 px) ── */}
+          <div className="sm:hidden divide-y" style={{ borderColor: 'rgba(237,28,36,0.07)' }}>
+            {socios.length === 0 && (
+              <p className="px-5 py-12 text-center text-sm"
+                style={{ color: 'rgba(237,28,36,0.35)', fontFamily: 'DM Sans, sans-serif' }}>
+                Nenhum sócio encontrado.
+              </p>
+            )}
+            {socios.map((s, i) => (
+              <div key={s.id} onClick={() => openDrawer(s)}
+                className="px-4 py-4 space-y-2 cursor-pointer active:bg-red-50/40 transition-colors"
+                style={{ background: i % 2 === 0 ? '#FFFFFF' : 'rgba(237,28,36,0.02)' }}>
+
+                {/* Avatar + Nome */}
+                <div className="flex items-center gap-3">
+                  {s.foto_url ? (
+                    <div className="relative w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
+                      <Image src={s.foto_url} alt={s.nome} fill className="object-cover" sizes="32px" />
+                    </div>
+                  ) : (
+                    <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
+                      style={{ background: '#ED1C24' }}>
+                      <span className="text-xs font-bold text-white">{s.nome.charAt(0).toUpperCase()}</span>
+                    </div>
+                  )}
+                  <p className="font-medium text-sm"
+                    style={{ color: '#ED1C24', fontFamily: 'DM Sans, sans-serif' }}>{s.nome}</p>
+                </div>
+
+                {/* Email */}
+                <p className="text-xs truncate"
+                  style={{ color: 'rgba(237,28,36,0.5)', fontFamily: 'DM Sans, sans-serif' }}>{s.email}</p>
+
+                {/* Status + Data */}
+                <div className="flex items-center justify-between gap-2">
+                  <AdminStatusBadge status={s.status} />
+                  <span className="text-xs whitespace-nowrap"
+                    style={{ color: 'rgba(237,28,36,0.45)', fontFamily: 'DM Sans, sans-serif' }}>
+                    {new Date(s.created_at).toLocaleDateString('pt-BR')}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* ── DESKTOP TABLE (≥ 640 px) ── */}
+          <div className="hidden sm:block overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr style={{ background: 'rgba(237,28,36,0.05)', borderBottom: '1px solid rgba(237,28,36,0.12)' }}>
                   {['Nome', 'E-mail', 'Cidade', 'Plano', 'Status', 'Data'].map(h => (
-                    <th key={h} className="px-5 py-4 text-left text-xs font-bold uppercase tracking-wider" style={{ color: 'rgba(237,28,36,0.5)', fontFamily: 'DM Sans, sans-serif' }}>{h}</th>
+                    <th key={h} className="px-5 py-4 text-left text-xs font-bold uppercase tracking-wider"
+                      style={{ color: 'rgba(237,28,36,0.5)', fontFamily: 'DM Sans, sans-serif' }}>{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -121,7 +169,8 @@ export default function SociosAdminClient({ socios, activeFilter }: { socios: So
                             <Image src={s.foto_url} alt={s.nome} fill className="object-cover" sizes="28px" />
                           </div>
                         ) : (
-                          <div className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: '#ED1C24' }}>
+                          <div className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0"
+                            style={{ background: '#ED1C24' }}>
                             <span className="text-xs font-bold text-white">{s.nome.charAt(0).toUpperCase()}</span>
                           </div>
                         )}
@@ -143,7 +192,7 @@ export default function SociosAdminClient({ socios, activeFilter }: { socios: So
         </div>
       </div>
 
-      {/* Drawer */}
+      {/* Drawer — sem alterações */}
       {selected && (
         <div className="fixed inset-0 z-50 flex justify-end">
           <div className="absolute inset-0 bg-black/30" onClick={() => setSelected(null)} />

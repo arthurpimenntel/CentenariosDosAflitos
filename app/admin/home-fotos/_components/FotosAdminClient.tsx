@@ -70,7 +70,7 @@ export default function FotosAdminClient({ fotos: initialFotos, tabela, titulo, 
     setUploading(false)
   }
 
-  // ─── Upload do hero — usa PUT para atualizar quem_somos_hero via API ─────────
+  // ─── Upload do hero ───────────────────────────────────────────────────────────
   async function handleHeroFile(file: File) {
     if (!file.type.startsWith('image/')) return
     setUploadingHero(true)
@@ -206,39 +206,104 @@ export default function FotosAdminClient({ fotos: initialFotos, tabela, titulo, 
           ) : (
             <div className="space-y-3">
               {fotos.map((foto, i) => (
-                <div key={foto.id} className="flex items-center gap-3 p-3 rounded-xl"
+                <div key={foto.id} className="p-3 rounded-xl"
                   style={{ background: i === 0 ? 'rgba(237,28,36,0.03)' : '#fafafa', border: `1px solid ${i === 0 ? 'rgba(237,28,36,0.15)' : 'rgba(237,28,36,0.08)'}` }}>
 
-                  <div className="relative w-16 h-12 rounded-lg overflow-hidden flex-shrink-0" style={{ background: 'rgba(237,28,36,0.06)' }}>
-                    <Image src={foto.imagem_url} alt={foto.alt ?? ''} fill className="object-cover" sizes="64px" />
+                  {/* ── MOBILE LAYOUT (< 640 px): 3 linhas ── */}
+                  <div className="sm:hidden space-y-2">
+
+                    {/* Linha 1: thumbnail + número */}
+                    <div className="flex items-center gap-3">
+                      <div className="relative w-16 h-12 rounded-lg overflow-hidden flex-shrink-0"
+                        style={{ background: 'rgba(237,28,36,0.06)' }}>
+                        <Image src={foto.imagem_url} alt={foto.alt ?? ''} fill className="object-cover" sizes="64px" />
+                      </div>
+                      <div className="flex-shrink-0 text-center" style={{ minWidth: 28 }}>
+                        <span className="text-base font-bold"
+                          style={{ color: 'rgba(237,28,36,0.3)', fontFamily: 'Oswald, sans-serif' }}>{i + 1}</span>
+                        {i === 0 && (
+                          <div className="text-xs leading-none mt-0.5"
+                            style={{ color: '#ED1C24', fontFamily: 'DM Sans, sans-serif' }}>★</div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Linha 2: input de legenda — largura total */}
+                    <input
+                      type="text"
+                      value={foto.alt ?? ''}
+                      onChange={e => updateAlt(foto, e.target.value)}
+                      onBlur={() => saveAlt(foto)}
+                      placeholder="Legenda (opcional)"
+                      className="w-full px-3 py-1.5 rounded-lg text-sm outline-none"
+                      style={{ background: '#FFFFFF', border: '1px solid rgba(237,28,36,0.12)', color: '#1a1a1a', fontFamily: 'DM Sans, sans-serif' }}
+                    />
+
+                    {/* Linha 3: botões alinhados à direita */}
+                    <div className="flex justify-end items-center gap-1.5">
+                      <button onClick={() => move(foto, 'up')} disabled={i === 0}
+                        className="p-1.5 rounded-lg disabled:opacity-20"
+                        style={{ background: 'rgba(237,28,36,0.06)' }}>
+                        <ChevronUp size={15} style={{ color: '#ED1C24' }} />
+                      </button>
+                      <button onClick={() => move(foto, 'down')} disabled={i === fotos.length - 1}
+                        className="p-1.5 rounded-lg disabled:opacity-20"
+                        style={{ background: 'rgba(237,28,36,0.06)' }}>
+                        <ChevronDown size={15} style={{ color: '#ED1C24' }} />
+                      </button>
+                      <button onClick={() => setDeleteTarget(foto)}
+                        className="p-1.5 rounded-lg"
+                        style={{ background: 'rgba(237,28,36,0.06)' }}>
+                        <Trash2 size={15} style={{ color: '#ED1C24' }} />
+                      </button>
+                    </div>
                   </div>
 
-                  <div className="flex-shrink-0 text-center" style={{ minWidth: 28 }}>
-                    <span className="text-base font-bold" style={{ color: 'rgba(237,28,36,0.3)', fontFamily: 'Oswald, sans-serif' }}>{i + 1}</span>
-                    {i === 0 && <div className="text-xs leading-none mt-0.5" style={{ color: '#ED1C24', fontFamily: 'DM Sans, sans-serif' }}>★</div>}
+                  {/* ── DESKTOP LAYOUT (≥ 640 px): linha original ── */}
+                  <div className="hidden sm:flex items-center gap-3">
+                    <div className="relative w-16 h-12 rounded-lg overflow-hidden flex-shrink-0"
+                      style={{ background: 'rgba(237,28,36,0.06)' }}>
+                      <Image src={foto.imagem_url} alt={foto.alt ?? ''} fill className="object-cover" sizes="64px" />
+                    </div>
+
+                    <div className="flex-shrink-0 text-center" style={{ minWidth: 28 }}>
+                      <span className="text-base font-bold"
+                        style={{ color: 'rgba(237,28,36,0.3)', fontFamily: 'Oswald, sans-serif' }}>{i + 1}</span>
+                      {i === 0 && (
+                        <div className="text-xs leading-none mt-0.5"
+                          style={{ color: '#ED1C24', fontFamily: 'DM Sans, sans-serif' }}>★</div>
+                      )}
+                    </div>
+
+                    <input
+                      type="text"
+                      value={foto.alt ?? ''}
+                      onChange={e => updateAlt(foto, e.target.value)}
+                      onBlur={() => saveAlt(foto)}
+                      placeholder="Legenda (opcional)"
+                      className="flex-1 px-3 py-1.5 rounded-lg text-sm outline-none"
+                      style={{ background: '#FFFFFF', border: '1px solid rgba(237,28,36,0.12)', color: '#1a1a1a', fontFamily: 'DM Sans, sans-serif', minWidth: 0 }}
+                    />
+
+                    <div className="flex items-center gap-1.5 flex-shrink-0">
+                      <button onClick={() => move(foto, 'up')} disabled={i === 0}
+                        className="p-1.5 rounded-lg disabled:opacity-20"
+                        style={{ background: 'rgba(237,28,36,0.06)' }}>
+                        <ChevronUp size={15} style={{ color: '#ED1C24' }} />
+                      </button>
+                      <button onClick={() => move(foto, 'down')} disabled={i === fotos.length - 1}
+                        className="p-1.5 rounded-lg disabled:opacity-20"
+                        style={{ background: 'rgba(237,28,36,0.06)' }}>
+                        <ChevronDown size={15} style={{ color: '#ED1C24' }} />
+                      </button>
+                      <button onClick={() => setDeleteTarget(foto)}
+                        className="p-1.5 rounded-lg"
+                        style={{ background: 'rgba(237,28,36,0.06)' }}>
+                        <Trash2 size={15} style={{ color: '#ED1C24' }} />
+                      </button>
+                    </div>
                   </div>
 
-                  <input
-                    type="text"
-                    value={foto.alt ?? ''}
-                    onChange={e => updateAlt(foto, e.target.value)}
-                    onBlur={() => saveAlt(foto)}
-                    placeholder="Legenda (opcional)"
-                    className="flex-1 px-3 py-1.5 rounded-lg text-sm outline-none"
-                    style={{ background: '#FFFFFF', border: '1px solid rgba(237,28,36,0.12)', color: '#1a1a1a', fontFamily: 'DM Sans, sans-serif', minWidth: 0 }}
-                  />
-
-                  <div className="flex items-center gap-1.5 flex-shrink-0">
-                    <button onClick={() => move(foto, 'up')} disabled={i === 0} className="p-1.5 rounded-lg disabled:opacity-20" style={{ background: 'rgba(237,28,36,0.06)' }}>
-                      <ChevronUp size={15} style={{ color: '#ED1C24' }} />
-                    </button>
-                    <button onClick={() => move(foto, 'down')} disabled={i === fotos.length - 1} className="p-1.5 rounded-lg disabled:opacity-20" style={{ background: 'rgba(237,28,36,0.06)' }}>
-                      <ChevronDown size={15} style={{ color: '#ED1C24' }} />
-                    </button>
-                    <button onClick={() => setDeleteTarget(foto)} className="p-1.5 rounded-lg" style={{ background: 'rgba(237,28,36,0.06)' }}>
-                      <Trash2 size={15} style={{ color: '#ED1C24' }} />
-                    </button>
-                  </div>
                 </div>
               ))}
             </div>
@@ -246,7 +311,7 @@ export default function FotosAdminClient({ fotos: initialFotos, tabela, titulo, 
         </div>
       </div>
 
-      {/* Modal exclusão */}
+      {/* Modal exclusão — sem alterações */}
       {deleteTarget && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/60" onClick={() => setDeleteTarget(null)} />

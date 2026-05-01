@@ -102,56 +102,33 @@ function ProdutoCardHome({ produto, index, isInView, onExpand }: CardProps) {
         zIndex: hovered ? 10 : 1,
       }}
     >
-      {/* Top accent line */}
       <AnimatePresence>
         {hovered && (
-          <motion.div
-            className="absolute top-0 left-0 right-0 h-[3px] z-20"
-            style={{ background: '#ED1C24' }}
-            initial={{ scaleX: 0 }}
-            animate={{ scaleX: 1 }}
-            exit={{ scaleX: 0 }}
-            transition={{ duration: 0.3 }}
-          />
+          <motion.div className="absolute top-0 left-0 right-0 h-[3px] z-20" style={{ background: '#ED1C24' }}
+            initial={{ scaleX: 0 }} animate={{ scaleX: 1 }} exit={{ scaleX: 0 }} transition={{ duration: 0.3 }} />
         )}
       </AnimatePresence>
-
-      {/* Progress bar auto-open */}
       <AnimatePresence>
         {hovered && (
-          <motion.div
-            className="absolute top-0 left-0 h-[3px] z-20 opacity-40"
-            style={{ background: '#ED1C24' }}
-            initial={{ width: '0%' }}
-            animate={{ width: '100%' }}
-            transition={{ duration: 1.8, ease: 'linear' }}
-            exit={{ opacity: 0 }}
-          />
+          <motion.div className="absolute top-0 left-0 h-[3px] z-20 opacity-40" style={{ background: '#ED1C24' }}
+            initial={{ width: '0%' }} animate={{ width: '100%' }} transition={{ duration: 1.8, ease: 'linear' }} exit={{ opacity: 0 }} />
         )}
       </AnimatePresence>
 
       {/* Imagem */}
       <div className="w-full aspect-square relative overflow-hidden" style={{ background: 'rgba(237,28,36,0.04)' }}>
         {allImages.length > 0 ? (
-          <Image
-            src={allImages[0]}
-            alt={produto.nome}
-            fill
-            className="object-cover transition-transform duration-500 group-hover:scale-105"
-            sizes="(max-width: 768px) 50vw, 25vw"
-          />
+          <Image src={allImages[0]} alt={produto.nome} fill className="object-cover transition-transform duration-500 group-hover:scale-105" sizes="(max-width: 768px) 50vw, 25vw" />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center">
             <ShoppingBag size={36} style={{ color: 'rgba(237,28,36,0.2)' }} />
           </div>
         )}
-
         {produto.estoque === 0 && (
           <div className="absolute inset-0 flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.85)' }}>
             <span className="px-3 py-1 text-xs font-bold" style={{ background: 'rgba(237,28,36,0.15)', color: '#ED1C24', fontFamily: 'DM Sans, sans-serif' }}>ESGOTADO</span>
           </div>
         )}
-
         {produto.destaque && (
           <div className="absolute top-3 left-3">
             <span className="px-2.5 py-1 text-xs font-bold uppercase" style={{ background: '#ED1C24', color: '#FFFFFF', fontFamily: 'DM Sans, sans-serif' }}>Destaque</span>
@@ -159,12 +136,13 @@ function ProdutoCardHome({ produto, index, isInView, onExpand }: CardProps) {
         )}
       </div>
 
-      {/* Info — sem tamanhos, usuário clica para ver na loja */}
+      {/* Info */}
       <div className="p-4">
         <p className="text-xs uppercase tracking-wider mb-0.5" style={{ color: 'rgba(237,28,36,0.5)', fontFamily: 'DM Sans, sans-serif' }}>{produto.categoria}</p>
         <h3 className="font-bold text-base leading-snug mb-3" style={{ color: '#ED1C24', fontFamily: 'Oswald, sans-serif' }}>{produto.nome}</h3>
 
-        <div className="flex items-center justify-between pt-3" style={{ borderTop: '1px solid rgba(237,28,36,0.1)' }}>
+        {/* Preço e botão sempre empilhados verticalmente */}
+        <div className="flex flex-col gap-2 pt-3" style={{ borderTop: '1px solid rgba(237,28,36,0.1)' }}>
           <span className="text-xl font-bold" style={{ color: produto.estoque > 0 ? '#ED1C24' : 'rgba(237,28,36,0.3)', fontFamily: 'Oswald, sans-serif' }}>
             {produto.preco.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
           </span>
@@ -174,7 +152,7 @@ function ProdutoCardHome({ produto, index, isInView, onExpand }: CardProps) {
                 const msg = encodeURIComponent(`Olá! Tenho interesse no produto *${produto.nome}* (${produto.preco.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}) da loja dos Centenários dos Aflitos.`)
                 window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`, '_blank')
               }}
-              className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold transition-all hover:scale-105"
+              className="flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-semibold transition-all hover:scale-105 w-full"
               style={{ background: '#ED1C24', color: '#FFFFFF', fontFamily: 'DM Sans, sans-serif' }}
               onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#C41219' }}
               onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = '#ED1C24' }}
@@ -231,18 +209,16 @@ function ExpandedProduto({ produto, onClose }: { produto: Produto; onClose: () =
                 <p className="font-bold text-3xl" style={{ color: '#ED1C24', fontFamily: 'Oswald, sans-serif' }}>{produto.preco.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</p>
               </div>
               <div className="mt-8 flex flex-col gap-3">
-                <Link
-                  href="/loja"
-                  className="w-full py-3 text-center font-bold text-sm tracking-widest uppercase text-white transition-all"
+                <Link href="/loja" className="w-full py-3 text-center font-bold text-sm tracking-widest uppercase text-white transition-all"
                   style={{ background: '#ED1C24', fontFamily: 'DM Sans, sans-serif' }}
                   onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#C41219' }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = '#ED1C24' }}
-                >VER NA LOJA</Link>
-                <button
-                  onClick={onClose}
-                  className="w-full py-3 text-xs tracking-widest uppercase transition-all"
-                  style={{ border: '1px solid rgba(237,28,36,0.2)', color: 'rgba(237,28,36,0.6)', fontFamily: 'DM Sans, sans-serif' }}
-                >CONTINUAR</button>
+                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = '#ED1C24' }}>
+                  VER NA LOJA
+                </Link>
+                <button onClick={onClose} className="w-full py-3 text-xs tracking-widest uppercase transition-all"
+                  style={{ border: '1px solid rgba(237,28,36,0.2)', color: 'rgba(237,28,36,0.6)', fontFamily: 'DM Sans, sans-serif' }}>
+                  CONTINUAR
+                </button>
               </div>
             </motion.div>
           </div>
@@ -276,12 +252,8 @@ export default function FeaturedProducts() {
     try {
       const supabase = getSupabaseClient()
       const { data, error } = await supabase
-        .from('produtos')
-        .select('*')
-        .eq('ativo', true)
-        .eq('destaque', true)
-        .order('created_at', { ascending: false })
-        .limit(4)
+        .from('produtos').select('*').eq('ativo', true).eq('destaque', true)
+        .order('created_at', { ascending: false }).limit(4)
       if (error) throw error
       setProdutos(data ?? [])
     } catch (error) {
@@ -295,8 +267,7 @@ export default function FeaturedProducts() {
 
   useEffect(() => {
     const supabase = getSupabaseClient()
-    const channel = supabase
-      .channel('produtos_changes')
+    const channel = supabase.channel('produtos_changes')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'produtos' }, () => { fetchProdutos() })
       .subscribe()
     return () => { supabase.removeChannel(channel) }
@@ -305,16 +276,10 @@ export default function FeaturedProducts() {
   const displayProdutos = produtos.length > 0 ? produtos : SEED_PRODUTOS
 
   return (
-    <section
-      className="w-full py-24 px-4 md:px-12"
-      style={{ backgroundColor: '#FFFFFF' }}
-      ref={ref}
-    >
+    <section className="w-full py-24 px-4 md:px-12" style={{ backgroundColor: '#FFFFFF' }} ref={ref}>
       <div className="max-w-7xl mx-auto">
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6 }}
+          initial={{ opacity: 0, y: 30 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.6 }}
           className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-14"
         >
           <div>
@@ -322,28 +287,14 @@ export default function FeaturedProducts() {
             <h2 className="text-4xl md:text-6xl font-bold uppercase leading-none" style={{ fontFamily: 'Oswald, sans-serif', color: '#ED1C24' }}>
               Vista as <span style={{ color: '#ED1C24', WebkitTextStroke: '1px rgba(237,28,36,0.3)' }}>Cores</span>
             </h2>
-            <motion.div
-              className="mt-4 h-[3px]"
-              style={{ width: 48, background: '#ED1C24', transformOrigin: 'left' }}
-              initial={{ scaleX: 0 }}
-              animate={isInView ? { scaleX: 1 } : {}}
-              transition={{ duration: 0.6, delay: 0.3 }}
-            />
+            <motion.div className="mt-4 h-[3px]" style={{ width: 48, background: '#ED1C24', transformOrigin: 'left' }}
+              initial={{ scaleX: 0 }} animate={isInView ? { scaleX: 1 } : {}} transition={{ duration: 0.6, delay: 0.3 }} />
           </div>
-          <Link
-            href="/loja"
+          <Link href="/loja"
             className="inline-flex items-center gap-2 px-6 py-3 text-sm font-semibold transition-all hover:scale-[1.03]"
             style={{ border: '1px solid rgba(237,28,36,0.3)', color: '#ED1C24', fontFamily: 'DM Sans, sans-serif' }}
-            onMouseEnter={e => {
-              ;(e.currentTarget as HTMLElement).style.borderColor = '#ED1C24'
-              ;(e.currentTarget as HTMLElement).style.background = '#ED1C24'
-              ;(e.currentTarget as HTMLElement).style.color = '#FFFFFF'
-            }}
-            onMouseLeave={e => {
-              ;(e.currentTarget as HTMLElement).style.borderColor = 'rgba(237,28,36,0.3)'
-              ;(e.currentTarget as HTMLElement).style.background = 'transparent'
-              ;(e.currentTarget as HTMLElement).style.color = '#ED1C24'
-            }}
+            onMouseEnter={e => { const el = e.currentTarget as HTMLElement; el.style.borderColor = '#ED1C24'; el.style.background = '#ED1C24'; el.style.color = '#FFFFFF' }}
+            onMouseLeave={e => { const el = e.currentTarget as HTMLElement; el.style.borderColor = 'rgba(237,28,36,0.3)'; el.style.background = 'transparent'; el.style.color = '#ED1C24' }}
           >
             Ver todos os produtos →
           </Link>

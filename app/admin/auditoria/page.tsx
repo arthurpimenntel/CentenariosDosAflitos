@@ -148,12 +148,12 @@ export default function AuditoriaPage() {
         )}
       </div>
 
-      {/* Tabela */}
+      {/* Tabela / Cards */}
       <div className="rounded-xl overflow-hidden"
         style={{ background: '#fff', border: '1px solid rgba(237,28,36,0.12)', boxShadow: '0 2px 12px rgba(237,28,36,0.04)' }}>
 
-        {/* Cabeçalho da tabela */}
-        <div className="grid gap-3 px-4 py-3"
+        {/* Cabeçalho da tabela — visível apenas em sm+ */}
+        <div className="hidden sm:grid gap-3 px-4 py-3"
           style={{ gridTemplateColumns: '1fr 1fr 90px 1fr 140px', background: 'rgba(237,28,36,0.04)', borderBottom: '1px solid rgba(237,28,36,0.1)' }}>
           {['Usuário', 'Tabela / ID', 'Ação', 'Detalhes', 'Data'].map(h => (
             <span key={h} className="text-xs font-bold uppercase tracking-wider"
@@ -171,55 +171,104 @@ export default function AuditoriaPage() {
         ) : (
           <div className="divide-y" style={{ borderColor: 'rgba(237,28,36,0.06)' }}>
             {registros.map(r => (
-              <div key={r.id} className="grid gap-3 px-4 py-3 hover:bg-red-50/30 transition-colors"
-                style={{ gridTemplateColumns: '1fr 1fr 90px 1fr 140px', alignItems: 'start' }}>
+              <div key={r.id}>
 
-                {/* Usuário */}
-                <div>
-                  <p className="text-xs truncate" style={{ color: '#1a1a1a', fontFamily: 'DM Sans, sans-serif' }}>
+                {/* ── MOBILE CARD (< 640 px) ── */}
+                <div className="sm:hidden px-4 py-4 space-y-2">
+                  {/* Email em destaque */}
+                  <p className="text-sm font-semibold truncate"
+                    style={{ color: '#1a1a1a', fontFamily: 'DM Sans, sans-serif' }}>
                     {r.usuario_email ?? '—'}
                   </p>
-                  <p className="text-xs opacity-30 truncate mt-0.5" style={{ fontFamily: 'DM Sans, sans-serif' }}>
-                    {r.usuario_id.slice(0, 8)}…
+                  {/* Tabela + badge na mesma linha */}
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-xs font-semibold"
+                      style={{ color: '#1a1a1a', fontFamily: 'DM Sans, sans-serif' }}>
+                      {r.tabela}
+                    </span>
+                    <Badge acao={r.acao} />
+                  </div>
+                  {/* Registro ID resumido */}
+                  <p className="text-xs"
+                    style={{ color: 'rgba(0,0,0,0.35)', fontFamily: 'DM Sans, sans-serif' }}>
+                    ID: {r.registro_id.slice(0, 16)}…
                   </p>
-                </div>
-
-                {/* Tabela / ID */}
-                <div>
-                  <p className="text-xs font-semibold" style={{ color: '#1a1a1a', fontFamily: 'DM Sans, sans-serif' }}>
-                    {r.tabela}
+                  {/* Data */}
+                  <p className="text-xs"
+                    style={{ color: 'rgba(0,0,0,0.4)', fontFamily: 'DM Sans, sans-serif' }}>
+                    {formatDate(r.created_at)}
                   </p>
-                  <p className="text-xs opacity-30 truncate mt-0.5" style={{ fontFamily: 'DM Sans, sans-serif' }}>
-                    {r.registro_id.slice(0, 12)}…
-                  </p>
-                </div>
-
-                {/* Ação */}
-                <div><Badge acao={r.acao} /></div>
-
-                {/* Detalhes */}
-                <div>
-                  {r.detalhes ? (
-                    <button onClick={() => setDetalheAberto(detalheAberto === r.id ? null : r.id)}
-                      className="text-xs underline underline-offset-2"
-                      style={{ color: 'rgba(237,28,36,0.7)', fontFamily: 'DM Sans, sans-serif' }}>
-                      {detalheAberto === r.id ? 'Fechar' : 'Ver detalhes'}
-                    </button>
-                  ) : (
-                    <span className="text-xs opacity-30" style={{ fontFamily: 'DM Sans, sans-serif' }}>—</span>
+                  {/* Detalhes expansíveis */}
+                  {r.detalhes && (
+                    <div>
+                      <button
+                        onClick={() => setDetalheAberto(detalheAberto === r.id ? null : r.id)}
+                        className="text-xs underline underline-offset-2"
+                        style={{ color: 'rgba(237,28,36,0.7)', fontFamily: 'DM Sans, sans-serif' }}>
+                        {detalheAberto === r.id ? 'Fechar detalhes' : 'Ver detalhes'}
+                      </button>
+                      {detalheAberto === r.id && (
+                        <pre className="mt-2 p-2 rounded-lg text-xs overflow-auto w-full"
+                          style={{ background: 'rgba(0,0,0,0.04)', color: '#333', fontFamily: 'monospace', maxHeight: 180 }}>
+                          {JSON.stringify(r.detalhes, null, 2)}
+                        </pre>
+                      )}
+                    </div>
                   )}
-                  {detalheAberto === r.id && r.detalhes && (
-                    <pre className="mt-2 p-2 rounded-lg text-xs overflow-auto max-w-xs"
-                      style={{ background: 'rgba(0,0,0,0.04)', color: '#333', fontFamily: 'monospace', maxHeight: 120 }}>
-                      {JSON.stringify(r.detalhes, null, 2)}
-                    </pre>
-                  )}
                 </div>
 
-                {/* Data */}
-                <p className="text-xs" style={{ color: 'rgba(0,0,0,0.4)', fontFamily: 'DM Sans, sans-serif' }}>
-                  {formatDate(r.created_at)}
-                </p>
+                {/* ── DESKTOP ROW (≥ 640 px) ── */}
+                <div className="hidden sm:grid gap-3 px-4 py-3 hover:bg-red-50/30 transition-colors"
+                  style={{ gridTemplateColumns: '1fr 1fr 90px 1fr 140px', alignItems: 'start' }}>
+
+                  {/* Usuário */}
+                  <div>
+                    <p className="text-xs truncate" style={{ color: '#1a1a1a', fontFamily: 'DM Sans, sans-serif' }}>
+                      {r.usuario_email ?? '—'}
+                    </p>
+                    <p className="text-xs opacity-30 truncate mt-0.5" style={{ fontFamily: 'DM Sans, sans-serif' }}>
+                      {r.usuario_id.slice(0, 8)}…
+                    </p>
+                  </div>
+
+                  {/* Tabela / ID */}
+                  <div>
+                    <p className="text-xs font-semibold" style={{ color: '#1a1a1a', fontFamily: 'DM Sans, sans-serif' }}>
+                      {r.tabela}
+                    </p>
+                    <p className="text-xs opacity-30 truncate mt-0.5" style={{ fontFamily: 'DM Sans, sans-serif' }}>
+                      {r.registro_id.slice(0, 12)}…
+                    </p>
+                  </div>
+
+                  {/* Ação */}
+                  <div><Badge acao={r.acao} /></div>
+
+                  {/* Detalhes */}
+                  <div>
+                    {r.detalhes ? (
+                      <button onClick={() => setDetalheAberto(detalheAberto === r.id ? null : r.id)}
+                        className="text-xs underline underline-offset-2"
+                        style={{ color: 'rgba(237,28,36,0.7)', fontFamily: 'DM Sans, sans-serif' }}>
+                        {detalheAberto === r.id ? 'Fechar' : 'Ver detalhes'}
+                      </button>
+                    ) : (
+                      <span className="text-xs opacity-30" style={{ fontFamily: 'DM Sans, sans-serif' }}>—</span>
+                    )}
+                    {detalheAberto === r.id && r.detalhes && (
+                      <pre className="mt-2 p-2 rounded-lg text-xs overflow-auto max-w-xs"
+                        style={{ background: 'rgba(0,0,0,0.04)', color: '#333', fontFamily: 'monospace', maxHeight: 120 }}>
+                        {JSON.stringify(r.detalhes, null, 2)}
+                      </pre>
+                    )}
+                  </div>
+
+                  {/* Data */}
+                  <p className="text-xs" style={{ color: 'rgba(0,0,0,0.4)', fontFamily: 'DM Sans, sans-serif' }}>
+                    {formatDate(r.created_at)}
+                  </p>
+                </div>
+
               </div>
             ))}
           </div>

@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useEffect } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
 import {
   LayoutDashboard, FileText, ShoppingBag, Users,
@@ -11,7 +12,6 @@ import {
 import { getSupabaseClient } from '@/lib/supabase'
 import { useAdminPath } from '@/hooks/useAdminPath'
 
-// ─── Tipagem ────────────────────────────────────────────────────────────────
 interface NavItem {
   href: string
   icon: React.ElementType
@@ -27,7 +27,6 @@ interface SidebarContentProps {
   onLogout: () => void
 }
 
-// ─── Conteúdo da sidebar extraído para fora — evita remount a cada render ──
 function SidebarContent({ navItems, userEmail, pathname, onClose, onLogout }: SidebarContentProps) {
   function isActive(href: string, exact = false) {
     if (exact) return pathname === href
@@ -39,11 +38,15 @@ function SidebarContent({ navItems, userEmail, pathname, onClose, onLogout }: Si
       <div className="p-6 border-b border-red-100 border-opacity-20">
         <Link href={navItems[0].href} onClick={onClose}>
           <div className="flex items-center gap-3">
-            <div
-              className="w-9 h-9 rounded-lg flex items-center justify-center text-white font-bold text-sm"
-              style={{ background: '#fff2', fontFamily: 'Oswald, sans-serif' }}
-            >
-              CA
+            {/* Logo no lugar do "CA" */}
+            <div className="w-10 h-10 flex-shrink-0 relative">
+              <Image
+                src="/EscudoOficial.png"
+                alt="Centenários dos Aflitos"
+                fill
+                className="object-contain drop-shadow-sm"
+                sizes="40px"
+              />
             </div>
             <div>
               <p className="font-bold text-sm leading-none" style={{ color: '#fff', fontFamily: 'Oswald, sans-serif' }}>
@@ -98,7 +101,6 @@ function SidebarContent({ navItems, userEmail, pathname, onClose, onLogout }: Si
   )
 }
 
-// ─── Componente principal ───────────────────────────────────────────────────
 export default function AdminSidebar({ userEmail }: { userEmail: string }) {
   const [mobileOpen, setMobileOpen] = useState(false)
   const adminBase = useAdminPath()
@@ -107,18 +109,17 @@ export default function AdminSidebar({ userEmail }: { userEmail: string }) {
   const supabase = getSupabaseClient()
 
   const navItems: NavItem[] = [
-    { href: adminBase,                          icon: LayoutDashboard, label: 'Dashboard',        exact: true },
-    { href: `${adminBase}/noticias`,            icon: FileText,        label: 'Notícias'                      },
-    { href: `${adminBase}/produtos`,            icon: ShoppingBag,     label: 'Produtos'                      },
-    { href: `${adminBase}/socios`,              icon: Users,           label: 'Sócios'                        },
-    { href: `${adminBase}/galeria`,             icon: ImageIcon,       label: 'Galeria'                       },
-    { href: `${adminBase}/hero`,                icon: Star,            label: 'Hero / Carrossel'              },
-    { href: `${adminBase}/home-fotos`,          icon: Home,            label: 'Fotos da Home'                 },
-    { href: `${adminBase}/quem-somos-fotos`,    icon: BookOpen,        label: 'Fotos Quem Somos'              },
-    { href: `${adminBase}/auditoria`,           icon: Shield,          label: 'Auditoria'                     },
+    { href: adminBase,                        icon: LayoutDashboard, label: 'Dashboard',       exact: true },
+    { href: `${adminBase}/noticias`,          icon: FileText,        label: 'Notícias'                     },
+    { href: `${adminBase}/produtos`,          icon: ShoppingBag,     label: 'Produtos'                     },
+    { href: `${adminBase}/socios`,            icon: Users,           label: 'Sócios'                       },
+    { href: `${adminBase}/galeria`,           icon: ImageIcon,       label: 'Galeria'                      },
+    { href: `${adminBase}/hero`,              icon: Star,            label: 'Hero / Carrossel'             },
+    { href: `${adminBase}/home-fotos`,        icon: Home,            label: 'Fotos da Home'                },
+    { href: `${adminBase}/quem-somos-fotos`,  icon: BookOpen,        label: 'Fotos Quem Somos'             },
+    { href: `${adminBase}/auditoria`,         icon: Shield,          label: 'Auditoria'                    },
   ]
 
-  // Prefetch de todas as rotas da nav ao montar — elimina o delay na primeira abertura
   useEffect(() => {
     navItems.forEach(item => router.prefetch(item.href))
   }, [adminBase]) // eslint-disable-line react-hooks/exhaustive-deps
@@ -133,7 +134,6 @@ export default function AdminSidebar({ userEmail }: { userEmail: string }) {
 
   return (
     <>
-      {/* Botão hamburguer — mobile */}
       <button
         onClick={() => setMobileOpen(true)}
         className="fixed top-4 left-4 z-50 p-2 rounded-lg lg:hidden"
@@ -143,55 +143,26 @@ export default function AdminSidebar({ userEmail }: { userEmail: string }) {
         <Menu size={20} color="#fff" />
       </button>
 
-      {/* Sidebar desktop */}
-      <aside
-        className="fixed inset-y-0 left-0 w-64 hidden lg:block z-40 border-r"
-        style={{ borderColor: 'rgba(237,28,36,0.15)' }}
-      >
-        <SidebarContent
-          navItems={navItems}
-          userEmail={userEmail}
-          pathname={pathname}
-          onClose={closeMobile}
-          onLogout={handleLogout}
-        />
+      <aside className="fixed inset-y-0 left-0 w-64 hidden lg:block z-40 border-r" style={{ borderColor: 'rgba(237,28,36,0.15)' }}>
+        <SidebarContent navItems={navItems} userEmail={userEmail} pathname={pathname} onClose={closeMobile} onLogout={handleLogout} />
       </aside>
 
-      {/* Overlay — mobile (CSS puro, sem Framer Motion) */}
       <div
         className="fixed inset-0 z-40 bg-black/60 lg:hidden"
-        style={{
-          opacity: mobileOpen ? 1 : 0,
-          pointerEvents: mobileOpen ? 'auto' : 'none',
-          transition: 'opacity 0.25s ease',
-        }}
+        style={{ opacity: mobileOpen ? 1 : 0, pointerEvents: mobileOpen ? 'auto' : 'none', transition: 'opacity 0.25s ease' }}
         onClick={closeMobile}
         aria-hidden="true"
       />
 
-      {/* Drawer — mobile (CSS puro, sem Framer Motion) */}
       <aside
         className="fixed inset-y-0 left-0 w-72 z-50 lg:hidden"
-        style={{
-          transform: mobileOpen ? 'translateX(0)' : 'translateX(-100%)',
-          transition: 'transform 0.25s ease',
-        }}
+        style={{ transform: mobileOpen ? 'translateX(0)' : 'translateX(-100%)', transition: 'transform 0.25s ease' }}
         aria-hidden={!mobileOpen}
       >
-        <button
-          onClick={closeMobile}
-          className="absolute top-4 right-4 p-1 rounded-lg opacity-60 hover:opacity-100"
-          aria-label="Fechar menu"
-        >
+        <button onClick={closeMobile} className="absolute top-4 right-4 p-1 rounded-lg opacity-60 hover:opacity-100" aria-label="Fechar menu">
           <X size={20} color="#fff" />
         </button>
-        <SidebarContent
-          navItems={navItems}
-          userEmail={userEmail}
-          pathname={pathname}
-          onClose={closeMobile}
-          onLogout={handleLogout}
-        />
+        <SidebarContent navItems={navItems} userEmail={userEmail} pathname={pathname} onClose={closeMobile} onLogout={handleLogout} />
       </aside>
     </>
   )

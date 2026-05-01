@@ -1,7 +1,8 @@
 import type { Metadata } from 'next'
 import { Oswald, DM_Sans } from 'next/font/google'
+import Script from 'next/script'
 import './globals.css'
-import ScrollToTop from '@/components/ScrollToTop'  
+import ScrollToTop from '@/components/ScrollToTop'
 
 const oswald = Oswald({
   subsets: ['latin'],
@@ -37,6 +38,19 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="pt-BR" className={`${oswald.variable} ${dmSans.variable}`}>
       <body className="font-body antialiased">
+        {/* Google Analytics */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-W8N2712708"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-W8N2712708');
+          `}
+        </Script>
         <ScrollToTop />
         {children}
       </body>
