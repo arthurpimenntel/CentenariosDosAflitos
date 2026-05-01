@@ -3,23 +3,33 @@
 import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
-import { Upload, Trash2 } from 'lucide-react'
+import { Upload, Trash2, Plus } from 'lucide-react'
 import { GaleriaFoto } from '@/types'
 import { uploadImageAdmin } from '@/lib/upload-client'
 import { getSupabaseClient } from '@/lib/supabase'
 import { useToast } from '@/hooks/useToast'
 import Toast from '@/components/ui/Toast'
 
-const CATEGORIAS = ['geral', 'jogos', 'eventos', 'viagens']
+const CATEGORIAS_INICIAIS = ['geral', 'jogos', 'eventos', 'viagens']
 
 export default function GaleriaAdminClient({ fotos }: { fotos: GaleriaFoto[] }) {
   const [uploading, setUploading] = useState(false)
+  const [categorias, setCategorias] = useState<string[]>(CATEGORIAS_INICIAIS)
   const [categoria, setCategoria] = useState('geral')
+  const [novaCategoria, setNovaCategoria] = useState('')
   const [deleteTarget, setDeleteTarget] = useState<GaleriaFoto | null>(null)
   const { toasts, addToast, removeToast } = useToast()
   const inputRef = useRef<HTMLInputElement>(null)
   const router = useRouter()
   const supabase = getSupabaseClient()
+
+  function adicionarCategoria() {
+    const nova = novaCategoria.trim().toLowerCase()
+    if (!nova || categorias.includes(nova)) { setNovaCategoria(''); return }
+    setCategorias(prev => [...prev, nova])
+    setCategoria(nova)
+    setNovaCategoria('')
+  }
 
   async function handleFiles(files: FileList) {
     setUploading(true)
@@ -42,19 +52,47 @@ export default function GaleriaAdminClient({ fotos }: { fotos: GaleriaFoto[] }) 
     <>
       <div className="space-y-6">
         <div className="rounded-xl p-6 space-y-4" style={{ border: '1px solid rgba(237,28,36,0.2)', background: 'rgba(58,0,0,0.3)' }}>
-          <div className="flex items-center gap-4 flex-wrap">
+          <div className="flex items-end gap-4 flex-wrap">
+
+            {/* Select de categoria */}
             <div>
               <label className="block text-xs font-semibold uppercase tracking-widest mb-1.5" style={{ color: 'rgba(255,255,255,0.4)', fontFamily: 'DM Sans, sans-serif' }}>Categoria</label>
               <select value={categoria} onChange={e => setCategoria(e.target.value)} className="px-3 py-2 rounded-lg text-sm outline-none" style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(237,28,36,0.25)', color: '#fff', fontFamily: 'DM Sans, sans-serif' }}>
-                {CATEGORIAS.map(c => <option key={c} value={c} style={{ background: '#2a0000' }}>{c}</option>)}
+                {categorias.map(c => <option key={c} value={c} style={{ background: '#2a0000' }}>{c}</option>)}
               </select>
             </div>
+
+            {/* Input nova categoria */}
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-widest mb-1.5" style={{ color: 'rgba(255,255,255,0.4)', fontFamily: 'DM Sans, sans-serif' }}>Nova categoria</label>
+              <div className="flex gap-2">
+                <input
+                  value={novaCategoria}
+                  onChange={e => setNovaCategoria(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), adicionarCategoria())}
+                  placeholder="ex: treinos"
+                  className="px-3 py-2 rounded-lg text-sm outline-none w-32"
+                  style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(237,28,36,0.25)', color: '#fff', fontFamily: 'DM Sans, sans-serif' }}
+                />
+                <button
+                  onClick={adicionarCategoria}
+                  disabled={!novaCategoria.trim()}
+                  className="flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-semibold disabled:opacity-40 transition hover:scale-[1.03]"
+                  style={{ background: 'rgba(237,28,36,0.25)', color: '#fff', border: '1px solid rgba(237,28,36,0.4)', fontFamily: 'DM Sans, sans-serif' }}
+                >
+                  <Plus size={14} /> Criar
+                </button>
+              </div>
+            </div>
+
+            {/* Botão upload */}
             <button onClick={() => inputRef.current?.click()} disabled={uploading} className="flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-semibold disabled:opacity-60" style={{ background: '#ED1C24', color: '#fff', fontFamily: 'DM Sans, sans-serif' }}>
               {uploading ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <Upload size={16} />}{uploading ? 'Enviando...' : 'Adicionar Fotos'}
             </button>
           </div>
           <input ref={inputRef} type="file" multiple accept="image/*" className="hidden" onChange={e => e.target.files && handleFiles(e.target.files)} />
         </div>
+
         {fotos.length === 0 ? (
           <div className="text-center py-16 opacity-40" style={{ color: '#fff', fontFamily: 'DM Sans, sans-serif' }}>Nenhuma foto na galeria ainda.</div>
         ) : (
@@ -72,6 +110,7 @@ export default function GaleriaAdminClient({ fotos }: { fotos: GaleriaFoto[] }) 
           </div>
         )}
       </div>
+
       {deleteTarget && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/60" onClick={() => setDeleteTarget(null)} />

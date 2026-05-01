@@ -8,12 +8,15 @@ export default function AdminHeader() {
   const adminBase = useAdminPath()
 
   const titles: Record<string, string> = {
-    [adminBase]:                   'Dashboard',
-    [`${adminBase}/noticias`]:     'Notícias',
-    [`${adminBase}/produtos`]:     'Produtos',
-    [`${adminBase}/socios`]:       'Sócios',
-    [`${adminBase}/galeria`]:      'Galeria',
-    [`${adminBase}/hero`]:         'Hero / Carrossel',
+    [adminBase]:                                  'Dashboard',
+    [`${adminBase}/noticias`]:                     'Notícias',
+    [`${adminBase}/produtos`]:                     'Produtos',
+    [`${adminBase}/socios`]:                         'Sócios',
+    [`${adminBase}/galeria`]:                       'Galeria',
+    [`${adminBase}/hero`]:                 'Hero / Carrossel',
+    [`${adminBase}/fotos da home`]:           'Fotos da Home',
+    [`${adminBase}/fotos quem somos`]:     'Fotos Quem Somos',
+    [`${adminBase}/auditoria`]:                   'Auditoria',
   }
 
   function getTitle(path: string): string {

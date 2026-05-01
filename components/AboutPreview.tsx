@@ -135,20 +135,18 @@ export default function AboutPreview() {
         <motion.div className="flex-1 lg:w-2/5" initial={{ opacity: 0, x: -40 }} animate={isInView ? { opacity: 1, x: 0 } : {}} transition={{ duration: 0.7, ease: 'easeOut' }}>
           <p className="text-sm tracking-widest uppercase mb-4" style={{ color: 'rgba(255,255,255,0.55)', fontFamily: 'DM Sans, sans-serif' }}>Quem Somos</p>
           <h2 className="font-bold text-4xl md:text-5xl lg:text-6xl uppercase leading-tight mb-6" style={{ color: '#FFFFFF', fontFamily: 'Oswald, sans-serif' }}>
-            NÓS TORCEMOS<br />COM ALMA
+            A BARRA DO<br />CALDEIRÃO
           </h2>
           <motion.div className="h-[3px] mb-8" style={{ background: 'rgba(255,255,255,0.4)', transformOrigin: 'left', width: '100%' }}
             initial={{ scaleX: 0 }} animate={isInView ? { scaleX: 1 } : {}} transition={{ duration: 0.7, delay: 0.3 }} />
           <div className="space-y-4 max-w-md mb-10">
             <p className="text-base leading-relaxed" style={{ color: 'rgba(255,255,255,0.82)', fontFamily: 'DM Sans, sans-serif' }}>
-              Hoje não se pensa na arquibancada dos Aflitos sem pensar n'Os Centenários dos Aflitos. O que nos une é simples: não importa o que aconteça, com a barra o Náutico sempre jogará com 12 em campo.
+              Os Centenários dos Aflitos surgiu como uma revolução vinda de dentro da arquibancada, com um sentimento em comum: fazer da arquibancada um décimo segundo jogador. E hoje, não se pensa mais no estádio dos Aflitos, sem inevitavelmente pensar na barra do caldeirão.
             </p>
             <p className="text-base leading-relaxed" style={{ color: 'rgba(255,255,255,0.82)', fontFamily: 'DM Sans, sans-serif' }}>
-              Na arquibancada é onde o coração pulsa, 90 minutos de vida pelo Náutico. No Setor Caldeirão, a regra é clara: apoiar o Náutico até o fim, aconteça o que acontecer.
+             Dentro e fora de campo, apoiar incondicionalmente é o nosso principal pilar ideológico. Ocupamos não só a bancada, mas também fiscalizando e contribuindo de forma incisiva pelo fortalecimento do Clube Náutico Capibaribe.
             </p>
-            <p className="text-base leading-relaxed" style={{ color: 'rgba(255,255,255,0.82)', fontFamily: 'DM Sans, sans-serif' }}>
-              Fora do estádio, estamos ativos. Defendemos o clube em todas as frentes, ocupamos espaços e fazemos o melhor para o nosso clube.
-            </p>
+            
             <p className="text-sm font-semibold tracking-widest uppercase" style={{ color: 'rgba(255,255,255,0.5)', fontFamily: 'DM Sans, sans-serif' }}>Desde 2012, não se compara.</p>
           </div>
           <Link href="/quem-somos"

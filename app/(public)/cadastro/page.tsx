@@ -21,7 +21,7 @@ interface FormData {
 }
 type FieldError = Partial<Record<keyof FormData, string>>
 
-const COMO_CONHECEU = ['Instagram', 'Facebook', 'Amigo ou familiar', 'No estádio', 'TikTok', 'Outro']
+const COMO_CONHECEU = ['Na arquibancada', 'Através de um amigo', 'No Instagram', 'Já frequento', 'Outro',]
 
 const beneficiosDetalhados = [
   { icon: ShoppingBag, titulo: 'Desconto na Loja',     texto: 'Descontos e produtos exclusivos lançados pela barra.' },
@@ -32,12 +32,13 @@ const beneficiosDetalhados = [
 ]
 
 const BENEFICIOS = [
-  { bold: null,    texto: 'Desconto na loja'      },
-  { bold: null,    texto: 'Desconto em caravanas' },
-  { bold: null,    texto: 'Sorteios mensais'      },
-  { bold: null,    texto: 'Prioridade em eventos' },
-  { bold: null,    texto: 'Carteirinha Grátis'    },
-  { bold: '+R$16', texto: 'Carteirinha Física'    },
+  { bold: null,    texto: 'Desconto na loja'               },
+  { bold: null,    texto: 'Desconto em caravanas'          },
+  { bold: null,    texto: 'Sorteios mensais'               },
+  { bold: null,    texto: 'Prioridade em eventos'          },
+  { bold: null,    texto: 'Carteirinha Grátis'             },
+  { bold: null,    texto: 'Adesivo exclusivo de sócio 2026'},
+  { bold: '+R$16', texto: 'Carteirinha Física'             },
 ]
 
 const PLANOS = [
@@ -224,11 +225,13 @@ function CadastroPageInner() {
   const supabase = getSupabaseClient()
 
   useEffect(() => {
-    const plano = searchParams.get('plano') as PlanoSocio | null
-    const carteirinha = searchParams.get('carteirinha') as CarteirinhaOpcao | null
-    if (plano && ['individual', 'familia'].includes(plano)) setForm(f => ({ ...f, plano }))
-    if (carteirinha && ['virtual', 'fisica'].includes(carteirinha)) setForm(f => ({ ...f, carteirinha }))
-  }, [])
+  const plano = searchParams.get('plano') as PlanoSocio | null
+  const carteirinha = searchParams.get('carteirinha') as CarteirinhaOpcao | null
+  const step = searchParams.get('step') // ADICIONE ESTA LINHA
+  if (plano && ['individual', 'familia'].includes(plano)) setForm(f => ({ ...f, plano }))
+  if (carteirinha && ['virtual', 'fisica'].includes(carteirinha)) setForm(f => ({ ...f, carteirinha }))
+  if (step === '2') setStep(2) // ADICIONE ESTA LINHA
+}, [])
 
   // Scroll ao topo sempre que o step muda
   useEffect(() => {
@@ -357,9 +360,9 @@ function CadastroPageInner() {
               <CheckCircle size={56} style={{ color: '#ED1C24' }} />
             </motion.div>
             <div className="w-16 h-[3px] mx-auto mb-6" style={{ background: '#ED1C24' }} />
-            <h2 className="text-5xl font-bold mb-4 uppercase" style={{ fontFamily: 'Oswald, sans-serif', color: '#ED1C24' }}>Inscrição recebida!</h2>
+            <h2 className="text-5xl font-bold mb-4 uppercase" style={{ fontFamily: 'Oswald, sans-serif', color: '#ED1C24' }}>CADASTRO CONCLUÍDO!</h2>
             <p className="text-lg leading-relaxed mb-8" style={{ color: 'rgba(237,28,36,0.75)', fontFamily: 'DM Sans, sans-serif' }}>
-              Em até 15 dias sua filiação estará disponível. Entraremos em contato pelo WhatsApp. Bem-vindo à família Centenários! 🔴⚪
+              Em um prazo de até 15 dias sua filiação estará concluída.Você será contatado pela Comissão de Sócios da torcida pelo WhatsApp para homologação oficial. 🔴⚪
             </p>
             <div className="flex items-center justify-center gap-2">
               <div className="w-2 h-2 rounded-full" style={{ background: '#ED1C24' }} />
@@ -380,8 +383,8 @@ function CadastroPageInner() {
         <div className="relative lg:w-5/12 flex flex-col justify-end p-10 lg:p-16 overflow-hidden min-h-[40vh] lg:min-h-screen" style={{ background: RED }}>
           <div className="relative z-10">
             <div className="mb-8"><Image src="/EscudoOficial.png" alt="Escudo" width={120} height={120} className="opacity-90" /></div>
-            <p className="text-xs uppercase tracking-widest mb-4" style={{ color: 'rgba(255,255,255,0.6)', fontFamily: 'DM Sans, sans-serif' }}>— Junte-se a nós</p>
-            <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold uppercase leading-none mb-6 text-white" style={{ fontFamily: 'Oswald, sans-serif' }}>Seja<br />Centenários</h1>
+            <p className="text-xs uppercase tracking-widest mb-4" style={{ color: 'rgba(255,255,255,0.6)', fontFamily: 'DM Sans, sans-serif' }}>— SEJA SÓCIO</p>
+            <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold uppercase leading-none mb-6 text-white" style={{ fontFamily: 'Oswald, sans-serif' }}>BEM VINDO À BARRA DO<br /> CALDEIRÃO</h1>
             <p className="text-base leading-relaxed mb-8 max-w-xs" style={{ color: 'rgba(255,255,255,0.75)', fontFamily: 'DM Sans, sans-serif' }}>
               Preencha o formulário. Em até 15 dias sua filiação estará disponível.
             </p>
@@ -538,7 +541,7 @@ function CadastroPageInner() {
                         {uploadingFoto ? 'Enviando foto...' : uploadingComp ? 'Enviando comprovante...' : 'Salvando...'}
                       </div>
                     ) : (
-                      <><span>Quero ser Centenários</span><ChevronRight size={20} /></>
+                      <><span>CONCLUIR</span><ChevronRight size={20} /></>
                     )}
                   </motion.button>
                 </form>

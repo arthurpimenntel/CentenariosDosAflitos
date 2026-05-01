@@ -160,12 +160,7 @@ export default function QuemSomosPage() {
             className="text-7xl md:text-9xl font-bold uppercase leading-none mb-6 text-white" style={{ fontFamily: 'Oswald, sans-serif' }}>
             Quem<br /><span style={{ color: 'rgba(255,255,255,0.6)', WebkitTextStroke: '1px rgba(255,255,255,0.4)' }}>Somos</span>
           </motion.h1>
-          <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.25 }}
-            className="text-lg md:text-xl max-w-2xl leading-relaxed"
-            style={{ color: 'rgba(255,255,255,0.8)', fontFamily: 'DM Sans, sans-serif' }}>
-            Os Centenários dos Aflitos nasceram da paixão genuína pelo Clube Náutico Capibaribe.
-            Somos a barra brava que pulsa nas arquibancadas e ecoa pelo Brasil.
-          </motion.p>
+          
         </div>
       </section>
 
@@ -181,30 +176,44 @@ export default function QuemSomosPage() {
         </motion.div>
       </div>
 
-      {/* ── TIMELINE ── */}
+      {/* ── HISTÓRIA ── */}
       <section className="px-6 py-24" style={{ background: '#D40000', backgroundImage: 'repeating-linear-gradient(to right, rgba(255,255,255,0.04) 0px, rgba(255,255,255,0.04) 30px, transparent 30px, transparent 60px)' }}>
-        <div className="max-w-3xl mx-auto">
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mb-16">
-            <p className="text-xs uppercase tracking-widest mb-3" style={{ color: 'rgba(255,255,255,0.6)', fontFamily: 'DM Sans, sans-serif' }}>— Nossa trajetória</p>
-            <h2 className="text-5xl md:text-6xl font-bold uppercase" style={{ fontFamily: 'Oswald, sans-serif', color: '#FFFFFF' }}>13 anos de história</h2>
-            <div className="w-12 h-[3px] mt-4" style={{ background: 'rgba(255,255,255,0.5)' }} />
-          </motion.div>
-          <div className="relative">
-            {timeline.map((item, i) => (
-              <motion.div key={`${item.ano}-${i}`} initial={{ opacity: 0, x: -40 }} whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true, margin: '-80px' }} transition={{ duration: 0.6, delay: i * 0.08 }} className="relative flex gap-8 pl-28">
-                {i < timeline.length - 1 && <div className="absolute left-12 top-16 bottom-0 w-px" style={{ background: 'rgba(255,255,255,0.2)' }} />}
-                <div className="absolute left-0 w-24 h-16 flex flex-col items-center justify-center flex-shrink-0 z-10"
-                  style={{ background: '#FFFFFF', boxShadow: '0 4px 20px rgba(0,0,0,0.15)' }}>
-                  <span className="font-bold text-xs leading-none text-center px-1" style={{ color: '#D40000', fontFamily: 'Oswald, sans-serif' }}>{item.ano}</span>
-                </div>
-                <div className="mb-10 p-6 flex-1" style={{ background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)' }}>
-                  <h3 className="text-xl font-bold mb-2" style={{ fontFamily: 'Oswald, sans-serif', color: '#FFFFFF' }}>{item.titulo}</h3>
-                  <p className="leading-relaxed text-sm" style={{ color: 'rgba(255,255,255,0.8)', fontFamily: 'DM Sans, sans-serif' }}>{item.texto}</p>
-                </div>
-              </motion.div>
-            ))}
-          </div>
+        <div className="max-w-3xl mx-auto space-y-14">
+
+          {[
+            {
+              titulo: 'Nossa História',
+              texto: 'No dia 16 de dezembro de 2012, durante um futebol entre amigos e conhecidos, o sentimento comum de revolucionar a arquibancada do Náutico finalmente tomava forma. Ficou decidida a criação d\'Os Centenários dos Aflitos.\n\nApós alguns encontros para ensaios da banda, peladas e reuniões, estreamos na 2ª rodada do Pernambucano 2012 (Náutico 2x1 Serra). Localizados no setor hexa, ao lado das cadeiras, apoiamos os 90 minutos com uma percussão que contava inclusive com uma alfaia — e ali ficou marcado o primeiro jogo. Mudamo-nos posteriormente para a Curva Sul, onde anos antes ficava a antiga Alma Alvirrubra.',
+            },
+            {
+              titulo: 'Barra Brava',
+              texto: 'No surgimento, as referências dos fundadores eram das mais diversas: desde as tradicionais torcidas organizadas do Nordeste até a cultura ultras da Europa e as barras bravas sul-americanas. Com o tempo, a influência da cultura das barras foi ficando cada vez mais forte, principalmente através da antiga barra brava do Náutico. A Alma Alvirrubra esteve ativa de 2005 a 2009 como a primeira torcida desse tipo na região, ficando conhecida nos Aflitos por nunca parar de cantar e por músicas que exaltavam o clube.\n\nFoi em 2013, já na Arena Pernambuco, que ficou decidido que seguiríamos como uma barra brava. Ainda assim, as influências regionais nunca foram abandonadas, e o repertório conta com músicas em ritmo de samba, maracatu e funk.\n\nA cultura de barras chegou ao Brasil e influenciou torcidas nos quatro cantos do país — nos Aflitos não foi diferente. O apoio incondicional, músicas cadenciadas, letras empolgantes que exaltam o clube, bandeiras, tirantes, instrumentos de metal e muito mais foram incorporados à ideologia d\'Os Centenários ao longo dos anos.',
+            },
+            {
+              titulo: 'Nova Fase',
+              texto: 'Com a ida à Arena Pernambuco, tudo ficou mais difícil do que o imaginado. A distância e a falta de resultados criaram um ambiente em que o torcedor alvirrubro não se sentia pertencente. A temporada de 2013 não foi fácil, mas com muita vontade de fazer acontecer, a torcida se manteve presente em todos os jogos com instrumentos e bandeiras.\n\nDe 2014 a 2018, a torcida precisou se reinventar diversas vezes e, assim, cresceu, amadureceu e conquistou novos membros. Formamos amizades em todo o Nordeste com outras barras: Movimento 90 (ABC-RN), Setor Alvinegro (Ceará-CE), Bravos Regatianos (CRB-AL), Brava Bolívia (Sampaio Corrêa-MA), Setor 31 (Botafogo-PB) e Loucos da Laje (Icasa-CE).\n\nA união dos membros sempre foi o diferencial da barra, e a história continuou sendo escrita em vitórias, derrotas, churrascos, caravanas e vivências. A ideologia se mantém viva para revolucionar a arquibancada do Náutico.',
+            },
+            {
+              titulo: 'De Volta aos Aflitos',
+              texto: 'Voltar aos Aflitos foi como reencontrar a alma do Náutico. A empolgação de estar novamente em casa veio junto com o acesso e o título da 3ª divisão, com uma torcida renovada, mais organizada e cheia de disposição.\n\nDurante a pandemia, foram seguidas as recomendações de segurança e distanciamento social, e a barra se manteve ativa como podia — através de faixas estendidas nos Aflitos e ações sociais. Os Centenários dos Aflitos, através de suas lideranças, foram pioneiros e principais articuladores na volta das bandeiras de mastro às arquibancadas pernambucanas, depois de quase 15 anos.\n\nCom o retorno das organizadas e a mudança do Setor Vermelho para o Setor Caldeirão, a barra entrou em uma fase de consolidação e crescimento. No popular Setor Caldeirão, a barra pôde ditar o seu ritmo. Nos últimos anos, o Caldeirão foi palco de diversas festas históricas marcadas na memória da torcida alvirrubra. Continuar contribuindo para que a cultura alvirrubra se mantenha viva, para que os Aflitos sejam cada vez mais difíceis de enfrentar e para apoiar o clube em todas as frentes — é isso que nos une e nos move.',
+            },
+          ].map((bloco, i) => (
+            <motion.div key={bloco.titulo} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-60px' }} transition={{ duration: 0.6, delay: i * 0.08 }}>
+              <div className="flex items-center gap-4 mb-4">
+                <div className="w-8 h-[3px] flex-shrink-0" style={{ background: 'rgba(255,255,255,0.5)' }} />
+                <h3 className="text-2xl md:text-3xl font-bold uppercase"
+                  style={{ fontFamily: 'Oswald, sans-serif', color: '#FFFFFF' }}>{bloco.titulo}</h3>
+              </div>
+              {bloco.texto.split('\n\n').map((paragrafo, j) => (
+                <p key={j} className="leading-relaxed text-sm mb-4 last:mb-0"
+                  style={{ color: 'rgba(255,255,255,0.82)', fontFamily: 'DM Sans, sans-serif' }}>
+                  {paragrafo}
+                </p>
+              ))}
+            </motion.div>
+          ))}
+
         </div>
       </section>
 
