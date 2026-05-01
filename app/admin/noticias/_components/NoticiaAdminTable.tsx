@@ -11,6 +11,21 @@ import Toast from '@/components/ui/Toast'
 import Modal from '@/components/ui/Modal'
 import { useAdminPath } from '@/hooks/useAdminPath'
 
+// ─── Formata qualquer campo de data sem nunca exibir "Invalid Date" ──────────
+function safeDate(val: string | null | undefined): string {
+  if (!val) return '—'
+  const d = new Date(val)
+  if (isNaN(d.getTime())) return '—'
+  return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })
+}
+
+// Tenta publicado_em primeiro, cai para created_at se inválido
+function displayDate(n: Noticia): string {
+  const fromPublicado = safeDate((n as any).publicado_em)
+  if (fromPublicado !== '—') return fromPublicado
+  return safeDate((n as any).created_at)
+}
+
 export default function NoticiaAdminTable({ noticias }: { noticias: Noticia[] }) {
   const [deleteTarget, setDeleteTarget] = useState<Noticia | null>(null)
   const [loading, setLoading] = useState(false)
@@ -43,27 +58,20 @@ export default function NoticiaAdminTable({ noticias }: { noticias: Noticia[] })
           {noticias.map((n, i) => (
             <div key={n.id} className="px-4 py-4 space-y-2"
               style={{ background: i % 2 === 0 ? '#FFFFFF' : 'rgba(237,28,36,0.02)' }}>
-
-              {/* Título */}
               <p className="font-medium text-sm leading-snug"
                 style={{ color: '#ED1C24', fontFamily: 'DM Sans, sans-serif' }}>
                 {n.titulo}
               </p>
-
-              {/* Status + Data em linha */}
               <div className="flex items-center justify-between gap-2 flex-wrap">
                 <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold"
                   style={{ background: n.publicado ? 'rgba(74,222,128,0.10)' : 'rgba(237,28,36,0.06)', color: n.publicado ? '#16a34a' : 'rgba(237,28,36,0.5)', border: `1px solid ${n.publicado ? 'rgba(74,222,128,0.25)' : 'rgba(237,28,36,0.15)'}`, fontFamily: 'DM Sans, sans-serif' }}>
                   {n.publicado ? <Eye size={10} /> : <EyeOff size={10} />}
                   {n.publicado ? 'Publicado' : 'Rascunho'}
                 </span>
-                <span className="text-xs"
-                  style={{ color: 'rgba(237,28,36,0.45)', fontFamily: 'DM Sans, sans-serif' }}>
-                  {n.publicado_em ? new Date(n.publicado_em).toLocaleDateString('pt-BR') : '—'}
+                <span className="text-xs" style={{ color: 'rgba(237,28,36,0.45)', fontFamily: 'DM Sans, sans-serif' }}>
+                  {displayDate(n)}
                 </span>
               </div>
-
-              {/* Ações alinhadas à direita */}
               <div className="flex justify-end gap-2 pt-1">
                 <Link href={`${adminBase}/noticias/${n.id}`}>
                   <button className="p-1.5 rounded-lg transition hover:scale-110"
@@ -108,7 +116,7 @@ export default function NoticiaAdminTable({ noticias }: { noticias: Noticia[] })
                   </td>
                   <td className="px-5 py-4 text-xs whitespace-nowrap"
                     style={{ color: 'rgba(237,28,36,0.45)', fontFamily: 'DM Sans, sans-serif' }}>
-                    {n.publicado_em ? new Date(n.publicado_em).toLocaleDateString('pt-BR') : '—'}
+                    {displayDate(n)}
                   </td>
                   <td className="px-5 py-4">
                     <div className="flex items-center gap-2">

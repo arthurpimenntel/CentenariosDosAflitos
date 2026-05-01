@@ -14,6 +14,19 @@ const SPANS = [
   'col-span-1 row-span-1',
 ]
 
+// ─── Paleta do lightbox claro ────────────────────────────────────────────────
+const LB = {
+  bg:          'rgba(240,240,240,0.97)',
+  btnClose:    '#ED1C24',
+  btnNav:      'rgba(237,28,36,0.10)',
+  btnNavBorder:'rgba(237,28,36,0.20)',
+  counter:     'rgba(0,0,0,0.35)',
+  counterBg:   'rgba(237,28,36,0.08)',
+  counterBorder:'rgba(237,28,36,0.18)',
+  caption:     'rgba(0,0,0,0.45)',
+  thumbInactive: 0.35,
+}
+
 interface Foto { id: string; imagem_url: string; alt: string | null }
 
 function Lightbox({ fotos, index, onClose, onPrev, onNext }: {
@@ -31,46 +44,68 @@ function Lightbox({ fotos, index, onClose, onPrev, onNext }: {
   }, [onClose, onPrev, onNext])
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.25 }}
+    <motion.div
+      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+      transition={{ duration: 0.25 }}
       className="fixed inset-0 z-[999] flex items-center justify-center"
-      style={{ background: 'rgba(0,0,0,0.94)', backdropFilter: 'blur(10px)' }} onClick={onClose}>
-      <button onClick={onClose} className="absolute top-5 right-5 z-20 flex items-center justify-center rounded-full transition-all hover:scale-110"
-        style={{ width: 44, height: 44, background: 'rgba(237,28,36,0.9)', border: '1px solid rgba(255,255,255,0.15)' }} aria-label="Fechar">
+      style={{ background: LB.bg, backdropFilter: 'blur(16px)' }}
+      onClick={onClose}
+    >
+      {/* Fechar */}
+      <button onClick={onClose}
+        className="absolute top-5 right-5 z-20 flex items-center justify-center rounded-full transition-all hover:scale-110"
+        style={{ width: 44, height: 44, background: LB.btnClose }} aria-label="Fechar">
         <X size={18} color="#fff" />
       </button>
+
+      {/* Contador */}
       <div className="absolute top-5 left-5 z-20 px-3 py-1.5 rounded-full"
-        style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', fontFamily: 'Oswald, sans-serif', fontSize: 12, letterSpacing: '0.15em', color: 'rgba(255,255,255,0.6)' }}>
+        style={{ background: LB.counterBg, border: `1px solid ${LB.counterBorder}`, fontFamily: 'Oswald, sans-serif', fontSize: 12, letterSpacing: '0.15em', color: LB.counter }}>
         {index + 1} / {fotos.length}
       </div>
-      <button onClick={e => { e.stopPropagation(); onPrev() }} className="absolute left-4 top-1/2 -translate-y-1/2 z-20 flex items-center justify-center rounded-full transition-all hover:scale-110"
-        style={{ width: 52, height: 52, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)' }} aria-label="Anterior">
-        <ChevronLeft size={22} color="#fff" />
+
+      {/* Anterior */}
+      <button onClick={e => { e.stopPropagation(); onPrev() }}
+        className="absolute left-3 top-1/2 -translate-y-1/2 z-20 flex items-center justify-center rounded-full transition-all hover:scale-110"
+        style={{ width: 52, height: 52, background: LB.btnNav, border: `1px solid ${LB.btnNavBorder}` }} aria-label="Anterior">
+        <ChevronLeft size={22} color="#ED1C24" />
       </button>
-      <button onClick={e => { e.stopPropagation(); onNext() }} className="absolute right-4 top-1/2 -translate-y-1/2 z-20 flex items-center justify-center rounded-full transition-all hover:scale-110"
-        style={{ width: 52, height: 52, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)' }} aria-label="Próxima">
-        <ChevronRight size={22} color="#fff" />
+
+      {/* Próxima */}
+      <button onClick={e => { e.stopPropagation(); onNext() }}
+        className="absolute right-3 top-1/2 -translate-y-1/2 z-20 flex items-center justify-center rounded-full transition-all hover:scale-110"
+        style={{ width: 52, height: 52, background: LB.btnNav, border: `1px solid ${LB.btnNavBorder}` }} aria-label="Próxima">
+        <ChevronRight size={22} color="#ED1C24" />
       </button>
-      <motion.div key={index} initial={{ opacity: 0, scale: 0.94, y: 12 }} animate={{ opacity: 1, scale: 1, y: 0 }}
+
+      {/* Imagem — ocupa toda a tela disponível. stopPropagation só na imagem para permitir fechar clicando nas laterais */}
+      <motion.div
+        key={index}
+        initial={{ opacity: 0, scale: 0.94, y: 12 }} animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.96 }} transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
-        className="relative z-10 flex flex-col items-center px-3 sm:px-20" style={{ maxWidth: 900, width: '100%' }}
-        onClick={e => e.stopPropagation()}>
-        <div className="relative w-full overflow-hidden" style={{ borderRadius: 12, boxShadow: '0 32px 80px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.06)' }}>
+        className="relative z-10 flex flex-col items-center w-full px-16"
+        style={{ maxWidth: '100vw', pointerEvents: 'none' }}
+      >
+        <div className="relative w-full overflow-hidden"
+          style={{ borderRadius: 8, boxShadow: '0 8px 40px rgba(0,0,0,0.18)', border: '1px solid rgba(237,28,36,0.15)', pointerEvents: 'auto' }}
+          onClick={e => e.stopPropagation()}>
           <div className="absolute top-0 left-0 right-0 h-[3px] z-10" style={{ background: '#ED1C24' }} />
-          <Image src={fotos[index].imagem_url} alt={fotos[index].alt ?? ''} width={900} height={600}
-            className="w-full h-auto object-contain" style={{ maxHeight: '72vh', display: 'block' }} sizes="90vw" priority />
+          <Image src={fotos[index].imagem_url} alt={fotos[index].alt ?? ''} width={1200} height={800}
+            className="w-full h-auto object-contain" style={{ maxHeight: '88vh', display: 'block' }} sizes="100vw" priority />
         </div>
         {fotos[index].alt && (
-          <div className="flex items-center justify-between w-full mt-3 px-1">
-            <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: 'rgba(255,255,255,0.45)', letterSpacing: '0.08em' }}>
-              {fotos[index].alt}
-            </p>
-          </div>
+          <p className="mt-2 text-sm px-1" style={{ fontFamily: 'DM Sans, sans-serif', color: LB.caption, letterSpacing: '0.06em', pointerEvents: 'auto' }}
+            onClick={e => e.stopPropagation()}>
+            {fotos[index].alt}
+          </p>
         )}
       </motion.div>
-      <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-2 z-20">
+
+      {/* Tira de miniaturas */}
+      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-20">
         {fotos.map((f, i) => (
           <button key={i} onClick={e => e.stopPropagation()} className="relative overflow-hidden rounded transition-all"
-            style={{ width: i === index ? 48 : 32, height: 32, opacity: i === index ? 1 : 0.4, outline: i === index ? '2px solid #ED1C24' : 'none', outlineOffset: 2 }}>
+            style={{ width: i === index ? 48 : 32, height: 32, opacity: i === index ? 1 : LB.thumbInactive, outline: i === index ? '2px solid #ED1C24' : 'none', outlineOffset: 2 }}>
             <Image src={f.imagem_url} alt={f.alt ?? ''} fill className="object-cover" sizes="48px" />
           </button>
         ))}
@@ -144,9 +179,8 @@ export default function AboutPreview() {
               Os Centenários dos Aflitos surgiu como uma revolução vinda de dentro da arquibancada, com um sentimento em comum: fazer da arquibancada um décimo segundo jogador. E hoje, não se pensa mais no estádio dos Aflitos, sem inevitavelmente pensar na barra do caldeirão.
             </p>
             <p className="text-base leading-relaxed" style={{ color: 'rgba(255,255,255,0.82)', fontFamily: 'DM Sans, sans-serif' }}>
-             Dentro e fora de campo, apoiar incondicionalmente é o nosso principal pilar ideológico. Ocupamos não só a bancada, mas também fiscalizando e contribuindo de forma incisiva pelo fortalecimento do Clube Náutico Capibaribe.
+              Dentro e fora de campo, apoiar incondicionalmente é o nosso principal pilar ideológico. Ocupamos não só a bancada, mas também fiscalizando e contribuindo de forma incisiva pelo fortalecimento do Clube Náutico Capibaribe.
             </p>
-            
             <p className="text-sm font-semibold tracking-widest uppercase" style={{ color: 'rgba(255,255,255,0.5)', fontFamily: 'DM Sans, sans-serif' }}>Desde 2012, não se compara.</p>
           </div>
           <Link href="/quem-somos"

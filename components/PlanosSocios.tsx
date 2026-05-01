@@ -16,7 +16,7 @@ const BENEFICIOS = [
   { bold: null,    texto: 'Desconto em caravanas'          },
   { bold: null,    texto: 'Sorteios mensais'               },
   { bold: null,    texto: 'Prioridade em eventos'          },
-  { bold: null,    texto: 'Carteirinha Grátis'             },
+  { bold: null,    texto: 'Carteirinha virtual'             },
   { bold: null,    texto: 'Adesivo exclusivo de sócio 2026'},
   { bold: '+R$16', texto: 'Carteirinha Física'             },
 ]
@@ -157,7 +157,7 @@ export default function PlanosSocio() {
     >
       <div className="max-w-3xl mx-auto">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.6 }} className="text-center mb-12">
-          <p className="uppercase tracking-widest mb-3" style={{ fontSize: 11, color: 'rgba(237,28,36,0.5)', fontFamily: 'DM Sans, sans-serif' }}>— Junte-se à família</p>
+          
           <h2 className="uppercase font-bold" style={{ fontFamily: 'Oswald, sans-serif', fontSize: 48, color: RED, lineHeight: 1 }}>PLANOS DE SÓCIO</h2>
           <motion.div className="mx-auto mt-4" style={{ width: 48, height: 3, background: RED, transformOrigin: 'center' }}
             initial={{ scaleX: 0 }} animate={inView ? { scaleX: 1 } : {}} transition={{ duration: 0.6, delay: 0.2 }} />

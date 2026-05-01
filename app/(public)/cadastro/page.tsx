@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect, Suspense, FormEvent, ChangeEvent } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { motion } from 'framer-motion'
-import {CheckCircle, ChevronRight, Upload, X, FileImage, CreditCard, Banknote} from 'lucide-react'
+import {CheckCircle, ChevronRight, Upload, X, FileImage, CreditCard, Banknote, Sticker} from 'lucide-react'
 import { getSupabaseClient } from '@/lib/supabase'
 import Image from 'next/image'
 import Navbar from '@/components/Navbar'
@@ -24,11 +24,13 @@ type FieldError = Partial<Record<keyof FormData, string>>
 const COMO_CONHECEU = ['Na arquibancada', 'Através de um amigo', 'No Instagram', 'Já frequento', 'Outro',]
 
 const beneficiosDetalhados = [
-  { icon: ShoppingBag, titulo: 'Desconto na Loja',     texto: 'Descontos e produtos exclusivos lançados pela barra.' },
+  { icon: ShoppingBag, titulo: 'Desconto na Loja',      texto: 'Descontos e produtos exclusivos lançados pela barra.' },
   { icon: Bus,         titulo: 'Desconto em Caravanas', texto: 'Tenha desconto e condições especiais em caravanas organizadas.' },
   { icon: Zap,         titulo: 'Sorteios Mensais',      texto: 'Sorteios mensais entre associados de produtos, serviços e muito mais.' },
   { icon: Calendar,    titulo: 'Prioridade em Eventos', texto: 'Prioridade em eventos e confraternizações para associados.' },
+  { icon: Sticker, titulo: 'Adesivo Sócio 2026',        texto: 'Pra quem vive a arquibancada e representa em qualquer lugar.' },
   { icon: CreditCard,  titulo: 'Carteirinha de Sócio',  texto: 'Carteirinha de sócio virtual gratuita. Física +R$16,00.' },
+  
 ]
 
 const BENEFICIOS = [
@@ -36,7 +38,7 @@ const BENEFICIOS = [
   { bold: null,    texto: 'Desconto em caravanas'          },
   { bold: null,    texto: 'Sorteios mensais'               },
   { bold: null,    texto: 'Prioridade em eventos'          },
-  { bold: null,    texto: 'Carteirinha Grátis'             },
+  { bold: null,    texto: 'Carteirinha virtual'             },
   { bold: null,    texto: 'Adesivo exclusivo de sócio 2026'},
   { bold: '+R$16', texto: 'Carteirinha Física'             },
 ]

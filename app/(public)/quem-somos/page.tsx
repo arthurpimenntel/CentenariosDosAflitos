@@ -22,6 +22,18 @@ const SPANS = ['col-span-2 row-span-2', 'col-span-1 row-span-1', 'col-span-1 row
 
 interface Foto { id: string; imagem_url: string; alt: string | null }
 
+// ─── Paleta do lightbox claro ────────────────────────────────────────────────
+const LB = {
+  bg:           'rgba(240,240,240,0.97)',
+  btnClose:     '#D40000',
+  btnNav:       'rgba(212,0,0,0.10)',
+  btnNavBorder: 'rgba(212,0,0,0.20)',
+  counter:      'rgba(0,0,0,0.40)',
+  counterBg:    'rgba(212,0,0,0.08)',
+  counterBorder:'rgba(212,0,0,0.18)',
+  caption:      'rgba(0,0,0,0.45)',
+}
+
 function Lightbox({ fotos, index, onClose, onPrev, onNext }: {
   fotos: Foto[]; index: number; onClose: () => void; onPrev: () => void; onNext: () => void
 }) {
@@ -37,46 +49,69 @@ function Lightbox({ fotos, index, onClose, onPrev, onNext }: {
   }, [onClose, onPrev, onNext])
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.25 }}
+    <motion.div
+      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+      transition={{ duration: 0.25 }}
       className="fixed inset-0 z-[999] flex items-center justify-center"
-      style={{ background: 'rgba(0,0,0,0.94)', backdropFilter: 'blur(10px)' }} onClick={onClose}>
-      <button onClick={onClose} className="absolute top-5 right-5 z-20 flex items-center justify-center rounded-full transition-all hover:scale-110"
-        style={{ width: 44, height: 44, background: 'rgba(237,28,36,0.9)', border: '1px solid rgba(255,255,255,0.15)' }} aria-label="Fechar">
+      style={{ background: LB.bg, backdropFilter: 'blur(16px)' }}
+      onClick={onClose}
+    >
+      {/* Fechar */}
+      <button onClick={onClose}
+        className="absolute top-5 right-5 z-20 flex items-center justify-center rounded-full transition-all hover:scale-110"
+        style={{ width: 44, height: 44, background: LB.btnClose }} aria-label="Fechar">
         <X size={18} color="#fff" />
       </button>
+
+      {/* Contador */}
       <div className="absolute top-5 left-5 z-20 px-3 py-1.5 rounded-full"
-        style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', fontFamily: 'Oswald, sans-serif', fontSize: 12, letterSpacing: '0.15em', color: 'rgba(255,255,255,0.6)' }}>
+        style={{ background: LB.counterBg, border: `1px solid ${LB.counterBorder}`, fontFamily: 'Oswald, sans-serif', fontSize: 12, letterSpacing: '0.15em', color: LB.counter }}>
         {index + 1} / {fotos.length}
       </div>
-      <button onClick={e => { e.stopPropagation(); onPrev() }} className="absolute left-4 top-1/2 -translate-y-1/2 z-20 flex items-center justify-center rounded-full transition-all hover:scale-110"
-        style={{ width: 52, height: 52, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)' }} aria-label="Anterior">
-        <ChevronLeft size={22} color="#fff" />
+
+      {/* Anterior */}
+      <button onClick={e => { e.stopPropagation(); onPrev() }}
+        className="absolute left-3 top-1/2 -translate-y-1/2 z-20 flex items-center justify-center rounded-full transition-all hover:scale-110"
+        style={{ width: 52, height: 52, background: LB.btnNav, border: `1px solid ${LB.btnNavBorder}` }} aria-label="Anterior">
+        <ChevronLeft size={22} color="#D40000" />
       </button>
-      <button onClick={e => { e.stopPropagation(); onNext() }} className="absolute right-4 top-1/2 -translate-y-1/2 z-20 flex items-center justify-center rounded-full transition-all hover:scale-110"
-        style={{ width: 52, height: 52, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)' }} aria-label="Próxima">
-        <ChevronRight size={22} color="#fff" />
+
+      {/* Próxima */}
+      <button onClick={e => { e.stopPropagation(); onNext() }}
+        className="absolute right-3 top-1/2 -translate-y-1/2 z-20 flex items-center justify-center rounded-full transition-all hover:scale-110"
+        style={{ width: 52, height: 52, background: LB.btnNav, border: `1px solid ${LB.btnNavBorder}` }} aria-label="Próxima">
+        <ChevronRight size={22} color="#D40000" />
       </button>
-      <motion.div key={index} initial={{ opacity: 0, scale: 0.94, y: 12 }} animate={{ opacity: 1, scale: 1, y: 0 }}
+
+      {/* Imagem — máxima ocupação de tela. O stopPropagation fica só na imagem,
+           não no container, para que clicar nas laterais feche o lightbox. */}
+      <motion.div
+        key={index}
+        initial={{ opacity: 0, scale: 0.94, y: 12 }} animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.96 }} transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
-        className="relative z-10 flex flex-col items-center px-3 sm:px-20" style={{ maxWidth: 900, width: '100%' }}
-        onClick={e => e.stopPropagation()}>
-        <div className="relative w-full overflow-hidden" style={{ borderRadius: 12, boxShadow: '0 32px 80px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.06)' }}>
+        className="relative z-10 flex flex-col items-center w-full px-16"
+        style={{ maxWidth: '100vw', pointerEvents: 'none' }}
+      >
+        <div className="relative w-full overflow-hidden"
+          style={{ borderRadius: 8, boxShadow: '0 8px 40px rgba(0,0,0,0.15)', border: '1px solid rgba(212,0,0,0.15)', pointerEvents: 'auto' }}
+          onClick={e => e.stopPropagation()}>
           <div className="absolute top-0 left-0 right-0 h-[3px] z-10" style={{ background: '#D40000' }} />
-          <Image src={fotos[index].imagem_url} alt={fotos[index].alt ?? ''} width={900} height={600}
-            className="w-full h-auto object-contain" style={{ maxHeight: '72vh', display: 'block' }} sizes="90vw" priority />
+          <Image src={fotos[index].imagem_url} alt={fotos[index].alt ?? ''} width={1200} height={800}
+            className="w-full h-auto object-contain" style={{ maxHeight: '88vh', display: 'block' }} sizes="100vw" priority />
         </div>
         {fotos[index].alt && (
-          <div className="flex items-center justify-between w-full mt-3 px-1">
-            <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: 'rgba(255,255,255,0.45)', letterSpacing: '0.08em' }}>
-              {fotos[index].alt}
-            </p>
-          </div>
+          <p className="mt-2 text-sm px-1" style={{ fontFamily: 'DM Sans, sans-serif', color: LB.caption, letterSpacing: '0.06em', pointerEvents: 'auto' }}
+            onClick={e => e.stopPropagation()}>
+            {fotos[index].alt}
+          </p>
         )}
       </motion.div>
-      <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-2 z-20">
+
+      {/* Miniaturas */}
+      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-20">
         {fotos.map((f, i) => (
           <button key={i} onClick={e => e.stopPropagation()} className="relative overflow-hidden rounded transition-all"
-            style={{ width: i === index ? 48 : 32, height: 32, opacity: i === index ? 1 : 0.4, outline: i === index ? '2px solid #D40000' : 'none', outlineOffset: 2 }}>
+            style={{ width: i === index ? 48 : 32, height: 32, opacity: i === index ? 1 : 0.35, outline: i === index ? '2px solid #D40000' : 'none', outlineOffset: 2 }}>
             <Image src={f.imagem_url} alt={f.alt ?? ''} fill className="object-cover" sizes="48px" />
           </button>
         ))}
@@ -111,7 +146,7 @@ function Mosaico({ fotos }: { fotos: Foto[] }) {
               </div>
             </motion.div>
             {foto.alt && (
-              <motion.div className="absolute bottom-3 left-3 right-3" style={{ opacity: 0, y: 6 }} variants={{ hover: { opacity: 1, y: 0 } }} transition={{ duration: 0.25 }}>
+              <motion.div className="absolute bottom-3 left-3 right-3" style={{ opacity: 0 }} variants={{ hover: { opacity: 1 } }} transition={{ duration: 0.25 }}>
                 <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 11, letterSpacing: '0.1em', color: 'rgba(255,255,255,0.8)', textTransform: 'uppercase' }}>{foto.alt}</p>
               </motion.div>
             )}
@@ -129,13 +164,14 @@ export default function QuemSomosPage() {
   const stickerRef = useRef(null)
   const stickerInView = useInView(stickerRef, { once: true, margin: '-100px' })
   const [fotos, setFotos] = useState<Foto[]>([])
-  const [heroUrl, setHeroUrl] = useState('/torcida1.jpeg')
+  // ← null = ainda carregando (sem flash), string = URL carregada
+  const [heroUrl, setHeroUrl] = useState<string | null>(null)
 
   useEffect(() => {
     fetch('/api/admin/quem-somos-fotos')
       .then(r => r.json())
       .then(({ fotos, heroUrl }) => { setFotos(fotos); setHeroUrl(heroUrl) })
-      .catch(() => {})
+      .catch(() => { setHeroUrl('/torcida1.jpeg') })
   }, [])
 
   return (
@@ -145,9 +181,13 @@ export default function QuemSomosPage() {
       {/* ── HERO ── */}
       <section className="relative min-h-[70vh] flex items-end overflow-hidden">
         <div className="absolute inset-0">
-          <Image src={heroUrl} alt="Os Centenários dos Aflitos" fill priority className="object-cover object-center" sizes="100vw" />
+          {/* Placeholder vermelho enquanto a URL não carrega — sem flash de imagem errada */}
+          {heroUrl === null ? (
+            <div className="w-full h-full" style={{ background: '#D40000' }} />
+          ) : (
+            <Image src={heroUrl} alt="Os Centenários dos Aflitos" fill priority className="object-cover object-center" sizes="100vw" />
+          )}
           <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(212,0,0,0.95) 0%, rgba(212,0,0,0.6) 50%, rgba(212,0,0,0.2) 100%)' }} />
-          <div className="absolute inset-0 opacity-[0.05]" style={{ backgroundImage: 'repeating-linear-gradient(to right, rgba(255,255,255,0.6) 0px, rgba(255,255,255,0.6) 40px, transparent 40px, transparent 80px)' }} />
         </div>
         <div className="relative z-10 max-w-7xl mx-auto px-6 pb-20 pt-40 w-full">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
@@ -160,7 +200,6 @@ export default function QuemSomosPage() {
             className="text-7xl md:text-9xl font-bold uppercase leading-none mb-6 text-white" style={{ fontFamily: 'Oswald, sans-serif' }}>
             Quem<br /><span style={{ color: 'rgba(255,255,255,0.6)', WebkitTextStroke: '1px rgba(255,255,255,0.4)' }}>Somos</span>
           </motion.h1>
-          
         </div>
       </section>
 
@@ -177,9 +216,8 @@ export default function QuemSomosPage() {
       </div>
 
       {/* ── HISTÓRIA ── */}
-      <section className="px-6 py-24" style={{ background: '#D40000', backgroundImage: 'repeating-linear-gradient(to right, rgba(255,255,255,0.04) 0px, rgba(255,255,255,0.04) 30px, transparent 30px, transparent 60px)' }}>
+      <section className="px-6 py-24" style={{ background: '#D40000' }}>
         <div className="max-w-3xl mx-auto space-y-14">
-
           {[
             {
               titulo: 'Nossa História',
@@ -213,7 +251,6 @@ export default function QuemSomosPage() {
               ))}
             </motion.div>
           ))}
-
         </div>
       </section>
 
