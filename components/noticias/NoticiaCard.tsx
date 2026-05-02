@@ -7,6 +7,14 @@ import { Calendar } from 'lucide-react'
 import { Noticia } from '@/types'
 import { useState } from 'react'
 
+// Evita "Invalid Date" causado por fuso horário ao parsear só a data sem hora
+function formatDate(val: string | null | undefined): string {
+  if (!val) return '—'
+  const d = new Date(val.includes('T') ? val : val + 'T00:00:00')
+  if (isNaN(d.getTime())) return '—'
+  return d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })
+}
+
 export default function NoticiaCard({ noticia, index = 0 }: { noticia: Noticia; index?: number }) {
   const [hovered, setHovered] = useState(false)
 
@@ -46,7 +54,6 @@ export default function NoticiaCard({ noticia, index = 0 }: { noticia: Noticia; 
                 <span className="text-4xl font-bold opacity-10" style={{ fontFamily: 'Oswald, sans-serif', color: '#ED1C24' }}>CA</span>
               </div>
             )}
-            {/* Red top bar reveals on hover */}
             <motion.div
               className="absolute top-0 left-0 right-0 h-[3px]"
               style={{ background: '#ED1C24', transformOrigin: 'left' }}
@@ -61,9 +68,7 @@ export default function NoticiaCard({ noticia, index = 0 }: { noticia: Noticia; 
             <div className="flex items-center gap-2 mb-3" style={{ color: 'rgba(237,28,36,0.5)' }}>
               <Calendar size={12} aria-hidden="true" style={{ color: '#ED1C24' }} />
               <time className="text-xs" style={{ fontFamily: 'DM Sans, sans-serif' }}>
-                {noticia.publicado_em
-                  ? new Date(noticia.publicado_em).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })
-                  : '—'}
+                {formatDate(noticia.publicado_em)}
               </time>
             </div>
 

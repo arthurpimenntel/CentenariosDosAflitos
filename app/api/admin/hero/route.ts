@@ -1,6 +1,6 @@
-export const revalidate = 30
-
+// SEM revalidate — hero precisa sempre estar fresco para o carrossel público
 import { NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import { createAdminClient } from '@/lib/supabase-admin'
 
 export async function GET() {
@@ -10,4 +10,11 @@ export async function GET() {
     .select('*')
     .order('ordem', { ascending: true })
   return NextResponse.json(data ?? [])
+}
+
+// Chamado pelo HeroAdminClient após insert/delete/reorder para invalidar o cache da home
+export async function POST() {
+  revalidatePath('/')
+  revalidatePath('/api/admin/hero')
+  return NextResponse.json({ ok: true })
 }

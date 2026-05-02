@@ -16,6 +16,14 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   return { title: data?.titulo ?? 'Notícia', description: data?.resumo ?? '' }
 }
 
+function formatDate(val: string | null | undefined): string | null {
+  if (!val) return null
+  // Adiciona T00:00:00 se for só data (ex: "2026-02-21") para evitar Invalid Date por fuso horário
+  const d = new Date(val.includes('T') ? val : val + 'T00:00:00')
+  if (isNaN(d.getTime())) return null
+  return d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })
+}
+
 export default async function NoticiaPage({ params }: { params: { slug: string } }) {
   const supabase = await createServerSupabaseClient()
   const { data: noticia } = await supabase
@@ -27,10 +35,7 @@ export default async function NoticiaPage({ params }: { params: { slug: string }
 
   if (!noticia) notFound()
 
-  const dataFormatada = noticia.publicado_em
-    ? new Date(noticia.publicado_em).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })
-    : null
-
+  const dataFormatada = formatDate(noticia.publicado_em)
   const tempoLeitura = noticia.conteudo ? Math.max(1, Math.ceil(noticia.conteudo.split(' ').length / 200)) : 1
 
   return (
@@ -56,14 +61,9 @@ export default async function NoticiaPage({ params }: { params: { slug: string }
           className="absolute inset-0"
           style={{ background: 'linear-gradient(to top, rgba(237,28,36,0.95) 0%, rgba(237,28,36,0.55) 50%, rgba(237,28,36,0.2) 100%)' }}
         />
-        {/* Listras */}
-        <div className="absolute inset-0 opacity-[0.04]" style={{  }} />
 
         <div className="absolute inset-x-0 bottom-0 max-w-3xl mx-auto px-6 pb-12 pt-32">
-          <Link
-            href="/noticias"
-            className="inline-flex items-center gap-2 group mb-8"
-          >
+          <Link href="/noticias" className="inline-flex items-center gap-2 group mb-8">
             <ArrowLeft size={16} style={{ color: 'rgba(255,255,255,0.8)' }} className="transition-transform duration-300 group-hover:-translate-x-1" />
             <span className="text-sm uppercase tracking-widest font-semibold" style={{ color: 'rgba(255,255,255,0.8)', fontFamily: 'DM Sans, sans-serif' }}>
               Voltar às notícias
@@ -93,16 +93,13 @@ export default async function NoticiaPage({ params }: { params: { slug: string }
         </div>
       </div>
 
-      {/* ── CONTEÚDO ── fundo branco pontilhado */}
-      <div
-        className="max-w-3xl mx-auto px-6 py-16"
-      >
+      {/* ── CONTEÚDO ── */}
+      <div className="max-w-3xl mx-auto px-6 py-16">
         <div className="flex items-center gap-4 mb-10">
           <div className="w-12 h-1" style={{ background: '#ED1C24' }} />
           <div className="w-4 h-1" style={{ background: 'rgba(237,28,36,0.25)' }} />
         </div>
 
-        {/* Lead */}
         {noticia.resumo && (
           <p
             className="text-xl md:text-2xl leading-relaxed mb-10 font-medium"
@@ -112,7 +109,6 @@ export default async function NoticiaPage({ params }: { params: { slug: string }
           </p>
         )}
 
-        {/* Corpo */}
         <div
           className="text-base leading-[1.9] whitespace-pre-wrap"
           style={{ color: 'rgba(237,28,36,0.8)', fontFamily: 'DM Sans, sans-serif' }}
@@ -120,7 +116,6 @@ export default async function NoticiaPage({ params }: { params: { slug: string }
           {noticia.conteudo}
         </div>
 
-        {/* Rodapé */}
         <div
           className="mt-16 pt-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6"
           style={{ borderTop: '1px solid rgba(237,28,36,0.15)' }}
@@ -131,7 +126,6 @@ export default async function NoticiaPage({ params }: { params: { slug: string }
               Mais notícias
             </span>
           </Link>
-
           <CTALink />
         </div>
       </div>

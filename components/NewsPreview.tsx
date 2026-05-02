@@ -14,8 +14,11 @@ const FALLBACK: Noticia[] = [
   { id: '3', titulo: 'Aniversário de 13 anos: uma história de paixão', resumo: 'Em 2025 completamos 13 anos de apoio incondicional ao Timbu. Confira como foi a festa de aniversário.', conteudo: '', imagem_url: '/torcida3.jpeg', publicado_em: '2025-10-20', slug: 'aniversario-13-anos', publicado: true, created_at: '', updated_at: '' },
 ]
 
-function formatDate(dateStr: string) {
-  return new Date(dateStr + 'T00:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })
+function formatDate(dateStr: string | null | undefined): string {
+  if (!dateStr) return '—'
+  const d = new Date(dateStr.includes('T') ? dateStr : dateStr + 'T00:00:00')
+  if (isNaN(d.getTime())) return '—'
+  return d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })
 }
 
 const SLIDE_DURATION = 5000
@@ -164,13 +167,13 @@ export default function NewsPreview() {
                     </div>
                   </div>
 
-                  {/* Conteúdo */}
+                 {/* Conteúdo */}
                   <div className="w-full md:w-1/2 p-8 md:p-12 flex flex-col justify-center" style={{ background: 'rgba(255,255,255,0.08)' }}>
-                    {post.publicado_em && (
+                    {formatDate(post.publicado_em) !== '—' && (
                       <div className="flex items-center gap-2 text-xs mb-4" style={{ color: 'rgba(255,255,255,0.55)' }}>
-                        <Calendar size={12} aria-hidden="true" />
-                        <time dateTime={post.publicado_em}>{formatDate(post.publicado_em)}</time>
-                      </div>
+                     <Calendar size={12} aria-hidden="true" />
+                    <time dateTime={post.publicado_em ?? ''}>{formatDate(post.publicado_em)}</time>
+                   </div>
                     )}
 
                     <motion.div

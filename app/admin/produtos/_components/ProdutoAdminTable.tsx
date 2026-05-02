@@ -12,7 +12,8 @@ import Toast from '@/components/ui/Toast'
 import Modal from '@/components/ui/Modal'
 import { useAdminPath } from '@/hooks/useAdminPath'
 
-export default function ProdutoAdminTable({ produtos }: { produtos: Produto[] }) {
+export default function ProdutoAdminTable({ produtos: initialProdutos }: { produtos: Produto[] }) {
+  const [produtos, setProdutos] = useState<Produto[]>(initialProdutos)
   const [deleteTarget, setDeleteTarget] = useState<Produto | null>(null)
   const [loading, setLoading] = useState(false)
   const { toasts, addToast, removeToast } = useToast()
@@ -23,10 +24,19 @@ export default function ProdutoAdminTable({ produtos }: { produtos: Produto[] })
   async function handleDelete() {
     if (!deleteTarget) return
     setLoading(true)
-    const { error } = await supabase.from('produtos').delete().eq('id', deleteTarget.id)
-    if (error) addToast('error', 'Erro ao excluir produto.')
-    else { addToast('success', 'Produto excluído.'); router.refresh() }
+    const id = deleteTarget.id
+    // Remove imediatamente do estado local (optimistic)
+    setProdutos(prev => prev.filter(p => p.id !== id))
     setDeleteTarget(null)
+    const { error } = await supabase.from('produtos').delete().eq('id', id)
+    if (error) {
+      // Reverte se falhou
+      setProdutos(initialProdutos)
+      addToast('error', 'Erro ao excluir produto.')
+    } else {
+      addToast('success', 'Produto excluído.')
+      router.refresh()
+    }
     setLoading(false)
   }
 
@@ -37,63 +47,40 @@ export default function ProdutoAdminTable({ produtos }: { produtos: Produto[] })
         {/* ── MOBILE CARDS (< 640 px) ── */}
         <div className="sm:hidden divide-y" style={{ borderColor: 'rgba(237,28,36,0.07)' }}>
           {produtos.length === 0 && (
-            <p className="px-5 py-12 text-center text-sm"
-              style={{ color: 'rgba(237,28,36,0.35)', fontFamily: 'DM Sans, sans-serif' }}>
+            <p className="px-5 py-12 text-center text-sm" style={{ color: 'rgba(237,28,36,0.35)', fontFamily: 'DM Sans, sans-serif' }}>
               Nenhum produto cadastrado.
             </p>
           )}
           {produtos.map((p, i) => (
             <div key={p.id} className="px-4 py-4 space-y-2.5"
               style={{ background: i % 2 === 0 ? '#FFFFFF' : 'rgba(237,28,36,0.02)' }}>
-
-              {/* Linha 1: foto + nome/categoria */}
               <div className="flex items-center gap-3">
-                <div className="relative w-12 h-12 rounded-xl overflow-hidden flex-shrink-0"
-                  style={{ background: 'rgba(237,28,36,0.06)' }}>
+                <div className="relative w-12 h-12 rounded-xl overflow-hidden flex-shrink-0" style={{ background: 'rgba(237,28,36,0.06)' }}>
                   {p.imagem_url && <Image src={p.imagem_url} alt={p.nome} fill className="object-cover" sizes="48px" />}
                 </div>
                 <div className="min-w-0">
-                  <p className="font-medium text-sm leading-snug truncate"
-                    style={{ color: '#ED1C24', fontFamily: 'DM Sans, sans-serif' }}>{p.nome}</p>
-                  <p className="text-xs mt-0.5"
-                    style={{ color: 'rgba(237,28,36,0.45)', fontFamily: 'DM Sans, sans-serif' }}>{p.categoria}</p>
+                  <p className="font-medium text-sm leading-snug truncate" style={{ color: '#ED1C24', fontFamily: 'DM Sans, sans-serif' }}>{p.nome}</p>
+                  <p className="text-xs mt-0.5" style={{ color: 'rgba(237,28,36,0.45)', fontFamily: 'DM Sans, sans-serif' }}>{p.categoria}</p>
                 </div>
               </div>
-
-              {/* Linha 2: preço + estoque + badges */}
               <div className="flex items-center gap-2 flex-wrap">
-                <span className="font-semibold text-sm"
-                  style={{ color: '#ED1C24', fontFamily: 'DM Sans, sans-serif' }}>
+                <span className="font-semibold text-sm" style={{ color: '#ED1C24', fontFamily: 'DM Sans, sans-serif' }}>
                   {p.preco.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
                 </span>
                 <span className="inline-block px-2 py-0.5 rounded-full text-xs font-semibold"
                   style={{ background: p.estoque > 0 ? 'rgba(74,222,128,0.10)' : 'rgba(237,28,36,0.08)', color: p.estoque > 0 ? '#16a34a' : '#ED1C24', fontFamily: 'DM Sans, sans-serif' }}>
                   {p.estoque > 0 ? `Est. ${p.estoque}` : 'Esgotado'}
                 </span>
-                {p.ativo && (
-                  <span className="text-xs px-2 py-0.5 rounded-full"
-                    style={{ background: 'rgba(237,28,36,0.08)', color: '#ED1C24', fontFamily: 'DM Sans, sans-serif' }}>
-                    Ativo
-                  </span>
-                )}
-                {p.destaque && (
-                  <span className="text-xs px-2 py-0.5 rounded-full"
-                    style={{ background: '#ED1C24', color: '#FFFFFF', fontFamily: 'DM Sans, sans-serif' }}>
-                    Destaque
-                  </span>
-                )}
+                {p.ativo && <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: 'rgba(237,28,36,0.08)', color: '#ED1C24', fontFamily: 'DM Sans, sans-serif' }}>Ativo</span>}
+                {p.destaque && <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: '#ED1C24', color: '#FFFFFF', fontFamily: 'DM Sans, sans-serif' }}>Destaque</span>}
               </div>
-
-              {/* Linha 3: botões alinhados à direita */}
               <div className="flex justify-end gap-2">
                 <Link href={`${adminBase}/produtos/${p.id}`}>
-                  <button className="p-1.5 rounded-lg transition hover:scale-110"
-                    style={{ background: 'rgba(237,28,36,0.08)' }} aria-label="Editar">
+                  <button className="p-1.5 rounded-lg transition hover:scale-110" style={{ background: 'rgba(237,28,36,0.08)' }} aria-label="Editar">
                     <Edit2 size={14} style={{ color: '#ED1C24' }} />
                   </button>
                 </Link>
-                <button onClick={() => setDeleteTarget(p)} className="p-1.5 rounded-lg transition hover:scale-110"
-                  style={{ background: 'rgba(237,28,36,0.08)' }} aria-label="Excluir">
+                <button onClick={() => setDeleteTarget(p)} className="p-1.5 rounded-lg transition hover:scale-110" style={{ background: 'rgba(237,28,36,0.08)' }} aria-label="Excluir">
                   <Trash2 size={14} style={{ color: '#ED1C24' }} />
                 </button>
               </div>
@@ -117,20 +104,15 @@ export default function ProdutoAdminTable({ produtos }: { produtos: Produto[] })
                 <tr><td colSpan={7} className="px-5 py-12 text-center text-sm" style={{ color: 'rgba(237,28,36,0.35)', fontFamily: 'DM Sans, sans-serif' }}>Nenhum produto cadastrado.</td></tr>
               )}
               {produtos.map((p, i) => (
-                <tr key={p.id}
-                  style={{ background: i % 2 === 0 ? '#FFFFFF' : 'rgba(237,28,36,0.02)', borderBottom: '1px solid rgba(237,28,36,0.07)' }}>
+                <tr key={p.id} style={{ background: i % 2 === 0 ? '#FFFFFF' : 'rgba(237,28,36,0.02)', borderBottom: '1px solid rgba(237,28,36,0.07)' }}>
                   <td className="px-5 py-4">
-                    <div className="relative w-12 h-12 rounded-xl overflow-hidden"
-                      style={{ background: 'rgba(237,28,36,0.06)' }}>
+                    <div className="relative w-12 h-12 rounded-xl overflow-hidden" style={{ background: 'rgba(237,28,36,0.06)' }}>
                       {p.imagem_url && <Image src={p.imagem_url} alt={p.nome} fill className="object-cover" sizes="48px" />}
                     </div>
                   </td>
-                  <td className="px-5 py-4 font-medium max-w-[180px] truncate"
-                    style={{ color: '#ED1C24', fontFamily: 'DM Sans, sans-serif' }}>{p.nome}</td>
-                  <td className="px-5 py-4 text-xs"
-                    style={{ color: 'rgba(237,28,36,0.45)', fontFamily: 'DM Sans, sans-serif' }}>{p.categoria}</td>
-                  <td className="px-5 py-4 font-semibold"
-                    style={{ color: '#ED1C24', fontFamily: 'DM Sans, sans-serif' }}>
+                  <td className="px-5 py-4 font-medium max-w-[180px] truncate" style={{ color: '#ED1C24', fontFamily: 'DM Sans, sans-serif' }}>{p.nome}</td>
+                  <td className="px-5 py-4 text-xs" style={{ color: 'rgba(237,28,36,0.45)', fontFamily: 'DM Sans, sans-serif' }}>{p.categoria}</td>
+                  <td className="px-5 py-4 font-semibold" style={{ color: '#ED1C24', fontFamily: 'DM Sans, sans-serif' }}>
                     {p.preco.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
                   </td>
                   <td className="px-5 py-4">
@@ -148,13 +130,11 @@ export default function ProdutoAdminTable({ produtos }: { produtos: Produto[] })
                   <td className="px-5 py-4">
                     <div className="flex items-center gap-2">
                       <Link href={`${adminBase}/produtos/${p.id}`}>
-                        <button className="p-1.5 rounded-lg transition hover:scale-110"
-                          style={{ background: 'rgba(237,28,36,0.08)' }} aria-label="Editar">
+                        <button className="p-1.5 rounded-lg transition hover:scale-110" style={{ background: 'rgba(237,28,36,0.08)' }} aria-label="Editar">
                           <Edit2 size={14} style={{ color: '#ED1C24' }} />
                         </button>
                       </Link>
-                      <button onClick={() => setDeleteTarget(p)} className="p-1.5 rounded-lg transition hover:scale-110"
-                        style={{ background: 'rgba(237,28,36,0.08)' }} aria-label="Excluir">
+                      <button onClick={() => setDeleteTarget(p)} className="p-1.5 rounded-lg transition hover:scale-110" style={{ background: 'rgba(237,28,36,0.08)' }} aria-label="Excluir">
                         <Trash2 size={14} style={{ color: '#ED1C24' }} />
                       </button>
                     </div>

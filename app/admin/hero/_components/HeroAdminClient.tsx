@@ -9,6 +9,29 @@ import { getSupabaseClient } from '@/lib/supabase'
 import { useToast } from '@/hooks/useToast'
 import Toast from '@/components/ui/Toast'
 
+// Invalida o cache da home e da rota de API após qualquer mutação no hero
+async function revalidateHero() {
+  await fetch('/api/admin/hero', { method: 'POST' }).catch(() => {})
+}
+
+async function audit(
+  supabase: ReturnType<typeof getSupabaseClient>,
+  acao: string,
+  registroId: string,
+  detalhes?: object
+) {
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return
+  await supabase.from('auditoria').insert({
+    usuario_id: user.id,
+    usuario_email: user.email,
+    acao,
+    tabela: 'hero_fotos',
+    registro_id: registroId,
+    detalhes: detalhes ?? null,
+  })
+}
+
 export default function HeroAdminClient({ fotos: initialFotos }: { fotos: HeroFoto[] }) {
   const [fotos, setFotos] = useState(initialFotos)
   const [uploading, setUploading] = useState(false)
@@ -28,7 +51,12 @@ export default function HeroAdminClient({ fotos: initialFotos }: { fotos: HeroFo
         .select()
         .single()
       if (error) throw error
+      // Atualiza estado local imediatamente — sem esperar reload
       setFotos(prev => [...prev, data])
+      await Promise.all([
+        audit(supabase, 'insert', data.id, { imagem_url: url }),
+        revalidateHero(),
+      ])
       addToast('success', 'Foto adicionada ao carrossel!')
     } catch {
       addToast('error', 'Erro ao fazer upload.')
@@ -38,11 +66,23 @@ export default function HeroAdminClient({ fotos: initialFotos }: { fotos: HeroFo
   }
 
   async function toggleAtivo(foto: HeroFoto) {
+    const novoAtivo = !foto.ativo
+    // Atualiza estado local imediatamente
+    setFotos(prev => prev.map(f => f.id === foto.id ? { ...f, ativo: novoAtivo } : f))
     const { error } = await supabase
       .from('hero_fotos')
-      .update({ ativo: !foto.ativo })
+      .update({ ativo: novoAtivo })
       .eq('id', foto.id)
-    if (!error) setFotos(prev => prev.map(f => f.id === foto.id ? { ...f, ativo: !f.ativo } : f))
+    if (error) {
+      // Reverte se falhou
+      setFotos(prev => prev.map(f => f.id === foto.id ? { ...f, ativo: foto.ativo } : f))
+      addToast('error', 'Erro ao atualizar.')
+      return
+    }
+    await Promise.all([
+      audit(supabase, 'toggle_ativo', foto.id, { ativo: novoAtivo }),
+      revalidateHero(),
+    ])
   }
 
   async function move(foto: HeroFoto, dir: 'up' | 'down') {
@@ -59,14 +99,21 @@ export default function HeroAdminClient({ fotos: initialFotos }: { fotos: HeroFo
       supabase.from('hero_fotos').update({ ordem: next[idx].ordem }).eq('id', next[idx].id),
       supabase.from('hero_fotos').update({ ordem: next[swapIdx].ordem }).eq('id', next[swapIdx].id),
     ])
+    await Promise.all([
+      audit(supabase, 'reorder', foto.id, { dir }),
+      revalidateHero(),
+    ])
   }
 
   async function handleDelete(foto: HeroFoto) {
     const { error } = await supabase.from('hero_fotos').delete().eq('id', foto.id)
-    if (!error) {
-      setFotos(prev => prev.filter(f => f.id !== foto.id))
-      addToast('success', 'Foto removida.')
-    }
+    if (error) { addToast('error', 'Erro ao remover.'); return }
+    setFotos(prev => prev.filter(f => f.id !== foto.id))
+    await Promise.all([
+      audit(supabase, 'delete', foto.id, { imagem_url: foto.imagem_url }),
+      revalidateHero(),
+    ])
+    addToast('success', 'Foto removida.')
   }
 
   return (
@@ -100,11 +147,8 @@ export default function HeroAdminClient({ fotos: initialFotos }: { fotos: HeroFo
         ) : (
           <div className="space-y-3">
             {fotos.map((foto, i) => (
-              <div
-                key={foto.id}
-                className="flex items-center gap-4 p-4 rounded-xl"
-                style={{ background: 'rgba(58,0,0,0.4)', border: '1px solid rgba(237,28,36,0.2)' }}
-              >
+              <div key={foto.id} className="flex items-center gap-4 p-4 rounded-xl"
+                style={{ background: 'rgba(58,0,0,0.4)', border: '1px solid rgba(237,28,36,0.2)' }}>
                 <div className="relative w-20 h-14 rounded-lg overflow-hidden flex-shrink-0" style={{ background: '#3a0000' }}>
                   <Image src={foto.imagem_url} alt={`Hero ${i + 1}`} fill className="object-cover" sizes="80px" />
                   {!foto.ativo && <div className="absolute inset-0 bg-black/60" />}
@@ -114,36 +158,22 @@ export default function HeroAdminClient({ fotos: initialFotos }: { fotos: HeroFo
                 </div>
                 <div className="flex-1" />
                 <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => move(foto, 'up')}
-                    disabled={i === 0}
-                    className="p-1.5 rounded-lg disabled:opacity-20"
-                    style={{ background: 'rgba(255,255,255,0.06)' }}
-                  >
+                  <button onClick={() => move(foto, 'up')} disabled={i === 0}
+                    className="p-1.5 rounded-lg disabled:opacity-20" style={{ background: 'rgba(255,255,255,0.06)' }}>
                     <ChevronUp size={16} color="#fff" />
                   </button>
-                  <button
-                    onClick={() => move(foto, 'down')}
-                    disabled={i === fotos.length - 1}
-                    className="p-1.5 rounded-lg disabled:opacity-20"
-                    style={{ background: 'rgba(255,255,255,0.06)' }}
-                  >
+                  <button onClick={() => move(foto, 'down')} disabled={i === fotos.length - 1}
+                    className="p-1.5 rounded-lg disabled:opacity-20" style={{ background: 'rgba(255,255,255,0.06)' }}>
                     <ChevronDown size={16} color="#fff" />
                   </button>
-                  <button
-                    onClick={() => toggleAtivo(foto)}
-                    className="p-1.5 rounded-lg"
-                    style={{ background: foto.ativo ? 'rgba(74,222,128,0.1)' : 'rgba(255,255,255,0.06)' }}
-                  >
+                  <button onClick={() => toggleAtivo(foto)} className="p-1.5 rounded-lg"
+                    style={{ background: foto.ativo ? 'rgba(74,222,128,0.1)' : 'rgba(255,255,255,0.06)' }}>
                     {foto.ativo
                       ? <Eye size={16} style={{ color: '#4ade80' }} />
                       : <EyeOff size={16} style={{ color: 'rgba(255,255,255,0.4)' }} />}
                   </button>
-                  <button
-                    onClick={() => handleDelete(foto)}
-                    className="p-1.5 rounded-lg"
-                    style={{ background: 'rgba(248,113,113,0.1)' }}
-                  >
+                  <button onClick={() => handleDelete(foto)} className="p-1.5 rounded-lg"
+                    style={{ background: 'rgba(248,113,113,0.1)' }}>
                     <Trash2 size={16} style={{ color: '#f87171' }} />
                   </button>
                 </div>

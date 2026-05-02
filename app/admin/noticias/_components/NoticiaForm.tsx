@@ -69,7 +69,7 @@ export default function NoticiaForm({ noticia }: { noticia?: Noticia }) {
       conteudo: form.conteudo || null,
       imagem_url: form.imagem_url || null,
       publicado: form.publicado,
-      publicado_em: form.publicado && form.publicado_em ? new Date(form.publicado_em).toISOString() : null,
+      publicado_em: form.publicado && form.publicado_em ? new Date(form.publicado_em + 'T12:00:00').toISOString() : null,
     }
     try {
       const res = await fetch(

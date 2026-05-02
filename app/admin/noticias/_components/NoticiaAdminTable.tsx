@@ -11,22 +11,21 @@ import Toast from '@/components/ui/Toast'
 import Modal from '@/components/ui/Modal'
 import { useAdminPath } from '@/hooks/useAdminPath'
 
-// ─── Formata qualquer campo de data sem nunca exibir "Invalid Date" ──────────
 function safeDate(val: string | null | undefined): string {
   if (!val) return '—'
-  const d = new Date(val)
+  const d = new Date(val.includes('T') ? val : val + 'T00:00:00')
   if (isNaN(d.getTime())) return '—'
   return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })
 }
 
-// Tenta publicado_em primeiro, cai para created_at se inválido
 function displayDate(n: Noticia): string {
   const fromPublicado = safeDate((n as any).publicado_em)
   if (fromPublicado !== '—') return fromPublicado
   return safeDate((n as any).created_at)
 }
 
-export default function NoticiaAdminTable({ noticias }: { noticias: Noticia[] }) {
+export default function NoticiaAdminTable({ noticias: initialNoticias }: { noticias: Noticia[] }) {
+  const [noticias, setNoticias] = useState<Noticia[]>(initialNoticias)
   const [deleteTarget, setDeleteTarget] = useState<Noticia | null>(null)
   const [loading, setLoading] = useState(false)
   const { toasts, addToast, removeToast } = useToast()
@@ -37,10 +36,19 @@ export default function NoticiaAdminTable({ noticias }: { noticias: Noticia[] })
   async function handleDelete() {
     if (!deleteTarget) return
     setLoading(true)
-    const { error } = await supabase.from('noticias').delete().eq('id', deleteTarget.id)
-    if (error) { addToast('error', 'Erro ao excluir notícia.') }
-    else { addToast('success', 'Notícia excluída.'); router.refresh() }
+    const id = deleteTarget.id
+    // Remove imediatamente do estado local (optimistic)
+    setNoticias(prev => prev.filter(n => n.id !== id))
     setDeleteTarget(null)
+    const { error } = await supabase.from('noticias').delete().eq('id', id)
+    if (error) {
+      // Reverte se falhou
+      setNoticias(initialNoticias)
+      addToast('error', 'Erro ao excluir notícia.')
+    } else {
+      addToast('success', 'Notícia excluída.')
+      router.refresh()
+    }
     setLoading(false)
   }
 
@@ -58,8 +66,7 @@ export default function NoticiaAdminTable({ noticias }: { noticias: Noticia[] })
           {noticias.map((n, i) => (
             <div key={n.id} className="px-4 py-4 space-y-2"
               style={{ background: i % 2 === 0 ? '#FFFFFF' : 'rgba(237,28,36,0.02)' }}>
-              <p className="font-medium text-sm leading-snug"
-                style={{ color: '#ED1C24', fontFamily: 'DM Sans, sans-serif' }}>
+              <p className="font-medium text-sm leading-snug" style={{ color: '#ED1C24', fontFamily: 'DM Sans, sans-serif' }}>
                 {n.titulo}
               </p>
               <div className="flex items-center justify-between gap-2 flex-wrap">
@@ -74,13 +81,11 @@ export default function NoticiaAdminTable({ noticias }: { noticias: Noticia[] })
               </div>
               <div className="flex justify-end gap-2 pt-1">
                 <Link href={`${adminBase}/noticias/${n.id}`}>
-                  <button className="p-1.5 rounded-lg transition hover:scale-110"
-                    style={{ background: 'rgba(237,28,36,0.08)' }} aria-label="Editar">
+                  <button className="p-1.5 rounded-lg transition hover:scale-110" style={{ background: 'rgba(237,28,36,0.08)' }} aria-label="Editar">
                     <Edit2 size={14} style={{ color: '#ED1C24' }} />
                   </button>
                 </Link>
-                <button onClick={() => setDeleteTarget(n)} className="p-1.5 rounded-lg transition hover:scale-110"
-                  style={{ background: 'rgba(237,28,36,0.08)' }} aria-label="Excluir">
+                <button onClick={() => setDeleteTarget(n)} className="p-1.5 rounded-lg transition hover:scale-110" style={{ background: 'rgba(237,28,36,0.08)' }} aria-label="Excluir">
                   <Trash2 size={14} style={{ color: '#ED1C24' }} />
                 </button>
               </div>
@@ -104,30 +109,25 @@ export default function NoticiaAdminTable({ noticias }: { noticias: Noticia[] })
                 <tr><td colSpan={4} className="px-5 py-12 text-center text-sm" style={{ color: 'rgba(237,28,36,0.35)', fontFamily: 'DM Sans, sans-serif' }}>Nenhuma notícia cadastrada.</td></tr>
               )}
               {noticias.map((n, i) => (
-                <tr key={n.id}
-                  style={{ background: i % 2 === 0 ? '#FFFFFF' : 'rgba(237,28,36,0.02)', borderBottom: '1px solid rgba(237,28,36,0.07)' }}>
-                  <td className="px-5 py-4 font-medium max-w-xs truncate"
-                    style={{ color: '#ED1C24', fontFamily: 'DM Sans, sans-serif' }}>{n.titulo}</td>
+                <tr key={n.id} style={{ background: i % 2 === 0 ? '#FFFFFF' : 'rgba(237,28,36,0.02)', borderBottom: '1px solid rgba(237,28,36,0.07)' }}>
+                  <td className="px-5 py-4 font-medium max-w-xs truncate" style={{ color: '#ED1C24', fontFamily: 'DM Sans, sans-serif' }}>{n.titulo}</td>
                   <td className="px-5 py-4">
                     <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold"
                       style={{ background: n.publicado ? 'rgba(74,222,128,0.10)' : 'rgba(237,28,36,0.06)', color: n.publicado ? '#16a34a' : 'rgba(237,28,36,0.5)', border: `1px solid ${n.publicado ? 'rgba(74,222,128,0.25)' : 'rgba(237,28,36,0.15)'}`, fontFamily: 'DM Sans, sans-serif' }}>
                       {n.publicado ? <Eye size={10} /> : <EyeOff size={10} />}{n.publicado ? 'Publicado' : 'Rascunho'}
                     </span>
                   </td>
-                  <td className="px-5 py-4 text-xs whitespace-nowrap"
-                    style={{ color: 'rgba(237,28,36,0.45)', fontFamily: 'DM Sans, sans-serif' }}>
+                  <td className="px-5 py-4 text-xs whitespace-nowrap" style={{ color: 'rgba(237,28,36,0.45)', fontFamily: 'DM Sans, sans-serif' }}>
                     {displayDate(n)}
                   </td>
                   <td className="px-5 py-4">
                     <div className="flex items-center gap-2">
                       <Link href={`${adminBase}/noticias/${n.id}`}>
-                        <button className="p-1.5 rounded-lg transition hover:scale-110"
-                          style={{ background: 'rgba(237,28,36,0.08)' }} aria-label="Editar">
+                        <button className="p-1.5 rounded-lg transition hover:scale-110" style={{ background: 'rgba(237,28,36,0.08)' }} aria-label="Editar">
                           <Edit2 size={14} style={{ color: '#ED1C24' }} />
                         </button>
                       </Link>
-                      <button onClick={() => setDeleteTarget(n)} className="p-1.5 rounded-lg transition hover:scale-110"
-                        style={{ background: 'rgba(237,28,36,0.08)' }} aria-label="Excluir">
+                      <button onClick={() => setDeleteTarget(n)} className="p-1.5 rounded-lg transition hover:scale-110" style={{ background: 'rgba(237,28,36,0.08)' }} aria-label="Excluir">
                         <Trash2 size={14} style={{ color: '#ED1C24' }} />
                       </button>
                     </div>

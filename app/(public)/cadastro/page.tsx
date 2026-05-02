@@ -19,7 +19,7 @@ interface FormData {
   cidade: string; cep: string; endereco: string; rg: string; cpf: string
   como_conheceu: string; carteirinha: CarteirinhaOpcao; plano: PlanoSocio
 }
-type FieldError = Partial<Record<keyof FormData, string>>
+type FieldError = Partial<Record<keyof FormData | 'foto', string>>
 
 const COMO_CONHECEU = ['Na arquibancada', 'Através de um amigo', 'No Instagram', 'Já frequento', 'Outro',]
 
@@ -30,7 +30,6 @@ const beneficiosDetalhados = [
   { icon: Calendar,    titulo: 'Prioridade em Eventos', texto: 'Prioridade em eventos e confraternizações para associados.' },
   { icon: Sticker, titulo: 'Adesivo Sócio 2026',        texto: 'Pra quem vive a arquibancada e representa em qualquer lugar.' },
   { icon: CreditCard,  titulo: 'Carteirinha de Sócio',  texto: 'Carteirinha de sócio virtual gratuita. Física +R$16,00.' },
-  
 ]
 
 const BENEFICIOS = [
@@ -48,13 +47,31 @@ const PLANOS = [
   { id: 'familia'    as PlanoSocio, nome: 'Família',    preco: 'R$ 40,00', detalhe: 'A partir de 3 pessoas da mesma família' as string | null },
 ]
 
-function validate(form: FormData): FieldError {
+// ─── Validação — todos os campos obrigatórios ────────────────────────────────
+function validate(form: FormData, fotoFile: File | null): FieldError {
   const errors: FieldError = {}
-  if (!form.nome.trim()) errors.nome = 'Nome é obrigatório'
-  if (!form.email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) errors.email = 'E-mail inválido'
-  if (!form.telefone.trim() || form.telefone.replace(/\D/g, '').length < 11) errors.telefone = 'Telefone inválido (DDD + 9 + 8 dígitos)'
-  if (!form.rg.trim()) errors.rg = 'RG é obrigatório'
-  if (!form.cidade.trim()) errors.cidade = 'Cidade é obrigatória'
+  if (!form.nome.trim())
+    errors.nome = 'Nome é obrigatório'
+  if (!form.email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email))
+    errors.email = 'E-mail inválido'
+  if (!form.telefone.trim() || form.telefone.replace(/\D/g, '').length < 11)
+    errors.telefone = 'Telefone inválido (DDD + 9 + 8 dígitos)'
+  if (!form.rg.trim())
+    errors.rg = 'RG é obrigatório'
+  if (!form.cpf.trim() || form.cpf.replace(/\D/g, '').length < 11)
+    errors.cpf = 'CPF é obrigatório'
+  if (!form.data_nascimento)
+    errors.data_nascimento = 'Data de nascimento é obrigatória'
+  if (!form.cidade.trim())
+    errors.cidade = 'Cidade é obrigatória'
+  if (!form.cep.trim() || form.cep.replace(/\D/g, '').length < 8)
+    errors.cep = 'CEP é obrigatório'
+  if (!form.endereco.trim())
+    errors.endereco = 'Endereço é obrigatório'
+  if (!form.como_conheceu)
+    errors.como_conheceu = 'Selecione como nos conheceu'
+  if (!fotoFile)
+    errors.foto = 'Foto de rosto é obrigatória'
   return errors
 }
 
@@ -156,7 +173,6 @@ function PlanCard({
             {plano.id === 'familia' ? '/pessoa/ano' : '/ano'}
           </span>
         </div>
-        {/* minHeight garante alinhamento entre os dois cards */}
         <div style={{ minHeight: 28, marginBottom: 4 }}>
           {plano.detalhe && (
             <p className="text-xs italic" style={{ color: feat ? 'rgba(255,255,255,0.6)' : 'rgba(237,28,36,0.5)', fontFamily: 'DM Sans, sans-serif' }}>{plano.detalhe}</p>
@@ -227,15 +243,14 @@ function CadastroPageInner() {
   const supabase = getSupabaseClient()
 
   useEffect(() => {
-  const plano = searchParams.get('plano') as PlanoSocio | null
-  const carteirinha = searchParams.get('carteirinha') as CarteirinhaOpcao | null
-  const step = searchParams.get('step') // ADICIONE ESTA LINHA
-  if (plano && ['individual', 'familia'].includes(plano)) setForm(f => ({ ...f, plano }))
-  if (carteirinha && ['virtual', 'fisica'].includes(carteirinha)) setForm(f => ({ ...f, carteirinha }))
-  if (step === '2') setStep(2) // ADICIONE ESTA LINHA
-}, [])
+    const plano = searchParams.get('plano') as PlanoSocio | null
+    const carteirinha = searchParams.get('carteirinha') as CarteirinhaOpcao | null
+    const stepParam = searchParams.get('step')
+    if (plano && ['individual', 'familia'].includes(plano)) setForm(f => ({ ...f, plano }))
+    if (carteirinha && ['virtual', 'fisica'].includes(carteirinha)) setForm(f => ({ ...f, carteirinha }))
+    if (stepParam === '2') setStep(2)
+  }, [])
 
-  // Scroll ao topo sempre que o step muda
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' })
   }, [step])
@@ -248,6 +263,7 @@ function CadastroPageInner() {
   function handleFotoChange(e: ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]; if (!file) return
     setFotoFile(file); setFotoPreview(URL.createObjectURL(file))
+    if (errors.foto) setErrors(e => { const n = { ...e }; delete n.foto; return n })
   }
 
   function handleComprovanteChange(e: ChangeEvent<HTMLInputElement>) {
@@ -257,8 +273,17 @@ function CadastroPageInner() {
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
-    const fieldErrors = validate(form)
-    if (Object.keys(fieldErrors).length > 0) { setErrors(fieldErrors); return }
+    // Valida todos os campos + foto
+    const fieldErrors = validate(form, fotoFile)
+    if (Object.keys(fieldErrors).length > 0) {
+      setErrors(fieldErrors)
+      // Scroll até o primeiro erro
+      setTimeout(() => {
+        const el = document.querySelector('[data-error="true"]')
+        el?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      }, 50)
+      return
+    }
     if (!comprovanteFile) { setServerError('Anexe o comprovante de pagamento.'); return }
     setLoading(true); setServerError(null)
     try {
@@ -364,7 +389,7 @@ function CadastroPageInner() {
             <div className="w-16 h-[3px] mx-auto mb-6" style={{ background: '#ED1C24' }} />
             <h2 className="text-5xl font-bold mb-4 uppercase" style={{ fontFamily: 'Oswald, sans-serif', color: '#ED1C24' }}>CADASTRO CONCLUÍDO!</h2>
             <p className="text-lg leading-relaxed mb-8" style={{ color: 'rgba(237,28,36,0.75)', fontFamily: 'DM Sans, sans-serif' }}>
-              Em um prazo de até 15 dias sua filiação estará concluída.Você será contatado pela Comissão de Sócios da torcida pelo WhatsApp para homologação oficial. 🔴⚪
+              Em um prazo de até 15 dias sua filiação estará concluída. Você será contatado pela Comissão de Sócios da torcida pelo WhatsApp para homologação oficial. 🔴⚪
             </p>
             <div className="flex items-center justify-center gap-2">
               <div className="w-2 h-2 rounded-full" style={{ background: '#ED1C24' }} />
@@ -386,7 +411,7 @@ function CadastroPageInner() {
           <div className="relative z-10">
             <div className="mb-8"><Image src="/EscudoOficial.png" alt="Escudo" width={120} height={120} className="opacity-90" /></div>
             <p className="text-xs uppercase tracking-widest mb-4" style={{ color: 'rgba(255,255,255,0.6)', fontFamily: 'DM Sans, sans-serif' }}>— SEJA SÓCIO</p>
-            <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold uppercase leading-none mb-6 text-white" style={{ fontFamily: 'Oswald, sans-serif' }}>BEM VINDO À BARRA DO<br /> CALDEIRÃO</h1>
+            <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold uppercase leading-none mb-6 text-white" style={{ fontFamily: 'Oswald, sans-serif' }}>BEM-VINDO À BARRA DO<br /> CALDEIRÃO</h1>
             <p className="text-base leading-relaxed mb-8 max-w-xs" style={{ color: 'rgba(255,255,255,0.75)', fontFamily: 'DM Sans, sans-serif' }}>
               Preencha o formulário. Em até 15 dias sua filiação estará disponível.
             </p>
@@ -418,79 +443,94 @@ function CadastroPageInner() {
           <div className="w-full max-w-xl">
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
               <h2 className="text-3xl font-bold uppercase mb-1" style={{ fontFamily: 'Oswald, sans-serif', color: RED }}>Cadastro Oficial 2026</h2>
-              <p className="text-sm mb-2" style={{ color: 'rgba(237,28,36,0.5)', fontFamily: 'DM Sans, sans-serif' }}>* Campos obrigatórios</p>
+              <p className="text-sm mb-2" style={{ color: 'rgba(237,28,36,0.5)', fontFamily: 'DM Sans, sans-serif' }}>* Todos os campos são obrigatórios</p>
               <div className="w-12 h-[3px] mb-8" style={{ background: RED }} />
               <div className="p-6 md:p-8" style={{ border: '1px solid rgba(237,28,36,0.15)', boxShadow: '0 4px 24px rgba(237,28,36,0.06)' }}>
                 <form onSubmit={handleSubmit} className="space-y-5">
-                  <div>
+
+                  {/* Nome */}
+                  <div data-error={!!errors.nome || undefined}>
                     <label className={labelBase} style={{ color: 'rgba(237,28,36,0.7)', fontFamily: 'DM Sans, sans-serif' }}>Nome completo *</label>
                     <input value={form.nome} onChange={e => set('nome', e.target.value)} className={inputBase} style={inputSt(!!errors.nome)} placeholder="Seu nome completo" />
                     {errors.nome && <p className="text-xs mt-1.5" style={{ color: RED, fontFamily: 'DM Sans, sans-serif' }}>{errors.nome}</p>}
                   </div>
-                  <div>
+
+                  {/* Telefone */}
+                  <div data-error={!!errors.telefone || undefined}>
                     <label className={labelBase} style={{ color: 'rgba(237,28,36,0.7)', fontFamily: 'DM Sans, sans-serif' }}>
                       Número de contato * <span className="normal-case" style={{ color: 'rgba(237,28,36,0.4)' }}>(DDD + 9 + 8 dígitos)</span>
                     </label>
                     <input value={form.telefone} onChange={e => set('telefone', formatPhone(e.target.value))} className={inputBase} style={inputSt(!!errors.telefone)} placeholder="(81) 99999-9999" />
                     {errors.telefone && <p className="text-xs mt-1.5" style={{ color: RED, fontFamily: 'DM Sans, sans-serif' }}>{errors.telefone}</p>}
                   </div>
-                  <div>
+
+                  {/* Email */}
+                  <div data-error={!!errors.email || undefined}>
                     <label className={labelBase} style={{ color: 'rgba(237,28,36,0.7)', fontFamily: 'DM Sans, sans-serif' }}>E-mail *</label>
                     <input type="email" value={form.email} onChange={e => set('email', e.target.value)} className={inputBase} style={inputSt(!!errors.email)} placeholder="seu@email.com" />
                     {errors.email && <p className="text-xs mt-1.5" style={{ color: RED, fontFamily: 'DM Sans, sans-serif' }}>{errors.email}</p>}
                   </div>
+
+                  {/* RG + CPF */}
                   <div className="grid md:grid-cols-2 gap-4">
-                    <div>
+                    <div data-error={!!errors.rg || undefined}>
                       <label className={labelBase} style={{ color: 'rgba(237,28,36,0.7)', fontFamily: 'DM Sans, sans-serif' }}>RG *</label>
                       <input value={form.rg} onChange={e => set('rg', e.target.value)} className={inputBase} style={inputSt(!!errors.rg)} placeholder="0000000" />
                       {errors.rg && <p className="text-xs mt-1.5" style={{ color: RED, fontFamily: 'DM Sans, sans-serif' }}>{errors.rg}</p>}
                     </div>
-                    <div>
-                      <label className={labelBase} style={{ color: 'rgba(237,28,36,0.7)', fontFamily: 'DM Sans, sans-serif' }}>CPF</label>
-                      <input value={form.cpf} onChange={e => set('cpf', formatCPF(e.target.value))} className={inputBase} style={inputSt(false)} placeholder="000.000.000-00" />
+                    <div data-error={!!errors.cpf || undefined}>
+                      <label className={labelBase} style={{ color: 'rgba(237,28,36,0.7)', fontFamily: 'DM Sans, sans-serif' }}>CPF *</label>
+                      <input value={form.cpf} onChange={e => set('cpf', formatCPF(e.target.value))} className={inputBase} style={inputSt(!!errors.cpf)} placeholder="000.000.000-00" />
+                      {errors.cpf && <p className="text-xs mt-1.5" style={{ color: RED, fontFamily: 'DM Sans, sans-serif' }}>{errors.cpf}</p>}
                     </div>
                   </div>
+
+                  {/* Data nascimento + Cidade */}
                   <div className="grid md:grid-cols-2 gap-4">
-                    <div>
-                     <label className={labelBase} style={{ color: 'rgba(237,28,36,0.7)', fontFamily: 'DM Sans, sans-serif' }}>
-                       Data de nascimento
-                       </label>
-                       <DatePicker
-                       value={form.data_nascimento}
-                        onChange={val => set('data_nascimento', val)}
-                         maxDate={new Date()}
-                              />
-                       </div>
-                    <div>
+                    <div data-error={!!errors.data_nascimento || undefined}>
+                      <label className={labelBase} style={{ color: 'rgba(237,28,36,0.7)', fontFamily: 'DM Sans, sans-serif' }}>Data de nascimento *</label>
+                      <DatePicker value={form.data_nascimento} onChange={val => set('data_nascimento', val)} maxDate={new Date()} />
+                      {errors.data_nascimento && <p className="text-xs mt-1.5" style={{ color: RED, fontFamily: 'DM Sans, sans-serif' }}>{errors.data_nascimento}</p>}
+                    </div>
+                    <div data-error={!!errors.cidade || undefined}>
                       <label className={labelBase} style={{ color: 'rgba(237,28,36,0.7)', fontFamily: 'DM Sans, sans-serif' }}>Cidade *</label>
                       <input value={form.cidade} onChange={e => set('cidade', e.target.value)} className={inputBase} style={inputSt(!!errors.cidade)} placeholder="Sua cidade" />
                       {errors.cidade && <p className="text-xs mt-1.5" style={{ color: RED, fontFamily: 'DM Sans, sans-serif' }}>{errors.cidade}</p>}
                     </div>
                   </div>
+
+                  {/* CEP + Endereço */}
                   <div className="grid md:grid-cols-2 gap-4">
-                    <div>
-                      <label className={labelBase} style={{ color: 'rgba(237,28,36,0.7)', fontFamily: 'DM Sans, sans-serif' }}>CEP</label>
-                      <input value={form.cep} onChange={e => set('cep', formatCEP(e.target.value))} className={inputBase} style={inputSt(false)} placeholder="00000-000" />
+                    <div data-error={!!errors.cep || undefined}>
+                      <label className={labelBase} style={{ color: 'rgba(237,28,36,0.7)', fontFamily: 'DM Sans, sans-serif' }}>CEP *</label>
+                      <input value={form.cep} onChange={e => set('cep', formatCEP(e.target.value))} className={inputBase} style={inputSt(!!errors.cep)} placeholder="00000-000" />
+                      {errors.cep && <p className="text-xs mt-1.5" style={{ color: RED, fontFamily: 'DM Sans, sans-serif' }}>{errors.cep}</p>}
                     </div>
-                    <div>
-                      <label className={labelBase} style={{ color: 'rgba(237,28,36,0.7)', fontFamily: 'DM Sans, sans-serif' }}>Rua e Complemento</label>
-                      <input value={form.endereco} onChange={e => set('endereco', e.target.value)} className={inputBase} style={inputSt(false)} placeholder="Rua, nº, apto" />
+                    <div data-error={!!errors.endereco || undefined}>
+                      <label className={labelBase} style={{ color: 'rgba(237,28,36,0.7)', fontFamily: 'DM Sans, sans-serif' }}>Rua e Complemento *</label>
+                      <input value={form.endereco} onChange={e => set('endereco', e.target.value)} className={inputBase} style={inputSt(!!errors.endereco)} placeholder="Rua, nº, apto" />
+                      {errors.endereco && <p className="text-xs mt-1.5" style={{ color: RED, fontFamily: 'DM Sans, sans-serif' }}>{errors.endereco}</p>}
                     </div>
                   </div>
-                  <div>
-                    <label className={labelBase} style={{ color: 'rgba(237,28,36,0.7)', fontFamily: 'DM Sans, sans-serif' }}>Como nos conheceu?</label>
-                    <select value={form.como_conheceu} onChange={e => set('como_conheceu', e.target.value)} className={inputBase} style={inputSt(false)}>
+
+                  {/* Como conheceu */}
+                  <div data-error={!!errors.como_conheceu || undefined}>
+                    <label className={labelBase} style={{ color: 'rgba(237,28,36,0.7)', fontFamily: 'DM Sans, sans-serif' }}>Como nos conheceu? *</label>
+                    <select value={form.como_conheceu} onChange={e => set('como_conheceu', e.target.value)} className={inputBase} style={inputSt(!!errors.como_conheceu)}>
                       <option value="">Selecione...</option>
                       {COMO_CONHECEU.map(op => <option key={op} value={op}>{op}</option>)}
                     </select>
+                    {errors.como_conheceu && <p className="text-xs mt-1.5" style={{ color: RED, fontFamily: 'DM Sans, sans-serif' }}>{errors.como_conheceu}</p>}
                   </div>
-                  <div>
-                    <label className={labelBase} style={{ color: 'rgba(237,28,36,0.7)', fontFamily: 'DM Sans, sans-serif' }}>Foto de rosto para carteira virtual</label>
+
+                  {/* Foto */}
+                  <div data-error={!!errors.foto || undefined}>
+                    <label className={labelBase} style={{ color: 'rgba(237,28,36,0.7)', fontFamily: 'DM Sans, sans-serif' }}>Foto de rosto para carteira virtual *</label>
                     <div className="relative overflow-hidden cursor-pointer transition-all"
-                      style={{ border: '1px dashed rgba(237,28,36,0.3)', background: 'rgba(237,28,36,0.02)' }}
+                      style={{ border: `1px dashed ${errors.foto ? RED : 'rgba(237,28,36,0.3)'}`, background: errors.foto ? 'rgba(237,28,36,0.04)' : 'rgba(237,28,36,0.02)', boxShadow: errors.foto ? '0 0 0 2px rgba(237,28,36,0.1)' : 'none' }}
                       onClick={() => fotoRef.current?.click()}
                       onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = RED }}
-                      onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(237,28,36,0.3)' }}>
+                      onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = errors.foto ? RED : 'rgba(237,28,36,0.3)' }}>
                       {fotoPreview ? (
                         <div className="relative h-40">
                           <Image src={fotoPreview} alt="Foto preview" fill className="object-cover" sizes="300px" />
@@ -505,8 +545,11 @@ function CadastroPageInner() {
                         </div>
                       )}
                     </div>
+                    {errors.foto && <p className="text-xs mt-1.5" style={{ color: RED, fontFamily: 'DM Sans, sans-serif' }}>{errors.foto}</p>}
                     <input ref={fotoRef} type="file" accept="image/*" className="hidden" onChange={handleFotoChange} />
                   </div>
+
+                  {/* Comprovante */}
                   <div>
                     <label className={labelBase} style={{ color: RED, fontFamily: 'DM Sans, sans-serif' }}>Comprovante de pagamento *</label>
                     <div className="relative cursor-pointer flex items-center gap-4 px-5 py-4 transition-all"
@@ -529,9 +572,11 @@ function CadastroPageInner() {
                     </div>
                     <input ref={comprovanteRef} type="file" accept="image/*,application/pdf" className="hidden" onChange={handleComprovanteChange} />
                   </div>
+
                   {serverError && (
                     <p className="text-sm text-center py-3" style={{ color: RED, background: 'rgba(237,28,36,0.06)', border: '1px solid rgba(237,28,36,0.2)', fontFamily: 'DM Sans, sans-serif' }}>{serverError}</p>
                   )}
+
                   <motion.button whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }} type="submit" disabled={loading}
                     className="w-full py-4 font-bold uppercase tracking-widest text-lg flex items-center justify-center gap-3 mt-2 text-white disabled:opacity-60"
                     style={{ background: loading ? '#C41219' : RED, fontFamily: 'Oswald, sans-serif', boxShadow: '0 8px 32px rgba(237,28,36,0.3)' }}

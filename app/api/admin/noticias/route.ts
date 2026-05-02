@@ -22,13 +22,26 @@ export async function GET() {
 export async function POST(req: Request) {
   const user = await requireAuth()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
   const body = await req.json()
   const supabase = createAdminClient()
+
   const { data, error } = await supabase
     .from('noticias')
     .insert([body])
     .select()
     .single()
+
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+
+  await supabase.from('auditoria').insert({
+    usuario_id: user.id,
+    usuario_email: user.email ?? null,
+    acao: 'insert',
+    tabela: 'noticias',
+    registro_id: data.id,
+    detalhes: { titulo: body.titulo, publicado: body.publicado },
+  })
+
   return NextResponse.json(data, { status: 201 })
 }
