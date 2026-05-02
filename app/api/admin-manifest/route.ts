@@ -18,7 +18,7 @@ export async function GET() {
     start_url: `${adminPath}/`,
     scope: `${adminPath}/`,
     display: 'standalone',
-    background_color: '#1a0000',
+    background_color: '#FFFFFF',
     theme_color: '#ED1C24',
     orientation: 'portrait-primary',
     categories: ['productivity'],
@@ -27,7 +27,7 @@ export async function GET() {
         src: '/apple-touch-icon.png',
         sizes: '180x180',
         type: 'image/png',
-        purpose: 'any maskable',
+        purpose: 'any',          // removido 'maskable' — evita o corte nas bordas
       },
       {
         src: '/EscudoOficial.png',
