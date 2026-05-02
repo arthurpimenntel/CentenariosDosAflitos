@@ -32,6 +32,9 @@ export const metadata: Metadata = {
     description: 'Apoio incondicional ao Náutico, do início ao fim.',
     type: 'website',
   },
+  verification: {
+    google: 'PcUhP2U85qEzy_iHl2YZnRlHYz_JomHZTy1iS_Ygl3E',
+  }
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
