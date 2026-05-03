@@ -19,22 +19,26 @@ const dmSans = DM_Sans({
 })
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://abarradonautico.com.br'),
   title: 'Os Centenários dos Aflitos | Barra Brava do Náutico',
   description: 'A Barra Brava oficial do Clube Náutico Capibaribe. Fundada em 2012 com a filosofia de apoio incondicional, do início ao fim.',
   keywords: ['Náutico', 'Centenários', 'Barra Brava', 'Torcida Organizada', 'Pernambuco'],
-  icons: {
-    icon: '/favicon.ico',
-    shortcut: '/favicon.png',
-    apple: '/apple-touch-icon.png',
-  },
   openGraph: {
-    title: 'Os Centenários dos Aflitos',
-    description: 'Apoio incondicional ao Náutico, do início ao fim.',
+    title: 'Os Centenários dos Aflitos | Barra Brava do Náutico',
+    description: 'A Barra Brava oficial do Clube Náutico Capibaribe. Apoio incondicional, do início ao fim. Desde 2012.',
+    url: 'https://abarradonautico.com.br',
+    siteName: 'Os Centenários dos Aflitos',
+    locale: 'pt_BR',
     type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Os Centenários dos Aflitos',
+    description: 'A Barra Brava oficial do Clube Náutico Capibaribe.',
   },
   verification: {
     google: 'PcUhP2U85qEzy_iHl2YZnRlHYz_JomHZTy1iS_Ygl3E',
-  }
+  },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
