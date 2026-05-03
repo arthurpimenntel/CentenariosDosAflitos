@@ -12,6 +12,7 @@ export type Json =
 export type SocioStatus = 'pendente' | 'em_conversa' | 'aprovado' | 'recusado'
 export type CarteirinhaOpcao = 'fisica' | 'virtual'
 export type PlanoSocio = 'individual' | 'familia'
+export type VendaStatus = 'pendente' | 'confirmada' | 'cancelada'
 
 // ─────────────────────────────────────────────────────────────
 //  ENTIDADES (Row — o que vem do banco)
@@ -26,7 +27,6 @@ export interface Socio {
   como_conheceu: string | null
   status: SocioStatus
   observacoes: string | null
-  // Campos extras (precisam da migration SQL para existir no banco)
   rg: string | null
   cpf: string | null
   cep: string | null
@@ -45,11 +45,11 @@ export interface Produto {
   descricao: string | null
   preco: number
   categoria: string
-  imagem_url: string | null        // imagem principal (legado / thumb)
-  imagens: string[]                // array de URLs — coluna JSONB no banco
-  tamanhos: string[]               // ex: ["P","M","G","GG"] — coluna JSONB
-  estoque_por_tamanho: Record<string, number> // ex: {"P":5,"M":10} — JSONB
-  estoque: number | null                  // total geral (calculado automaticamente)
+  imagem_url: string | null
+  imagens: string[]
+  tamanhos: string[]
+  estoque_por_tamanho: Record<string, number>
+  estoque: number | null
   ativo: boolean
   destaque: boolean
   created_at: string
@@ -71,12 +71,22 @@ export interface Noticia {
 
 export interface GaleriaFoto {
   id: string
+  album_id: string | null
   titulo: string | null
   descricao: string | null
   imagem_url: string
   categoria: string
   ordem: number
   ativo: boolean
+  created_at: string
+}
+
+export interface Album {
+  id: string
+  nome: string
+  descricao: string | null
+  capa_url: string | null
+  ordem: number
   created_at: string
 }
 
@@ -88,8 +98,60 @@ export interface HeroFoto {
   created_at: string
 }
 
+export interface HomeFoto {
+  id: string
+  imagem_url: string
+  titulo: string | null
+  descricao: string | null
+  ordem: number
+  ativo: boolean
+  created_at: string
+}
+
+export interface QuemSomosFoto {
+  id: string
+  imagem_url: string
+  titulo: string | null
+  descricao: string | null
+  ordem: number
+  ativo: boolean
+  created_at: string
+}
+
+export interface ItemVenda {
+  nome: string
+  quantidade: number
+  preco: number
+  tamanho?: string | null
+}
+
+export interface Venda {
+  id: string
+  itens: ItemVenda[]
+  valor_total: number
+  valor_pago: number | null
+  status: VendaStatus
+  observacoes: string | null
+  whatsapp_url: string | null
+  cliente_whatsapp_url: string | null
+  telefone_cliente: string | null
+  created_at: string
+  updated_at: string
+}
+
+export interface Auditoria {
+  id: string
+  usuario_id: string
+  usuario_email: string | null
+  acao: string
+  tabela: string
+  registro_id: string
+  detalhes: Json | null
+  created_at: string
+}
+
 // ─────────────────────────────────────────────────────────────
-//  TIPOS DE INSERT (campos com DEFAULT são opcionais)
+//  TIPOS DE INSERT
 // ─────────────────────────────────────────────────────────────
 export type SocioInsert = {
   nome: string
@@ -139,6 +201,7 @@ export type NoticiaUpdate = Partial<NoticiaInsert>
 
 export type GaleriaFotoInsert = {
   imagem_url: string
+  album_id?: string | null
   titulo?: string | null
   descricao?: string | null
   categoria?: string
@@ -147,12 +210,50 @@ export type GaleriaFotoInsert = {
 }
 export type GaleriaFotoUpdate = Partial<GaleriaFotoInsert>
 
+export type AlbumInsert = {
+  nome: string
+  descricao?: string | null
+  capa_url?: string | null
+  ordem?: number
+}
+export type AlbumUpdate = Partial<AlbumInsert>
+
 export type HeroFotoInsert = {
   imagem_url: string
   ordem?: number
   ativo?: boolean
 }
 export type HeroFotoUpdate = Partial<HeroFotoInsert>
+
+export type HomeFotoInsert = {
+  imagem_url: string
+  titulo?: string | null
+  descricao?: string | null
+  ordem?: number
+  ativo?: boolean
+}
+export type HomeFotoUpdate = Partial<HomeFotoInsert>
+
+export type QuemSomosFotoInsert = {
+  imagem_url: string
+  titulo?: string | null
+  descricao?: string | null
+  ordem?: number
+  ativo?: boolean
+}
+export type QuemSomosFotoUpdate = Partial<QuemSomosFotoInsert>
+
+export type VendaInsert = {
+  itens: ItemVenda[]
+  valor_total: number
+  valor_pago?: number | null
+  status?: VendaStatus
+  observacoes?: string | null
+  whatsapp_url?: string | null
+  cliente_whatsapp_url?: string | null
+  telefone_cliente?: string | null
+}
+export type VendaUpdate = Partial<VendaInsert>
 
 // ─────────────────────────────────────────────────────────────
 //  SCHEMA DO BANCO (usado pelo cliente Supabase tipado)
@@ -180,22 +281,48 @@ export interface Database {
         Insert: GaleriaFotoInsert
         Update: GaleriaFotoUpdate
       }
+      albums: {
+        Row: Album
+        Insert: AlbumInsert
+        Update: AlbumUpdate
+      }
       hero_fotos: {
         Row: HeroFoto
         Insert: HeroFotoInsert
         Update: HeroFotoUpdate
+      }
+      home_fotos: {
+        Row: HomeFoto
+        Insert: HomeFotoInsert
+        Update: HomeFotoUpdate
+      }
+      quem_somos_fotos: {
+        Row: QuemSomosFoto
+        Insert: QuemSomosFotoInsert
+        Update: QuemSomosFotoUpdate
+      }
+      vendas: {
+        Row: Venda
+        Insert: VendaInsert
+        Update: VendaUpdate
+      }
+      auditoria: {
+        Row: Auditoria
+        Insert: Omit<Auditoria, 'id' | 'created_at'>
+        Update: Partial<Omit<Auditoria, 'id' | 'created_at'>>
       }
     }
     Views: Record<string, never>
     Functions: Record<string, never>
     Enums: {
       socio_status: SocioStatus
+      venda_status: VendaStatus
     }
   }
 }
 
 // ─────────────────────────────────────────────────────────────
-//  TIPOS DE FORMULÁRIO (estado local nos componentes)
+//  TIPOS DE FORMULÁRIO
 // ─────────────────────────────────────────────────────────────
 export interface SocioFormData {
   nome: string
@@ -217,7 +344,7 @@ export interface ProdutoFormData {
   imagem_url: string
   imagens: string[]
   tamanhos: string[]
-  estoque_por_tamanho: Record<string, string> // string no form, number no banco
+  estoque_por_tamanho: Record<string, string>
 }
 
 export interface NoticiaFormData {

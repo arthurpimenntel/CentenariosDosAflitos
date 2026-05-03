@@ -18,10 +18,36 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 
 function formatDate(val: string | null | undefined): string | null {
   if (!val) return null
-  // Adiciona T00:00:00 se for só data (ex: "2026-02-21") para evitar Invalid Date por fuso horário
   const d = new Date(val.includes('T') ? val : val + 'T00:00:00')
   if (isNaN(d.getTime())) return null
   return d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })
+}
+
+function parseLinks(text: string | null) {
+  if (!text) return null
+  const urlRegex = /(https?:\/\/[^\s]+)/g
+  const parts = text.split(urlRegex)
+  return parts.map((part, i) => {
+    if (/^https?:\/\/[^\s]+$/.test(part)) {
+      return (
+        <a
+          key={i}
+          href={part}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            color: '#ED1C24',
+            fontWeight: 600,
+            textDecoration: 'underline',
+            wordBreak: 'break-all',
+          }}
+        >
+          {part}
+        </a>
+      )
+    }
+    return part
+  })
 }
 
 export default async function NoticiaPage({ params }: { params: { slug: string } }) {
@@ -113,7 +139,7 @@ export default async function NoticiaPage({ params }: { params: { slug: string }
           className="text-base leading-[1.9] whitespace-pre-wrap"
           style={{ color: 'rgba(237,28,36,0.8)', fontFamily: 'DM Sans, sans-serif' }}
         >
-          {noticia.conteudo}
+          {parseLinks(noticia.conteudo)}
         </div>
 
         <div
