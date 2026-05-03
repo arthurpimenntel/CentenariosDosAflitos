@@ -8,6 +8,7 @@ import {
   LayoutDashboard, FileText, ShoppingBag, Users,
   ImageIcon, Star, LogOut, Menu, X, ChevronRight,
   Home, BookOpen, Shield,
+  Receipt,
 } from 'lucide-react'
 import { getSupabaseClient } from '@/lib/supabase'
 import { useAdminPath } from '@/hooks/useAdminPath'
@@ -111,6 +112,7 @@ export default function AdminSidebar({ userEmail }: { userEmail: string }) {
   const navItems: NavItem[] = [
     { href: adminBase,                        icon: LayoutDashboard, label: 'Dashboard',       exact: true },
     { href: `${adminBase}/noticias`,          icon: FileText,        label: 'Notícias'                     },
+    { href: `${adminBase}/vendas`,            icon: Receipt,         label: 'Vendas'                       },
     { href: `${adminBase}/produtos`,          icon: ShoppingBag,     label: 'Produtos'                     },
     { href: `${adminBase}/socios`,            icon: Users,           label: 'Sócios'                       },
     { href: `${adminBase}/galeria`,           icon: ImageIcon,       label: 'Galeria'                      },

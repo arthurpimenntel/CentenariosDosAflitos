@@ -4,6 +4,8 @@ import Footer from '@/components/Footer'
 import NoticiaGrid from '@/components/noticias/NoticiaGrid'
 import Link from 'next/link'
 import { Newspaper } from 'lucide-react'
+import NoticiaGridClient from '@/components/noticias/NoticiaGridClient'
+
 
 export const revalidate = 60
 
@@ -115,7 +117,8 @@ export default async function NoticiasPage({
                 — Mais notícias
               </p>
             )}
-            <NoticiaGrid noticias={restantes} />
+            <NoticiaGridClient noticiasIniciais={restantes} />
+
           </>
         )}
 

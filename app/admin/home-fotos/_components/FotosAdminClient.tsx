@@ -4,6 +4,7 @@ import { useState, useRef } from 'react'
 import Image from 'next/image'
 import { Upload, Trash2, ChevronUp, ChevronDown, ImageIcon } from 'lucide-react'
 import { uploadImageAdmin } from '@/lib/upload-client'
+import { getSupabaseClient } from '@/lib/supabase'
 import { useToast } from '@/hooks/useToast'
 import Toast from '@/components/ui/Toast'
 
@@ -29,6 +30,25 @@ function apiPath(tabela: Props['tabela']) {
     : '/api/admin/quem-somos-fotos'
 }
 
+async function audit(
+  supabase: ReturnType<typeof getSupabaseClient>,
+  acao: string,
+  tabela: string,
+  registroId: string,
+  detalhes?: object
+) {
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return
+  await supabase.from('auditoria').insert({
+    usuario_id: user.id,
+    usuario_email: user.email ?? null,
+    acao,
+    tabela,
+    registro_id: registroId,
+    detalhes: detalhes ?? null,
+  })
+}
+
 export default function FotosAdminClient({ fotos: initialFotos, tabela, titulo, heroUrl: initialHeroUrl }: Props) {
   const [fotos, setFotos] = useState(initialFotos)
   const [uploading, setUploading] = useState(false)
@@ -40,8 +60,8 @@ export default function FotosAdminClient({ fotos: initialFotos, tabela, titulo, 
   const heroInputRef = useRef<HTMLInputElement>(null)
   const temHero = tabela === 'quem_somos_fotos'
   const api = apiPath(tabela)
+  const supabase = getSupabaseClient()
 
-  // ─── Upload de fotos do mosaico ─────────────────────────────────────────────
   async function handleFiles(files: FileList) {
     setUploading(true)
     let ok = 0
@@ -61,6 +81,7 @@ export default function FotosAdminClient({ fotos: initialFotos, tabela, titulo, 
         }
         const data: FotoSimples = await res.json()
         setFotos(prev => [...prev, data])
+        await audit(supabase, 'insert', tabela, data.id, { imagem_url: url })
         ok++
       } catch (e) {
         addToast('error', `Erro ao enviar ${file.name}: ${e instanceof Error ? e.message : ''}`)
@@ -70,7 +91,6 @@ export default function FotosAdminClient({ fotos: initialFotos, tabela, titulo, 
     setUploading(false)
   }
 
-  // ─── Upload do hero ───────────────────────────────────────────────────────────
   async function handleHeroFile(file: File) {
     if (!file.type.startsWith('image/')) return
     setUploadingHero(true)
@@ -86,6 +106,7 @@ export default function FotosAdminClient({ fotos: initialFotos, tabela, titulo, 
         throw new Error(err.error ?? 'Erro ao salvar hero')
       }
       setHeroUrl(url)
+      await audit(supabase, 'update_alt', 'quem_somos_hero', 'hero', { imagem_url: url })
       addToast('success', 'Foto do hero atualizada!')
     } catch (e) {
       addToast('error', `Erro ao atualizar hero: ${e instanceof Error ? e.message : ''}`)
@@ -94,7 +115,6 @@ export default function FotosAdminClient({ fotos: initialFotos, tabela, titulo, 
     }
   }
 
-  // ─── Excluir foto ────────────────────────────────────────────────────────────
   async function handleDelete(foto: FotoSimples) {
     const res = await fetch(api, {
       method: 'DELETE',
@@ -103,11 +123,11 @@ export default function FotosAdminClient({ fotos: initialFotos, tabela, titulo, 
     })
     if (!res.ok) { addToast('error', 'Erro ao excluir.'); return }
     setFotos(prev => prev.filter(f => f.id !== foto.id))
+    await audit(supabase, 'delete', tabela, foto.id, { imagem_url: foto.imagem_url })
     addToast('success', 'Foto excluída.')
     setDeleteTarget(null)
   }
 
-  // ─── Reordenar ───────────────────────────────────────────────────────────────
   async function move(foto: FotoSimples, dir: 'up' | 'down') {
     const idx = fotos.findIndex(f => f.id === foto.id)
     const swapIdx = dir === 'up' ? idx - 1 : idx + 1
@@ -122,19 +142,22 @@ export default function FotosAdminClient({ fotos: initialFotos, tabela, titulo, 
       fetch(api, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: next[idx].id, ordem: next[idx].ordem }) }),
       fetch(api, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: next[swapIdx].id, ordem: next[swapIdx].ordem }) }),
     ])
+    await audit(supabase, 'reorder', tabela, foto.id, { dir, ordem_nova: next[idx].ordem })
   }
 
-  // ─── Editar legenda ──────────────────────────────────────────────────────────
   async function updateAlt(foto: FotoSimples, alt: string) {
     setFotos(prev => prev.map(f => f.id === foto.id ? { ...f, alt } : f))
   }
 
   async function saveAlt(foto: FotoSimples) {
-    await fetch(api, {
+    const res = await fetch(api, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id: foto.id, alt: foto.alt }),
     })
+    if (res.ok) {
+      await audit(supabase, 'update_alt', tabela, foto.id, { alt: foto.alt })
+    }
   }
 
   return (
@@ -211,8 +234,6 @@ export default function FotosAdminClient({ fotos: initialFotos, tabela, titulo, 
 
                   {/* ── MOBILE LAYOUT (< 640 px): 3 linhas ── */}
                   <div className="sm:hidden space-y-2">
-
-                    {/* Linha 1: thumbnail + número */}
                     <div className="flex items-center gap-3">
                       <div className="relative w-16 h-12 rounded-lg overflow-hidden flex-shrink-0"
                         style={{ background: 'rgba(237,28,36,0.06)' }}>
@@ -227,8 +248,6 @@ export default function FotosAdminClient({ fotos: initialFotos, tabela, titulo, 
                         )}
                       </div>
                     </div>
-
-                    {/* Linha 2: input de legenda — largura total */}
                     <input
                       type="text"
                       value={foto.alt ?? ''}
@@ -238,8 +257,6 @@ export default function FotosAdminClient({ fotos: initialFotos, tabela, titulo, 
                       className="w-full px-3 py-1.5 rounded-lg text-sm outline-none"
                       style={{ background: '#FFFFFF', border: '1px solid rgba(237,28,36,0.12)', color: '#1a1a1a', fontFamily: 'DM Sans, sans-serif' }}
                     />
-
-                    {/* Linha 3: botões alinhados à direita */}
                     <div className="flex justify-end items-center gap-1.5">
                       <button onClick={() => move(foto, 'up')} disabled={i === 0}
                         className="p-1.5 rounded-lg disabled:opacity-20"
@@ -265,7 +282,6 @@ export default function FotosAdminClient({ fotos: initialFotos, tabela, titulo, 
                       style={{ background: 'rgba(237,28,36,0.06)' }}>
                       <Image src={foto.imagem_url} alt={foto.alt ?? ''} fill className="object-cover" sizes="64px" />
                     </div>
-
                     <div className="flex-shrink-0 text-center" style={{ minWidth: 28 }}>
                       <span className="text-base font-bold"
                         style={{ color: 'rgba(237,28,36,0.3)', fontFamily: 'Oswald, sans-serif' }}>{i + 1}</span>
@@ -274,7 +290,6 @@ export default function FotosAdminClient({ fotos: initialFotos, tabela, titulo, 
                           style={{ color: '#ED1C24', fontFamily: 'DM Sans, sans-serif' }}>★</div>
                       )}
                     </div>
-
                     <input
                       type="text"
                       value={foto.alt ?? ''}
@@ -284,7 +299,6 @@ export default function FotosAdminClient({ fotos: initialFotos, tabela, titulo, 
                       className="flex-1 px-3 py-1.5 rounded-lg text-sm outline-none"
                       style={{ background: '#FFFFFF', border: '1px solid rgba(237,28,36,0.12)', color: '#1a1a1a', fontFamily: 'DM Sans, sans-serif', minWidth: 0 }}
                     />
-
                     <div className="flex items-center gap-1.5 flex-shrink-0">
                       <button onClick={() => move(foto, 'up')} disabled={i === 0}
                         className="p-1.5 rounded-lg disabled:opacity-20"
@@ -311,7 +325,6 @@ export default function FotosAdminClient({ fotos: initialFotos, tabela, titulo, 
         </div>
       </div>
 
-      {/* Modal exclusão — sem alterações */}
       {deleteTarget && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/60" onClick={() => setDeleteTarget(null)} />

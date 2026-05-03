@@ -67,6 +67,18 @@ export default function SociosAdminClient({ socios: initialSocios, activeFilter 
     setStatusEdit('pendente')
   }, [initialSocios])
 
+  
+
+  useEffect(() => {
+    const supabase = getSupabaseClient()
+    const channel = supabase.channel('socios_realtime')
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'socios' }, payload => {
+      setSocios(prev => [payload.new as Socio, ...prev])
+    })
+    .subscribe()
+  return () => { supabase.removeChannel(channel) }
+}, [])
+
   function openDrawer(socio: Socio) {
     setSelected(socio)
     setObs(socio.observacoes ?? '')
