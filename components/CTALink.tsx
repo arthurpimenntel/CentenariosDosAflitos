@@ -15,7 +15,7 @@ export default function CTALink() {
       onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = '#C41219' }}
       onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = '#ED1C24' }}
     >
-      Seja Centenários
+      Seja Sócio
     </Link>
   )
 }
