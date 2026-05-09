@@ -141,7 +141,7 @@ export default function PlanosSocio() {
   const inView = useInView(ref, { once: true, margin: '-80px' })
   const router = useRouter()
 
-  const [selectedPlano, setSelectedPlano] = useState<PlanoId>('familia')
+  const [selectedPlano, setSelectedPlano] = useState<PlanoId>('individual')
   const [carteirinha, setCarteirinha] = useState<CarteirinhaOpcao>('virtual')
 
   function handleContinuar() {
