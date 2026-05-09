@@ -209,7 +209,7 @@ export default function QuemSomosPage() {
           {Array.from({ length: 12 }).map((_, i) => (
             <span key={i} className="inline-flex items-center gap-4 px-8"
               style={{ fontFamily: 'Oswald, sans-serif', fontSize: 15, fontWeight: 700, letterSpacing: '0.18em', color: '#D40000', textTransform: 'uppercase' }}>
-              TRADIÇÃO NÃO VENDE NA FARMÁCIA!<span style={{ color: 'rgba(212,0,0,0.3)', fontSize: 18 }}>✦</span>
+              A BARRA DO NÁUTICO - CLUBE NÁUTICO CAPIBARIBE<span style={{ color: 'rgba(212,0,0,0.3)', fontSize: 18 }}>✦</span>
             </span>
           ))}
         </motion.div>

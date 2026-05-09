@@ -6,7 +6,7 @@ import Image from 'next/image'
 import { X, Minus, Plus, Trash2, ShoppingBag, MessageCircle, CreditCard, Phone } from 'lucide-react'
 import { useCart } from '@/contexts/CartContext'
 
-const WHATSAPP_NUMBER = '5581989887060'
+const WHATSAPP_NUMBER = '5581994752001'
 
 function formatPhone(v: string) {
   const d = v.replace(/\D/g, '').slice(0, 11)

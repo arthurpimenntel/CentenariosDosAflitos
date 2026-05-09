@@ -8,7 +8,7 @@ import { MessageCircle, ShoppingBag, X } from 'lucide-react'
 import { Produto } from '@/types'
 import { getSupabaseClient } from '@/lib/supabase'
 
-const WHATSAPP_NUMBER = '5581989887060'
+const WHATSAPP_NUMBER = '5581994752001'
 
 export const SEED_PRODUTOS: Produto[] = [
   {

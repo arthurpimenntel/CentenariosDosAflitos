@@ -39,7 +39,7 @@ export default function CheckoutPendente() {
               Voltar ao início
             </Link>
             <a
-              href="https://wa.me/5581989887060"
+              href="https://wa.me/5581994752001"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 px-6 py-3 font-bold uppercase tracking-widest text-sm"
