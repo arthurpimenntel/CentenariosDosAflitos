@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, Suspense, FormEvent, ChangeEvent } from 'react'
 import { useSearchParams } from 'next/navigation'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import {CheckCircle, ChevronRight, Upload, X, FileImage, CreditCard, Banknote, Sticker} from 'lucide-react'
 import { getSupabaseClient } from '@/lib/supabase'
 import Image from 'next/image'
@@ -47,7 +47,111 @@ const PLANOS = [
   { id: 'familia'    as PlanoSocio, nome: 'Família',    preco: 'R$ 40,00', detalhe: 'A partir de 3 pessoas da mesma família' as string | null },
 ]
 
-// ─── Validação — todos os campos obrigatórios ────────────────────────────────
+// ─── Componente Chave Pix ────────────────────────────────────────────────────
+function PixKey() {
+  const [copied, setCopied] = useState(false)
+  const chave = 'oscentenarios1901@gmail.com'
+
+  function handleCopy() {
+    navigator.clipboard.writeText(chave).then(() => {
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2500)
+    })
+  }
+
+  return (
+    <div className="overflow-hidden" style={{ border: '1px solid rgba(237,28,36,0.2)', borderRadius: 12 }}>
+      {/* Header */}
+      <div className="flex items-center gap-2 px-4 py-2.5" style={{ background: '#ED1C24' }}>
+        <Banknote size={14} color="#fff" />
+        <span className="text-xs font-bold uppercase tracking-widest text-white"
+          style={{ fontFamily: 'DM Sans, sans-serif' }}>
+          Chave Pix — Faça o pagamento antes de continuar
+        </span>
+      </div>
+
+      {/* Body */}
+      <div style={{ background: 'rgba(237,28,36,0.03)' }}>
+        <div className="flex items-center gap-3 px-4 py-3">
+          {/* Tipo */}
+          <div className="flex-shrink-0">
+            <p className="text-xs mb-0.5" style={{ color: 'rgba(237,28,36,0.45)', fontFamily: 'DM Sans, sans-serif' }}>
+              Tipo
+            </p>
+            <p className="text-xs font-bold uppercase tracking-wider"
+              style={{ color: '#ED1C24', fontFamily: 'DM Sans, sans-serif' }}>
+              E-mail
+            </p>
+          </div>
+
+          {/* Divider */}
+          <div className="flex-shrink-0 w-px h-8" style={{ background: 'rgba(237,28,36,0.15)' }} />
+
+          {/* Chave */}
+          <div className="flex-1 min-w-0">
+            <p className="text-xs mb-0.5" style={{ color: 'rgba(237,28,36,0.45)', fontFamily: 'DM Sans, sans-serif' }}>
+              Chave
+            </p>
+            <p className="text-sm font-semibold truncate"
+              style={{ color: '#ED1C24', fontFamily: 'DM Sans, sans-serif' }}>
+              {chave}
+            </p>
+          </div>
+
+          {/* Botão copiar */}
+          <button
+            type="button"
+            onClick={handleCopy}
+            className="flex-shrink-0 flex items-center gap-1.5 px-3 py-2 text-xs font-bold uppercase tracking-wide transition-all hover:scale-[1.03] active:scale-[0.97]"
+            style={{
+              borderRadius: 8,
+              background: copied ? 'rgba(74,222,128,0.12)' : 'rgba(237,28,36,0.08)',
+              color: copied ? '#16a34a' : '#ED1C24',
+              border: `1px solid ${copied ? 'rgba(74,222,128,0.3)' : 'rgba(237,28,36,0.2)'}`,
+              fontFamily: 'DM Sans, sans-serif',
+              minWidth: 90,
+              transition: 'all 0.2s ease',
+            }}
+          >
+            <AnimatePresence mode="wait">
+              {copied ? (
+                <motion.span key="ok" className="flex items-center gap-1.5"
+                  initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }}
+                  transition={{ duration: 0.15 }}>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                    <path d="M20 6L9 17l-5-5" stroke="#16a34a" strokeWidth="2.5"
+                      strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                  Copiado!
+                </motion.span>
+              ) : (
+                <motion.span key="copy" className="flex items-center gap-1.5"
+                  initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }}
+                  transition={{ duration: 0.15 }}>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                    <rect x="9" y="9" width="13" height="13" rx="2" stroke="#ED1C24" strokeWidth="2" />
+                    <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"
+                      stroke="#ED1C24" strokeWidth="2" />
+                  </svg>
+                  Copiar
+                </motion.span>
+              )}
+            </AnimatePresence>
+          </button>
+        </div>
+
+        {/* Footer hint */}
+        <div className="px-4 pb-3">
+          <p className="text-xs" style={{ color: 'rgba(237,28,36,0.45)', fontFamily: 'DM Sans, sans-serif' }}>
+            Após o pagamento, anexe o comprovante no campo abaixo.
+          </p>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ─── Validação ────────────────────────────────────────────────────────────────
 function validate(form: FormData, fotoFile: File | null): FieldError {
   const errors: FieldError = {}
   if (!form.nome.trim())
@@ -273,11 +377,9 @@ function CadastroPageInner() {
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
-    // Valida todos os campos + foto
     const fieldErrors = validate(form, fotoFile)
     if (Object.keys(fieldErrors).length > 0) {
       setErrors(fieldErrors)
-      // Scroll até o primeiro erro
       setTimeout(() => {
         const el = document.querySelector('[data-error="true"]')
         el?.scrollIntoView({ behavior: 'smooth', block: 'center' })
@@ -548,6 +650,9 @@ function CadastroPageInner() {
                     {errors.foto && <p className="text-xs mt-1.5" style={{ color: RED, fontFamily: 'DM Sans, sans-serif' }}>{errors.foto}</p>}
                     <input ref={fotoRef} type="file" accept="image/*" className="hidden" onChange={handleFotoChange} />
                   </div>
+
+                  {/* ── CHAVE PIX ── */}
+                  <PixKey />
 
                   {/* Comprovante */}
                   <div>
