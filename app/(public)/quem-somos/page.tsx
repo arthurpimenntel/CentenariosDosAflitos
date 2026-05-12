@@ -96,8 +96,8 @@ function Lightbox({ fotos, index, onClose, onPrev, onNext }: {
           style={{ borderRadius: 8, boxShadow: '0 8px 40px rgba(0,0,0,0.15)', border: '1px solid rgba(212,0,0,0.15)', pointerEvents: 'auto' }}
           onClick={e => e.stopPropagation()}>
           <div className="absolute top-0 left-0 right-0 h-[3px] z-10" style={{ background: '#D40000' }} />
-          <Image src={fotos[index].imagem_url} alt={fotos[index].alt ?? ''} width={1200} height={800}
-            className="w-full h-auto object-contain" style={{ maxHeight: '88vh', display: 'block' }} sizes="100vw" priority />
+          <img src={fotos[index].imagem_url} alt={fotos[index].alt ?? ''}
+            className="w-full h-auto object-contain" style={{ maxHeight: '72vh', display: 'block', width: '100%' }} />
         </div>
         {fotos[index].alt && (
           <p className="mt-2 text-sm px-1" style={{ fontFamily: 'DM Sans, sans-serif', color: LB.caption, letterSpacing: '0.06em', pointerEvents: 'auto' }}
