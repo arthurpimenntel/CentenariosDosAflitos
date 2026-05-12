@@ -95,11 +95,13 @@ function Lightbox({ fotos, index, onClose, onPrev, onNext }: {
           style={{ borderRadius: 8, boxShadow: '0 8px 40px rgba(0,0,0,0.15)', border: '1px solid rgba(237,28,36,0.15)', pointerEvents: 'auto' }}
           onClick={e => e.stopPropagation()}>
           <div className="absolute top-0 left-0 right-0 h-[3px] z-10" style={{ background: '#ED1C24' }} />
-          <Image src={foto.imagem_url} alt={foto.descricao || `Foto ${index + 1}`}
-            width={1200} height={800}
+          {/* img em vez de Image — evita consumo da cota de otimização do Vercel */}
+          <img
+            src={foto.imagem_url}
+            alt={foto.descricao || `Foto ${index + 1}`}
             className="w-full h-auto object-contain"
             style={{ maxHeight: '88vh', display: 'block' }}
-            sizes="100vw" priority />
+          />
         </div>
         {foto.descricao && (
           <p className="mt-2 text-sm px-1" style={{ fontFamily: 'DM Sans, sans-serif', color: LB.caption, letterSpacing: '0.06em', pointerEvents: 'auto' }}
@@ -129,7 +131,6 @@ function AlbumView({ album, onBack }: { album: Album; onBack: () => void }) {
 
   useEffect(() => { fetchFotos() }, [fetchFotos])
 
-  // Real time — novas fotos aparecem sem recarregar a página
   useEffect(() => {
     const supabase = getSupabaseClient()
     const channel = supabase.channel(`galeria_album_${album.id}`)
@@ -188,9 +189,13 @@ function AlbumView({ album, onBack }: { album: Album; onBack: () => void }) {
                 className="group w-full block overflow-hidden relative rounded-xl"
                 style={{ border: '1px solid rgba(237,28,36,0.10)' }}>
                 <div className="relative w-full">
-                  <Image src={foto.imagem_url} alt={foto.descricao || `Foto ${i + 1}`}
-                    width={400} height={300}
-                    className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105" />
+                  {/* img em vez de Image — evita consumo da cota de otimização do Vercel */}
+                  <img
+                    src={foto.imagem_url}
+                    alt={foto.descricao || `Foto ${i + 1}`}
+                    className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105"
+                    loading="lazy"
+                  />
                   <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-3"
                     style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.55) 0%, transparent 60%)' }}>
                     {foto.descricao && (
@@ -219,12 +224,10 @@ export default function GaleriaClient({ albums: initialAlbums }: { albums: Album
   const [albums, setAlbums] = useState<Album[]>(initialAlbums)
   const [albumAberto, setAlbumAberto] = useState<Album | null>(null)
 
-  // Real time — novos álbuns aparecem sem recarregar a página
   useEffect(() => {
     const supabase = getSupabaseClient()
     const channel = supabase.channel('albums_realtime')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'albums' }, async () => {
-        // Rebusca os álbuns via API existente
         const res = await fetch('/api/admin/galeria')
         if (res.ok) {
           const data = await res.json()
@@ -256,7 +259,8 @@ export default function GaleriaClient({ albums: initialAlbums }: { albums: Album
         >
           <div className="relative aspect-video overflow-hidden" style={{ background: 'rgba(237,28,36,0.05)' }}>
             {album.capa_url ? (
-              <Image src={album.capa_url} alt={album.nome} fill
+              /* unoptimized — capa do álbum vem do Supabase, não precisa passar pelo Vercel */
+              <Image src={album.capa_url} alt={album.nome} fill unoptimized
                 className="object-cover transition-transform duration-500 group-hover:scale-105" sizes="300px" />
             ) : (
               <div className="absolute inset-0 flex items-center justify-center">
