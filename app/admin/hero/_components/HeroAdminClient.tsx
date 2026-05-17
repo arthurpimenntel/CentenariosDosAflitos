@@ -150,7 +150,7 @@ export default function HeroAdminClient({ fotos: initialFotos }: { fotos: HeroFo
               <div key={foto.id} className="flex items-center gap-4 p-4 rounded-xl"
                 style={{ background: 'rgba(58,0,0,0.4)', border: '1px solid rgba(237,28,36,0.2)' }}>
                 <div className="relative w-20 h-14 rounded-lg overflow-hidden flex-shrink-0" style={{ background: '#3a0000' }}>
-                  <Image src={foto.imagem_url} alt={`Hero ${i + 1}`} fill className="object-cover" sizes="80px" />
+                  <img src={foto.imagem_url} alt={`Hero ${i + 1}`} className="object-cover w-full h-full" />
                   {!foto.ativo && <div className="absolute inset-0 bg-black/60" />}
                 </div>
                 <div className="text-lg font-bold opacity-30" style={{ color: '#fff', fontFamily: 'Oswald, sans-serif', minWidth: 24 }}>

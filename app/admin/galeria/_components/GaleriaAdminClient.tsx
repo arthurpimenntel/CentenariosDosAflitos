@@ -184,7 +184,7 @@ function AlbumFotosView({ album, onBack }: { album: Album; onBack: () => void })
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
             {fotos.map(foto => (
               <div key={foto.id} className="relative group rounded-xl overflow-hidden aspect-square" style={{ background: 'rgba(237,28,36,0.04)' }}>
-                <Image src={foto.imagem_url} alt={foto.descricao ?? ''} fill className="object-cover" sizes="200px" />
+                <img src={foto.imagem_url} alt={foto.descricao ?? ''} className="object-cover w-full h-full" />
                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/35 transition-all rounded-xl" />
                 <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-all">
                   <button onClick={() => setDeleteTarget(foto)} className="p-1.5 rounded-full" style={{ background: '#ED1C24' }}>
@@ -203,7 +203,7 @@ function AlbumFotosView({ album, onBack }: { album: Album; onBack: () => void })
           <div className="relative rounded-2xl p-6 w-full max-w-xs" style={{ background: '#fff', border: '1px solid rgba(237,28,36,0.2)' }}>
             <p className="text-center font-bold mb-4" style={{ color: '#ED1C24', fontFamily: 'Oswald, sans-serif' }}>Excluir esta foto?</p>
             <div className="relative h-28 rounded-xl overflow-hidden mb-5">
-              <Image src={deleteTarget.imagem_url} alt="" fill className="object-cover" sizes="280px" />
+              <img src={deleteTarget.imagem_url} alt="" className="object-cover w-full h-full" />
             </div>
             <div className="flex gap-3">
               <button onClick={() => setDeleteTarget(null)} className="flex-1 py-2.5 rounded-xl text-sm"
@@ -314,7 +314,7 @@ export default function GaleriaAdminClient() {
                 style={cardStyle} onClick={() => setAlbumAberto(album)}>
                 <div className="relative aspect-video overflow-hidden" style={{ background: 'rgba(237,28,36,0.06)' }}>
                   {album.capa_url ? (
-                    <Image src={album.capa_url} alt={album.nome} fill className="object-cover transition-transform duration-500 group-hover:scale-105" sizes="300px" />
+                    <img src={album.capa_url} alt={album.nome} className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-105" />
                   ) : (
                     <div className="absolute inset-0 flex items-center justify-center">
                       <FolderOpen size={32} style={{ color: 'rgba(237,28,36,0.2)' }} />

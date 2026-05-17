@@ -237,7 +237,7 @@ export default function FotosAdminClient({ fotos: initialFotos, tabela, titulo, 
                     <div className="flex items-center gap-3">
                       <div className="relative w-16 h-12 rounded-lg overflow-hidden flex-shrink-0"
                         style={{ background: 'rgba(237,28,36,0.06)' }}>
-                        <Image src={foto.imagem_url} alt={foto.alt ?? ''} fill className="object-cover" sizes="64px" />
+                        <img src={foto.imagem_url} alt={foto.alt ?? ''} className="object-cover w-full h-full" />
                       </div>
                       <div className="flex-shrink-0 text-center" style={{ minWidth: 28 }}>
                         <span className="text-base font-bold"
@@ -280,7 +280,7 @@ export default function FotosAdminClient({ fotos: initialFotos, tabela, titulo, 
                   <div className="hidden sm:flex items-center gap-3">
                     <div className="relative w-16 h-12 rounded-lg overflow-hidden flex-shrink-0"
                       style={{ background: 'rgba(237,28,36,0.06)' }}>
-                      <Image src={foto.imagem_url} alt={foto.alt ?? ''} fill className="object-cover" sizes="64px" />
+                      <img src={foto.imagem_url} alt={foto.alt ?? ''} className="object-cover w-full h-full" />
                     </div>
                     <div className="flex-shrink-0 text-center" style={{ minWidth: 28 }}>
                       <span className="text-base font-bold"
