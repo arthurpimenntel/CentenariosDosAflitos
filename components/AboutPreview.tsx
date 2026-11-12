@@ -129,7 +129,7 @@ function Mosaico({ fotos }: { fotos: Foto[] }) {
           <motion.button key={foto.id} initial={{ opacity: 0, scale: 0.96 }} whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true, margin: '-60px' }} transition={{ duration: 0.5, delay: i * 0.07 }}
             whileHover="hover" onClick={() => open(i)}
-            className={`relative overflow-hidden group focus:outline-none ${SPANS[i] ?? 'col-span-1 row-span-1'}`}
+            className={`relative overflow-hidden group focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-primary ${SPANS[i] ?? 'col-span-1 row-span-1'}`}
             aria-label={foto.alt ?? `Foto ${i + 1}`}>
             <Image src={foto.imagem_url} alt={foto.alt ?? ''} fill className="object-cover transition-transform duration-700 group-hover:scale-105" sizes="(max-width: 768px) 50vw, 33vw" />
             <motion.div className="absolute inset-0" style={{ background: 'rgba(0,0,0,0)' }} variants={{ hover: { background: 'rgba(0,0,0,0.45)' } }} transition={{ duration: 0.3 }} />

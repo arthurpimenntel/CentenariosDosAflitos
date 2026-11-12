@@ -279,17 +279,17 @@ export default function ProdutoCard({ produto, index = 0 }: { produto: Produto; 
 
       {mounted && lightboxOpen && createPortal(
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(240,240,240,0.97)] p-4"
           onClick={() => setLightboxOpen(false)}
         >
           <div
-            className="relative w-full max-w-5xl max-h-[calc(100vh-2rem)] overflow-hidden rounded-3xl bg-black"
+            className="relative w-full max-w-5xl max-h-[calc(100vh-2rem)] overflow-hidden rounded-3xl bg-white border border-[rgba(237,28,36,0.15)] shadow-[0_8px_40px_rgba(0,0,0,0.15)]"
             onClick={e => e.stopPropagation()}
           >
             <button
               type="button"
               onClick={() => setLightboxOpen(false)}
-              className="absolute right-4 top-4 z-20 p-3 rounded-full bg-white/10 text-white transition hover:bg-white/20"
+              className="absolute right-4 top-4 z-20 p-3 rounded-full bg-red-primary text-white transition hover:bg-red-hover"
               aria-label="Fechar visualização"
             >
               <X size={18} />
@@ -310,7 +310,7 @@ export default function ProdutoCard({ produto, index = 0 }: { produto: Produto; 
                 <button
                   type="button"
                   onClick={prevImg}
-                  className="absolute left-4 top-1/2 z-20 -translate-y-1/2 rounded-full bg-white/10 p-3 text-white transition hover:bg-white/20"
+                  className="absolute left-4 top-1/2 z-20 -translate-y-1/2 rounded-full bg-red-primary p-3 text-white transition hover:bg-red-hover"
                   aria-label="Imagem anterior"
                 >
                   <ChevronLeft size={20} />
@@ -318,7 +318,7 @@ export default function ProdutoCard({ produto, index = 0 }: { produto: Produto; 
                 <button
                   type="button"
                   onClick={nextImg}
-                  className="absolute right-4 top-1/2 z-20 -translate-y-1/2 rounded-full bg-white/10 p-3 text-white transition hover:bg-white/20"
+                  className="absolute right-4 top-1/2 z-20 -translate-y-1/2 rounded-full bg-red-primary p-3 text-white transition hover:bg-red-hover"
                   aria-label="Próxima imagem"
                 >
                   <ChevronRight size={20} />
@@ -335,7 +335,7 @@ export default function ProdutoCard({ produto, index = 0 }: { produto: Produto; 
                   className="h-2.5 rounded-full transition-all"
                   style={{
                     width: i === imgIdx ? 32 : 12,
-                    background: i === imgIdx ? '#ED1C24' : 'rgba(255,255,255,0.45)',
+                    background: i === imgIdx ? '#ED1C24' : 'rgba(237,28,36,0.25)',
                   }}
                   aria-label={`Ver imagem ${i + 1}`}
                 />

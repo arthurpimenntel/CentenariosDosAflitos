@@ -37,6 +37,7 @@ export default function Navbar() {
 
   return (
     <>
+      <header>
       <motion.nav
         initial={{ y: -80, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
@@ -140,6 +141,7 @@ export default function Navbar() {
           </div>
         </div>
       </motion.nav>
+      </header>
 
       {/* Menu mobile — fullscreen */}
       <AnimatePresence>

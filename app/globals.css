@@ -83,7 +83,7 @@ input, select, textarea {
   background: var(--white) !important;
 }
 input::placeholder, textarea::placeholder {
-  color: rgba(237,28,36,0.35) !important;
+  color: rgba(237,28,36,0.6) !important;
 }
 input[type="date"] { color-scheme: light; }
 
